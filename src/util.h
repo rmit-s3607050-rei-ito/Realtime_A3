@@ -14,7 +14,7 @@
 
 // Custom structs
 typedef struct { float x, y, z; } vec3;
-typedef struct { float x, y; } coordinate;
+typedef struct { float x, y; } vec2;
 typedef struct { GLfloat r, g, b, a; } color4f;
 
 // Global
@@ -27,7 +27,7 @@ typedef struct {
 } Global;
 
 // Constants
-const float g = -9.8;         // Gravity
+const float gravity = -9.8;   // Gravity
 const float milli = 1000.0;   // One second
 
 // Colors
@@ -43,19 +43,20 @@ const float WINDOW_POS_Y = 0.0;
 
 // Functions
 float degreesToRadians(float degrees);
-void drawLineStrip(coordinate start, coordinate end, color4f color);
+void drawLineStrip(vec2 start, vec2 end, color4f color);
 
 // ########### PLAYER RELATED STUFF ###########
 // Player
 typedef struct {
-  coordinate initPos;
-  coordinate currPos;
+  vec2 initPos;
+  vec2 currPos;
 
-  // Changing launching angle
+  // Changing launching angle + displaying guide
   float rotation;         // Around z axis
   float rotationInc;
   float minRotation;
   float maxRotation;
+  float guideSize;
 
   float velocity;
   float radius;
@@ -75,9 +76,13 @@ void drawPlayer(void);
 
 // ########## LEVEL RELATED STUFF ##########
 // Level parameters
-const coordinate topLeft  = { -0.90, 0.90 };
-const coordinate topRight = { 0.90, 0.90 };
-const coordinate botLeft  = { -0.90, -0.90 };
-const coordinate botRight = { 0.90, -0.90 };
+const float left = -0.90;
+const float bottom = -0.90;
+const float top = 0.90;
+const float right = 0.90;
+const vec2 topLeft  = { -0.90, 0.90 };
+const vec2 topRight = { 0.90, 0.90 };
+const vec2 botLeft  = { -0.90, -0.90 };
+const vec2 botRight = { 0.90, -0.90 };
 
 void drawLevelWindow(void);
