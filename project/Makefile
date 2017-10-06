@@ -1,10 +1,10 @@
 
 BIN := peggle
 
-CC := gcc
-LD := gcc
+CC := g++
+LD := g++
 
-SRC_EXT := c
+SRC_EXT := cpp
 
 SRC_DIR := src
 OBJ_DIR := obj
