@@ -1,11 +1,19 @@
 // Utility file, contains constants and global variables
 #pragma once
 
-#include <GL/glut.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
+
+#include <GL/glut.h>
+#include <GL/glu.h>
+#include <GL/gl.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/constants.hpp>
 
 // Pi definition
 #ifndef M_PI
