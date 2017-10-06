@@ -1,1 +1,1 @@
-obj/player.o: src/player.c
+obj/player.o: src/player.cpp

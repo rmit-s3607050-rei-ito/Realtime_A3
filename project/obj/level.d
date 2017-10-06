@@ -1,1 +1,1 @@
-obj/level.o: src/level.c
+obj/level.o: src/level.cpp

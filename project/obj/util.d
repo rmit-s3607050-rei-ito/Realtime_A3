@@ -1,1 +1,1 @@
-obj/util.o: src/util.c
+obj/util.o: src/util.cpp

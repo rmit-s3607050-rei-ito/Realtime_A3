@@ -1,2 +1,4 @@
 *.o
 *.obj
+*.d
+project/peggle

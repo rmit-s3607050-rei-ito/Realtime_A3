@@ -1,4 +1,3 @@
-
 BIN := peggle
 
 CC := g++
@@ -9,21 +8,8 @@ SRC_EXT := cpp
 SRC_DIR := src
 OBJ_DIR := obj
 
-
-CFLAGS := -Wall -Wextra -std=c11 -g -I$(SRC_DIR) -I inc
-LDFLAGS =
-
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Linux)
-	# Linux
-	LDFLAGS += -lm -lGL -lGLU -lglut -D_LINUX
-	CFLAGS +=
-endif
-ifeq ($(UNAME_S),Darwin)
-	# OSX
-	LDFLAGS += -F/Library/Frameworks -framework Carbon -framework OpenGL -framework GLUT -lSOIL
-	CFLAGS += -D__APPLE__ -I/usr/local/include -Wno-deprecated-declarations -I/opt/local/include
-endif
+CFLAGS := -Wall -pedantic -std=c++14 -g -I$(SRC_DIR) -I inc
+LFLAGS := -lm -lGL -lGLU -lglut -D_LINUX
 
 SOURCES := $(shell find $(SRC_DIR)/ -name '*.$(SRC_EXT)')
 OBJECTS := $(SOURCES:$(SRC_DIR)/%.$(SRC_EXT)=%.o)
@@ -49,4 +35,4 @@ $(OBJECTS): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.$(SRC_EXT)
 # remove the compiled objects and the binary to clean up
 .PHONY: clean
 clean:
-	rm -f $(OBJECTS) $(BIN) $(DEPS)
+	rm -f $(OBJECTS) $(BIN)

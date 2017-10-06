@@ -1,1 +1,1 @@
-obj/shape.o: src/shape.c
+obj/shape.o: src/shape.cpp
