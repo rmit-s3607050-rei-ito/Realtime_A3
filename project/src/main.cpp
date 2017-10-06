@@ -18,6 +18,7 @@ Player player = {
   1.0,                   // rotationInc
   180.0,                 // minRotation
   360.0,                 // maxRotation
+  0.5,                   // guideSize
 
   1.0,                   // velocity
   0.05,                  // radius
@@ -43,7 +44,7 @@ void initPlayer(void) {
   player.playerColor = grey;
 
   // Positioning
-  player.initPos = (coordinate) { 0.0, 0.87 };
+  player.initPos = (vec2) { 0.0, 0.87 };
   player.currPos = player.initPos;
 
   // Initialize quadric for rendering
@@ -99,7 +100,7 @@ void drawPlayer(void) {
   glPopMatrix();
 }
 
-void drawLineStrip(coordinate start, coordinate end, color4f color) {
+void drawLineStrip(vec2 start, vec2 end, color4f color) {
   glPushMatrix();
     setColoringMethod(color);
     // Draw the line
@@ -110,24 +111,56 @@ void drawLineStrip(coordinate start, coordinate end, color4f color) {
   glPopMatrix();
 }
 
-void drawVelocityVector() {
-  // Only draw pre launch
+void drawGuide() {
+  // Only show guide pre launch
   if (!global.go) {
     // Calculating end point
-    coordinate end;
+    vec2 end;
     end.x = cos(degreesToRadians(player.rotation)) * player.velocity;
     end.y = sin(degreesToRadians(player.rotation)) * player.velocity;
 
     // Scale size
-    end.x *= player.size.x;
-    end.y *= player.size.y;
+    end.x *= player.guideSize;
+    end.y *= player.guideSize;
 
     // Attach velocity vector to initialPosition
     end.x += player.initPos.x;
-    end.y += player.currPos.y;
+    end.y += player.initPos.y;
 
     drawLineStrip(player.initPos, end, red);
   }
+}
+
+// ##### Movement and Collision detection #####
+void integrate() {
+  // static float t = 0.0, h;
+
+  // // Calculate time increment
+  // h = global.elapsedTime - t;
+  // t = global.elapsedTime;
+
+  // Calculate new position of player
+}
+
+void bruteForceCollision() {
+  // float distance, sum_radii;
+  // float m1, m2, M;
+  // float v1i, v2i, v1f, v2f;
+  // int i, j;
+  //
+  // // Kinetic energy
+  // float k1, k2;
+
+  // Values to compare for collision with walls
+  float leftCollide = player.currPos.x - player.radius;
+  float rightCollide = player.currPos.x + player.radius;
+  float topCollide = player.currPos.y + player.radius;
+
+  // 1. Collisions between player ball and pegs
+
+  // 2. Collisions against level wall
+  if (leftCollide <= left || rightCollide >= right || topCollide >= top)
+    player.velocity *= -1;
 }
 
 // ##### Main functions #####
@@ -136,6 +169,11 @@ void update(void) {
     return;
 
   global.elapsedTime = glutGet(GLUT_ELAPSED_TIME) / (float)milli - global.startTime;
+
+  // Move player
+  integrate();
+  // Check for collisions
+  bruteForceCollision();
 
   glutPostRedisplay();
 }
@@ -151,7 +189,7 @@ void display(void) {
   setRenderMode();
 
   // Draw guide
-  drawVelocityVector();
+  drawGuide();
 
   // Draw window encasing level
   drawLevelWindow();
@@ -188,19 +226,23 @@ void keyboard(unsigned char key, int x, int y) {
       break;
 
     // Toggle wireframe/filled mode
-    case 'w':
+    case '1':
       global.wireframe = !global.wireframe;
       break;
 
     case ' ': // 'space' = launch ball
+      if(!global.go)
+        global.go = !global.go;
       break;
 
     case 'q':
       exit(EXIT_SUCCESS);
       break;
+
     case 27:
       exit(0);
       break;
+
     default:
       break;
   }
