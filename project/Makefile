@@ -8,8 +8,8 @@ SRC_EXT := cpp
 SRC_DIR := src
 OBJ_DIR := obj
 
-CFLAGS := -Wall -pedantic -std=c++14 -g -I$(SRC_DIR) -I inc
-LFLAGS := -lm -lGL -lGLU -lglut -D_LINUX
+CFLAGS := `sdl2-config --cflags` -g -O2 -std=c++14 -Wall -I$(SRC_DIR) -I inc
+LFLAGS := `sdl2-config --libs` -lGL -lGLU -lglut -lm
 
 SOURCES := $(shell find $(SRC_DIR)/ -name '*.$(SRC_EXT)')
 OBJECTS := $(SOURCES:$(SRC_DIR)/%.$(SRC_EXT)=%.o)

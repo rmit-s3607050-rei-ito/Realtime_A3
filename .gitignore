@@ -1,4 +1,4 @@
 *.o
-*.obj
 *.d
-project/peggle
+
+/project/peggle
