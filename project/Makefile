@@ -1,8 +1,8 @@
 
 BIN := peggle
 
-CC := gcc
-LD := gcc
+CC := g++
+LD := g++
 
 SRC_EXT := c
 
