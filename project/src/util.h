@@ -47,6 +47,7 @@ const float milli = 1000.0;   // One second
 const color4f white = { 1.0, 1.0, 1.0, 0.0 };
 const color4f grey = { 0.8, 0.8, 0.8, 0.0 };
 const color4f red = { 1.0, 0.0, 0.0, 0.0 };
+const color4f yellow = { 1.0, 1.0, 0.0, 0.0 };
 
 // Window dimensions
 const float WINDOW_X = 600.0;
@@ -56,6 +57,7 @@ const float WINDOW_POS_Y = 0.0;
 
 // Functions
 float degreesToRadians(float degrees);
+// float roundDownFloat(int value);
 void drawLineStrip(vec2 start, vec2 end, color4f color);
 
 // ########### PLAYER RELATED STUFF ###########
@@ -85,7 +87,7 @@ typedef struct {
   int slices;
   int loops;
   vec3 size;
-  color4f playerColor;
+  color4f color;
 } Player;
 
 void initPlayer(void);
@@ -125,3 +127,25 @@ const vec2 botLeft  = { -0.90, -0.90 };
 const vec2 botRight = { 0.90, -0.90 };
 
 void drawLevelWindow(void);
+
+// Catcher at bottom of level
+typedef struct {
+  // Positioning
+  vec2 position;
+  vec2 leftStart, leftEnd;
+  vec2 rightStart, rightEnd;
+
+  // Movement
+  float speed;
+  bool moveLeft;
+
+  // Rendering params
+  float height;
+  vec3 size;
+  color4f color;
+
+} Catcher;
+
+void initCatcher(void);
+void drawCatcher(void);
+void moveCatcher(void);
