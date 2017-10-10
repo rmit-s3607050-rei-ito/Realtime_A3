@@ -13,14 +13,15 @@ Global global = {
 Player player = {
   { 0.0, 0.0 },          // initPos
   { 0.0, 0.0 },          // currPos
+  { 0.0, 0.0 },          // initVel
+  { 0.0, 0.0 },          // currVel
 
-  0.0,                   // rotation
+  270.0,                 // rotation
   1.0,                   // rotationInc
   180.0,                 // minRotation
   360.0,                 // maxRotation
   0.5,                   // guideSize
 
-  { 1.0, 1.0 },          // velocity
   0.05,                  // radius
   0.0,                   // mass
   0.0,                   // elasticity
@@ -28,7 +29,7 @@ Player player = {
   0,                     // quadric
   10,                    // slices
   3,                     // loops
-  { 0.65, 0.65, 1.0 },   // size
+  { 0.5, 0.5, 1.0 },     // size
   { 0.0, 0.0, 0.0, 0.0 } // color
 };
 
@@ -60,11 +61,11 @@ void initPlayer(void) {
   // Default color is greyish
   player.playerColor = grey;
 
-  // Positioning
-  player.initPos = (vec2) { 0.0, 0.87 };
+  // Positioning and velocity
+  player.initPos = (vec2) { 0.0, 0.8 };
+  player.initVel = (vec2) { -1.0, -1.0 };
   player.currPos = player.initPos;
-
-  printf("Initialize with position: %f,%f\n", player.currPos.x, player.currPos.y);
+  player.currVel = player.initVel;
 
   // Initialize quadric for rendering
   player.quadric = gluNewQuadric();
@@ -141,8 +142,8 @@ void drawGuide() {
   if (!global.go) {
     // Calculating end point
     vec2 end;
-    end.x = cos(degreesToRadians(player.rotation)) * player.velocity.x;
-    end.y = sin(degreesToRadians(player.rotation)) * player.velocity.y;
+    end.x = cos(degreesToRadians(player.rotation)) * -player.currVel.x;
+    end.y = sin(degreesToRadians(player.rotation)) * -player.currVel.y;
 
     // Scale size
     end.x *= player.guideSize;
@@ -170,28 +171,29 @@ void drawObstacles(void) {
 void resetPlayer() {
   // Reduce life count by 1
 
-  // Reset player position to start of level
+  // Reset player position to start of level and reset velocity
   player.currPos = player.initPos;
+  player.currVel = player.initVel;
 
-  // Reset time and allow player to be able to launch again
-  global.elapsedTime = 0.0;
+  // Allow player to launch again
   global.go = !global.go;
+
+  // printf("Position: %0.2f,%0.2f\n", player.currPos.x, player.currPos.y);
 }
 
 // ##### Movement and Collision detection #####
-void integrate() {
-  // Calculate movement of ball
-  static float t = 0.0, h;
+void integrate(float dt) {
+  player.currPos.x += dt * player.currVel.x;
+  player.currPos.y += dt * player.currVel.y;
 
-  // // Calculate time increment
-  h = global.elapsedTime - t;
-  t = global.elapsedTime;
+  // Change velocity of x depending on direction
+  player.currVel.x = cos(player.rotation);
 
-  // player.currPos.x += h * player.velocity.x;
-  player.currPos.y -= h * player.velocity.y;
+  // Reset when fall out of level field
+  if(player.currPos.y < bottom)
+    resetPlayer();
 
-  printf("Time: %0.2f\n", global.elapsedTime);
-  // printf("Position: %0.2f,%0.2f\n", player.currPos.x, player.currPos.y);
+  // printf("Time: %f\n", dt);
 }
 
 void bruteForceCollision() {
@@ -211,27 +213,42 @@ void bruteForceCollision() {
   // 1. Collisions between player ball and pegs
 
   // 2. Collisions against level wall
-  if (leftCollide <= left || rightCollide >= right || topCollide >= top) {
-    player.velocity.x *= -1;
-    player.velocity.y *= -1;
+  if (leftCollide <= left) {
+    player.currVel.x *= -1;
+    player.currVel.y *= -1;
+  }
+
+  if (rightCollide >= right || topCollide >= top) {
+    player.currVel.x *= -1;
+    player.currVel.y *= -1;
   }
 }
 
 // ##### Main functions #####
 void update(void) {
-  if (!global.go)
+  static float lastT = -1.0;
+  float t, dt;  // time, delta time
+
+  if (!global.go) {
+    lastT = -1.0;
     return;
+  }
 
-  global.elapsedTime = glutGet(GLUT_ELAPSED_TIME) / (float)milli - global.startTime;
+  t = glutGet(GLUT_ELAPSED_TIME) / (float)milli - global.startTime;
 
-  // Reset when fall out of level field
-  if(player.currPos.y < bottom)
-    resetPlayer();
+  if (lastT < 0) {
+    lastT = t;
+    return;
+  }
+
+  dt = t - lastT;
 
   // Move player
-  integrate();
+  integrate(dt);
   // Check for collisions
   bruteForceCollision();
+
+  lastT = t;
 
   glutPostRedisplay();
 }
@@ -290,8 +307,11 @@ void keyboard(unsigned char key, int x, int y) {
       break;
 
     case ' ': // 'space' = launch ball
-      // if(!global.go)
+      if(!global.go) {
+        // Get initial start time, enable resetting
+        global.startTime = glutGet(GLUT_ELAPSED_TIME) / (float)milli;
         global.go = !global.go;
+      }
       break;
 
     case 'q':
