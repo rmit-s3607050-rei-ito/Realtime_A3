@@ -82,6 +82,27 @@ typedef struct {
 void initPlayer(void);
 void drawPlayer(void);
 
+// ######## OBSTACLE RELATED STUFF #########
+typedef struct {
+  vec2 pos;
+
+  float radius;
+  float mass;
+  float elasticity;
+
+  // Rendering params
+  GLUquadric *quadric;
+  int slices;
+  int loops;
+  vec3 size;
+  color4f color;
+
+  bool hit;
+} Obstacle;
+
+void initObstacles(void);
+void drawObstacles(void);
+
 // ########## LEVEL RELATED STUFF ##########
 // Level parameters
 const float left = -0.90;
