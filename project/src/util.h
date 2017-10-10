@@ -35,6 +35,8 @@ typedef struct {
 
   // Strength of bounce off the wall, should always be -ive
   float bounce;
+  float minVelocity;
+
 } Global;
 
 // Constants
