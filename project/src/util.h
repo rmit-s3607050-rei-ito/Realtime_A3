@@ -58,6 +58,8 @@ void drawLineStrip(vec2 start, vec2 end, color4f color);
 typedef struct {
   vec2 initPos;
   vec2 currPos;
+  vec2 initVel;
+  vec2 currVel;
 
   // Changing launching angle + displaying guide
   float rotation;         // Around z axis
@@ -66,7 +68,6 @@ typedef struct {
   float maxRotation;
   float guideSize;
 
-  vec2 velocity;
   float radius;
   float mass;
   float elasticity;
