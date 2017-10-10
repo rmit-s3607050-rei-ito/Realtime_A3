@@ -248,6 +248,7 @@ void resetPlayer() {
 }
 
 // ##### Movement and Collision detection #####
+<<<<<<< HEAD
 void moveCatcher(float dt) {
   if (catcher.moveLeft)
     catcher.position.x -= dt * catcher.speed;
@@ -255,6 +256,8 @@ void moveCatcher(float dt) {
     catcher.position.x += dt * catcher.speed;
 }
 
+=======
+>>>>>>> 653e44d47d8fd29d1d8f7668547bf9d08b03da57
 void integrate(float dt) {
   // Uses analytical approach to movement calculations
   player.currPos.x += dt * player.currVel.x + 0.5 * gravity * dt * dt;
