@@ -32,6 +32,9 @@ typedef struct {
 
   float elapsedTime;
   float startTime;
+
+  // Strength of bounce off the wall, should always be -ive
+  float bounce;
 } Global;
 
 // Constants
@@ -60,6 +63,9 @@ typedef struct {
   vec2 currPos;
   vec2 initVel;
   vec2 currVel;
+
+  // Strength of projectile launch
+  float power;
 
   // Changing launching angle + displaying guide
   float rotation;         // Around z axis
