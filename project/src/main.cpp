@@ -37,6 +37,23 @@ Player player = {
   { 0.0, 0.0, 0.0, 0.0 } // color
 };
 
+Obstacle peg {
+  { 0.0, 0.0 }, // pos
+
+  0.05, // radius
+  0.0, // mass
+  0.0, // elasticity
+
+  // Rendering params
+  0,
+  10, // slices
+  3, // loops
+  { 0.7, 0.7, 0.7 }, // size
+  { 0.0, 0.0, 1.0, 0.0 }, // color
+
+  false, // hit
+};
+
 // ##### Misc functions #####
 float degreesToRadians(float degrees) {
   float radians = degrees * (M_PI / 180);
@@ -56,8 +73,14 @@ void initPlayer(void) {
   player.quadric = gluNewQuadric();
 }
 
+void initObstacles(void) {
+  // Initialize quadric for rendering
+  peg.quadric = gluNewQuadric();
+}
+
 void init(void) {
   initPlayer();
+  initObstacles();
 }
 
 // ##### Drawing and display #####
@@ -84,6 +107,17 @@ void setColoringMethod(color4f color) {
     glMaterialfv(GL_FRONT, GL_DIFFUSE, &color.r);
 }
 
+void drawLineStrip(vec2 start, vec2 end, color4f color) {
+  glPushMatrix();
+    setColoringMethod(color);
+    // Draw the line
+    glBegin(GL_LINE_STRIP);
+      glVertex2f(start.x, start.y);
+      glVertex2f(end.x, end.y);
+    glEnd();
+  glPopMatrix();
+}
+
 void drawLevelWindow(void) {
   /* Draw 3 lines forming top and sides of game level, can collide with these
    * 1. Line from Top Left -> Top Right */
@@ -105,17 +139,6 @@ void drawPlayer(void) {
   glPopMatrix();
 }
 
-void drawLineStrip(vec2 start, vec2 end, color4f color) {
-  glPushMatrix();
-    setColoringMethod(color);
-    // Draw the line
-    glBegin(GL_LINE_STRIP);
-      glVertex2f(start.x, start.y);
-      glVertex2f(end.x, end.y);
-    glEnd();
-  glPopMatrix();
-}
-
 void drawGuide() {
   // Only show guide pre launch
   // if (!global.go) {
@@ -130,6 +153,16 @@ void drawGuide() {
 
     drawLineStrip(player.initPos, end, red);
   // }
+}
+
+void drawObstacles(void) {
+  // Using disk drawing method in tutorial 9
+  glPushMatrix();
+    setColoringMethod(peg.color);
+    glTranslatef(peg.pos.x, peg.pos.y, 0.0);
+    glScalef(peg.size.x, peg.size.y, peg.size.z);
+    gluDisk(peg.quadric, 0.0, peg.radius, peg.slices, peg.loops);
+  glPopMatrix();
 }
 
 // ##### Game Logic implemtation ######
@@ -225,6 +258,7 @@ void display(void) {
   // Draw window encasing level
   drawLevelWindow();
   drawPlayer();
+  drawObstacles();
 
   glPopMatrix();
   glutSwapBuffers();
