@@ -14,13 +14,13 @@ Player player = {
   { 0.0, 0.0 },          // initPos
   { 0.0, 0.0 },          // currPos
 
-  270.0,                 // rotation
+  0.0,                   // rotation
   1.0,                   // rotationInc
   180.0,                 // minRotation
   360.0,                 // maxRotation
   0.5,                   // guideSize
 
-  1.0,                   // velocity
+  { 1.0, 1.0 },          // velocity
   0.05,                  // radius
   0.0,                   // mass
   0.0,                   // elasticity
@@ -32,7 +32,7 @@ Player player = {
   { 0.0, 0.0, 0.0, 0.0 } // color
 };
 
-// ##### Other functions #####
+// ##### Misc functions #####
 float degreesToRadians(float degrees) {
   float radians = degrees * (M_PI / 180);
   return radians;
@@ -47,6 +47,8 @@ void initPlayer(void) {
   player.initPos = (vec2) { 0.0, 0.87 };
   player.currPos = player.initPos;
 
+  printf("Initialize with position: %f,%f\n", player.currPos.x, player.currPos.y);
+
   // Initialize quadric for rendering
   player.quadric = gluNewQuadric();
 }
@@ -55,7 +57,7 @@ void init(void) {
   initPlayer();
 }
 
-// ##### Drawing functions #####
+// ##### Drawing and display #####
 void setRenderMode(void) {
   if(global.wireframe) {
     glDisable(GL_LIGHTING);
@@ -116,14 +118,14 @@ void drawGuide() {
   if (!global.go) {
     // Calculating end point
     vec2 end;
-    end.x = cos(degreesToRadians(player.rotation)) * player.velocity;
-    end.y = sin(degreesToRadians(player.rotation)) * player.velocity;
+    end.x = cos(degreesToRadians(player.rotation)) * player.velocity.x;
+    end.y = sin(degreesToRadians(player.rotation)) * player.velocity.y;
 
     // Scale size
     end.x *= player.guideSize;
     end.y *= player.guideSize;
 
-    // Attach velocity vector to initialPosition
+    // Attach guide to initialPosition
     end.x += player.initPos.x;
     end.y += player.initPos.y;
 
@@ -131,15 +133,32 @@ void drawGuide() {
   }
 }
 
+// ##### Game Logic implemtation ######
+void resetPlayer() {
+  // Reduce life count by 1
+
+  // Reset player position to start of level
+  player.currPos = player.initPos;
+
+  // Reset time and allow player to be able to launch again
+  global.elapsedTime = 0.0;
+  global.go = !global.go;
+}
+
 // ##### Movement and Collision detection #####
 void integrate() {
-  // static float t = 0.0, h;
+  // Calculate movement of ball
+  static float t = 0.0, h;
 
   // // Calculate time increment
-  // h = global.elapsedTime - t;
-  // t = global.elapsedTime;
+  h = global.elapsedTime - t;
+  t = global.elapsedTime;
 
-  // Calculate new position of player
+  // player.currPos.x += h * player.velocity.x;
+  player.currPos.y -= h * player.velocity.y;
+
+  printf("Time: %0.2f\n", global.elapsedTime);
+  // printf("Position: %0.2f,%0.2f\n", player.currPos.x, player.currPos.y);
 }
 
 void bruteForceCollision() {
@@ -159,8 +178,10 @@ void bruteForceCollision() {
   // 1. Collisions between player ball and pegs
 
   // 2. Collisions against level wall
-  if (leftCollide <= left || rightCollide >= right || topCollide >= top)
-    player.velocity *= -1;
+  if (leftCollide <= left || rightCollide >= right || topCollide >= top) {
+    player.velocity.x *= -1;
+    player.velocity.y *= -1;
+  }
 }
 
 // ##### Main functions #####
@@ -169,6 +190,10 @@ void update(void) {
     return;
 
   global.elapsedTime = glutGet(GLUT_ELAPSED_TIME) / (float)milli - global.startTime;
+
+  // Reset when fall out of level field
+  if(player.currPos.y < bottom)
+    resetPlayer();
 
   // Move player
   integrate();
@@ -231,7 +256,7 @@ void keyboard(unsigned char key, int x, int y) {
       break;
 
     case ' ': // 'space' = launch ball
-      if(!global.go)
+      // if(!global.go)
         global.go = !global.go;
       break;
 

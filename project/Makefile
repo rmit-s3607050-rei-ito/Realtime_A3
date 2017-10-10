@@ -4,12 +4,11 @@ CC := g++
 LD := g++
 
 SRC_EXT := cpp
-
 SRC_DIR := src
 OBJ_DIR := obj
 
-CFLAGS := `sdl2-config --cflags` -g -O2 -std=c++14 -Wall -I$(SRC_DIR) -I inc
-LFLAGS := `sdl2-config --libs` -lGL -lGLU -lglut -lm
+CFLAGS := -g -O2 -std=c++14 -Wall -I$(SRC_DIR) -I inc
+LFLAGS := -lGLU -lGL -lglut -lm
 
 SOURCES := $(shell find $(SRC_DIR)/ -name '*.$(SRC_EXT)')
 OBJECTS := $(SOURCES:$(SRC_DIR)/%.$(SRC_EXT)=%.o)
@@ -21,7 +20,7 @@ all: $(BIN)
 
 # link objects together to make executable
 $(BIN) : $(OBJECTS)
-	$(LD) -o $(BIN) $(OBJECTS) $(LDFLAGS)
+	$(LD) $(OBJECTS) -o $(BIN) $(LFLAGS)
 
 # make objects and dependencies
 $(OBJECTS): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.$(SRC_EXT)

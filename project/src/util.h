@@ -66,7 +66,7 @@ typedef struct {
   float maxRotation;
   float guideSize;
 
-  float velocity;
+  vec2 velocity;
   float radius;
   float mass;
   float elasticity;
