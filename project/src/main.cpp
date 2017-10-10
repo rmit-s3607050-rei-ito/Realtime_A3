@@ -9,7 +9,8 @@ Global global = {
   0.0,     // elapsedTime
   0.0,     // startTime
 
-  -0.5     // bounce
+  -0.5,    // bounce
+  0.1,     // minVelocity
 };
 
 Player player = {
@@ -58,6 +59,14 @@ Obstacle peg {
 float degreesToRadians(float degrees) {
   float radians = degrees * (M_PI / 180);
   return radians;
+}
+
+float roundDownFloat(int value) {
+  const int decimalPlace = 10;  // Round to 1 decimal place (in the tens)
+  float result;
+  result = floorf(value * decimalPlace) / decimalPlace;
+
+  return result;
 }
 
 // ##### Initialization #####
@@ -144,8 +153,12 @@ void drawGuide() {
   // if (!global.go) {
     // Calculating end point, * size scaling
     vec2 end;
-    end.x = cos(degreesToRadians(player.rotation)) * player.guideSize;
-    end.y = sin(degreesToRadians(player.rotation)) * player.guideSize;
+    end.x = cos(degreesToRadians(player.rotation));
+    end.y = sin(degreesToRadians(player.rotation));
+
+    // Scale size
+    end.x *= player.guideSize;
+    end.y *= player.guideSize;
 
     // Attach guide to initialPosition
     end.x += player.initPos.x;
@@ -180,13 +193,13 @@ void resetPlayer() {
 }
 
 // ##### Movement and Collision detection #####
-void integrate(float t) {
+void integrate(float dt) {
   // Uses analytical approach to movement calculations
-  player.currPos.x += t * player.currVel.x;
-  player.currPos.y += t * player.currVel.y;
+  player.currPos.x += dt * player.currVel.x;
+  player.currPos.y += dt * player.currVel.y;
 
   // Factor in gravity in ball movement
-  player.currVel.y += 0.5 * gravity * t * t;
+  player.currVel.y += 0.5 * gravity * dt;
 
   // Reset when fall out of level field
   if(player.currPos.y < bottom)
@@ -194,21 +207,30 @@ void integrate(float t) {
 }
 
 void bruteForceCollision() {
-  // Values to compare for collision with walls, scaled with size for precision
+  // Values to compare for collision with walls
   float leftCollide = player.currPos.x - (player.radius * player.size.x);
   float rightCollide = player.currPos.x + (player.radius * player.size.x);
-  float topCollide = player.currPos.y + (player.radius * player.size.y);
+  float topCollide = player.currPos.y + (player.radius * player.size.x);
+
+  // float leftCollide = roundDownFloat(player.currPos.x - player.radius);
+  // float rightCollide = roundDownFloat(player.currPos.x + player.radius);
+  // float topCollide = roundDownFloat(player.currPos.y + player.radius);
 
   // 1. Collisions between player ball and pegs
 
   // 2. Collisions against level wall
-  if (leftCollide < left || rightCollide > right) {
-    // printf("LEFT/RIGHT COLLISION \n");
-    printf("Collide at: %f\n", leftCollide);
+  if (leftCollide <= left && player.currVel.x < global.minVelocity) {
+    printf("COLLIDED LEFT\n");
     player.currVel.x *= global.bounce;
   }
 
-  if (topCollide > top) {
+  if (rightCollide >= right && player.currVel.x > global.minVelocity) {
+    printf("COLLIDED RIGHT\n");
+    player.currVel.x *= global.bounce;
+  }
+
+  if (topCollide >= top && player.currVel.y > global.minVelocity) {
+    printf("COLLIDED TOP\n");
     player.currVel.y *= global.bounce;
   }
 }
