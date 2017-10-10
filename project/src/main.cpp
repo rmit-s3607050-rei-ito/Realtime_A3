@@ -39,7 +39,7 @@ Player player = {
 
 Obstacle peg {
   { 0.0, 0.0 }, // pos
-  { 0.0, 0.0 }, // vel
+  { 1.0, 1.0 }, // vel
 
   0.05, // radius
   0.0, // mass
@@ -159,6 +159,8 @@ void drawGuide() {
 void drawObstacles(void) {
   // Using disk drawing method in tutorial 9
   glPushMatrix();
+    if (peg.hit)
+      peg.color = { 1.0, 0.0, 1.0 };
     setColoringMethod(peg.color);
     glTranslatef(peg.pos.x, peg.pos.y, 0.0);
     glScalef(peg.size.x, peg.size.y, peg.size.z);
@@ -181,16 +183,10 @@ void resetPlayer() {
 }
 
 // ##### Movement and Collision detection #####
-<<<<<<< HEAD
-void integrate(float dt) {
-  //player.currPos.x += dt * player.currVel.x;
-  player.currPos.y += dt * player.currVel.y;
-=======
 void integrate(float t) {
   // Uses analytical approach to movement calculations
   player.currPos.x += t * player.currVel.x;
   player.currPos.y += t * player.currVel.y;
->>>>>>> 514da02262ddba5da5790cc47816d49af390b67b
 
   // Factor in gravity in ball movement
   player.currVel.y += 0.5 * gravity * t * t;
@@ -201,10 +197,13 @@ void integrate(float t) {
 }
 
 void bruteForceCollision() {
+  float playerRadius = (player.radius * player.size.x);
+  float pegRadius = (peg.radius * peg.size.x);
+
   // Values to compare for collision with walls, scaled with size for precision
-  float leftCollide = player.currPos.x - (player.radius * player.size.x);
-  float rightCollide = player.currPos.x + (player.radius * player.size.x);
-  float topCollide = player.currPos.y + (player.radius * player.size.y);
+  float leftCollide = player.currPos.x - playerRadius;
+  float rightCollide = player.currPos.x + playerRadius;
+  float topCollide = player.currPos.y + playerRadius;
 
   // 1. Collisions between player ball and pegs
 
@@ -219,24 +218,18 @@ void bruteForceCollision() {
     player.currVel.y *= global.bounce;
   }
 
-  float distance, radiusSum;
-  //float m1, m2, M;
-  //vec2 v1i, v2i, v1f, v2f;
+  double radiusSum, radiusSumSqr, dissMagSqr;
+  vec2 diss;
 
-  //v1i = player.currVel;
-  //m1 = player.mass;
-  radiusSum = player.radius + peg.radius;
-  distance =  fabs((peg.pos.x - player.currPos.x) -
-    (peg.pos.y - player.currPos.y));
-  if (distance <= radiusSum) {
-    player.currVel.x *= -1;
-    player.currVel.y *= -1;
-    //v2i = peg.vel;
-    //m2 = peg.mass;
-    //M = m1 + m2;
-    //v1f.x = (m1 - m2) / M * v1i.x + 2.0 * m2 / M * v2i.x;
-    //v1f.y = (m1 - m2) / M * v1i.y + 2.0 * m2 / M * v2i.y;
-    //player.currVel = v1f;
+  radiusSum = playerRadius + pegRadius;
+  radiusSumSqr = radiusSum*radiusSum;
+  diss.x = peg.pos.x - player.currPos.x;
+  diss.y = peg.pos.y - player.currPos.y;
+  dissMagSqr = diss.x*diss.x + diss.y*diss.y;
+  if (dissMagSqr <= radiusSumSqr) {
+    peg.hit = true;
+    player.currVel.x *= global.bounce;
+    player.currVel.y *= global.bounce;
   }
 }
 
