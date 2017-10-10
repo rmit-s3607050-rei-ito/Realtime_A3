@@ -94,6 +94,7 @@ void drawPlayer(void);
 // ######## OBSTACLE RELATED STUFF #########
 typedef struct {
   vec2 pos;
+  vec2 vel;
 
   float radius;
   float mass;

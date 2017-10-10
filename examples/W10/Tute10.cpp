@@ -1,9 +1,9 @@
 /*
- * This program shows how to do collision detection between 
+ * This program shows how to do collision detection between
  * particles in two dimensions.
- * 
+ *
  * Uses hard-sphere assumptions for collision dynamics.
- * 
+ *
  * Both brute-force and uniform grid approaches implemented.
  *
  * Numerical integration of equations of motion.
@@ -82,7 +82,7 @@ struct Arena {
 
 /* Rendering info. */
 enum renderMode { wire, solid };
-static renderMode renMode = wire; 
+static renderMode renMode = wire;
 static Real elapsedTime = 0.0, startTime = 0.0;
 static const int milli = 1000;
 static bool go = false;
@@ -181,10 +181,10 @@ void initialiseParticlesRandomly()
     done = false;
     while (!done) {
       particle[i].position[0] = random_uniform() *
-        (arena.max[0] - arena.min[0] - 2.0 * particle[i].radius) + 
+        (arena.max[0] - arena.min[0] - 2.0 * particle[i].radius) +
         arena.min[0] + particle[i].radius + epsilon;
       particle[i].position[1] = random_uniform() *
-        (arena.max[1] - arena.min[1] - 2.0 * particle[i].radius) + 
+        (arena.max[1] - arena.min[1] - 2.0 * particle[i].radius) +
         arena.min[1] + particle[i].radius + epsilon;
 
       /* Check for collision with existing particles. */
@@ -201,11 +201,11 @@ void initialiseParticlesRandomly()
         else
           j++;
       }
-      if (!collision) 
+      if (!collision)
         done = true;
     }
     if (debug[debug_initialise_particle])
-      printf ("initialiseParticles: x %f y %f\n", 
+      printf ("initialiseParticles: x %f y %f\n",
               particle[i].position[0], particle[i].position[1]);
   }
 }
@@ -213,7 +213,7 @@ void initialiseParticlesRandomly()
 void setRenderMode(renderMode rm)
 {
   /* Example of GNU C/C++ brace indentation style.  */
-  if (rm == wire) 
+  if (rm == wire)
     {
       glDisable(GL_LIGHTING);
       glDisable(GL_DEPTH_TEST);
@@ -231,7 +231,7 @@ void setRenderMode(renderMode rm)
     }
 }
 
-float sumKineticEnergy() 
+float sumKineticEnergy()
 {
   Real v_sq, K;
 
@@ -245,7 +245,7 @@ float sumKineticEnergy()
   return K;
 }
 
-void sumMomentum(Real *p) 
+void sumMomentum(Real *p)
 {
   p[0] = p[1] = 0;
   for (int i = 0; i < numParticles; i++) {
@@ -255,7 +255,7 @@ void sumMomentum(Real *p)
   p[0] += arena.momentum[0];
   p[1] += arena.momentum[1];
 }
-  
+
 void displayParticle(Particle *p, float sx, float sy, float sz)
 {
   glPushMatrix();
@@ -291,25 +291,25 @@ void collideParticleWall(Particle &p, Arena &a)
   dp[0] = dp[1] = 0.0;
   //Arena left side and p left side
   if ((p.position[0] - p.radius) < a.min[0]) {
-    p.position[0] += 
+    p.position[0] +=
       2.0 * (a.min[0] - (p.position[0] - p.radius));
     p.velocity[0] *= -1.0;
     dp[0] += p.mass * -2.0 * p.velocity[0];
   }
   if ((p.position[1] - p.radius) < a.min[1]) {
-    p.position[1] += 
+    p.position[1] +=
       2.0 * (a.min[1] - (p.position[1] - p.radius));
     p.velocity[1] *= -1.0;
     dp[1] += p.mass * -2.0 * p.velocity[1];
   }
   if ((p.position[0] + p.radius) > a.max[0]) {
-    p.position[0] -= 
+    p.position[0] -=
       2.0 * (p.position[0] + p.radius - a.max[0]);
     p.velocity[0] *= -1.0;
     dp[0] += p.mass * -2.0 * p.velocity[0];
   }
   if ((p.position[1] + p.radius) > a.max[1]) {
-    p.position[1] -= 
+    p.position[1] -=
       2.0 * (p.position[1] + p.radius - a.max[1]);
     p.velocity[1] *= -1.0;
     dp[1] += p.mass * -2.0 * p.velocity[1];
@@ -322,7 +322,7 @@ void collideParticlesWall(void)
 {
   for (int i = 0; i < numParticles; i++) {
     if (debug[debug_wall])
-      printf("%d %f %f\n", 
+      printf("%d %f %f\n",
              i, particle[i].position[0], particle[i].position[1]);
     collideParticleWall(particle[i], arena);
   }
@@ -349,9 +349,9 @@ inline bool collisionDetectionParticles(Particle &p1, Particle &p2)
   n[0] = p2.position[0] - p1.position[0];
   n[1] = p2.position[1] - p1.position[1];
   n_mag_sq = n[0] * n[0] + n[1] * n[1];
-  if (n_mag_sq <= sum_radii_sq) 
+  if (n_mag_sq <= sum_radii_sq)
     return true;
-  else 
+  else
     return false;
 }
 
@@ -368,8 +368,8 @@ void collisionReactionParticles1D(Particle &p1, Particle &p2)
 
   p1.velocity[0] = v1f;
   p2.velocity[0] = v2f;
-}   
-     
+}
+
 void collisionReactionParticles2DprojNormal(Particle &p1, Particle &p2)
 {
   Real n[2], n_mag;
@@ -379,7 +379,7 @@ void collisionReactionParticles2DprojNormal(Particle &p1, Particle &p2)
   /* Normal vector n between centres. */
   n[0] = p2.position[0] - p1.position[0];
   n[1] = p2.position[1] - p1.position[1];
-  
+
   /* Normalise n. */
   n_mag = sqrt(n[0] * n[0] + n[1] * n[1]);
   n[0] /= n_mag;
@@ -396,7 +396,7 @@ void collisionReactionParticles2DprojNormal(Particle &p1, Particle &p2)
   m2 = p2.mass;
   v1f = (m1 - m2) / (m1 + m2) * v1i + 2.0 * m2 / (m1 + m2) * v2i;
   v2f = 2.0 * m1 / (m1 + m2) * v1i + (m2 - m1) / (m1 + m2) * v2i;
-  
+
   /* Vector addition to solve for final velocity. */
   p1.velocity[0] = (p1.velocity[0] - v1i * n[0]) + v1f * n[0];
   p1.velocity[1] = (p1.velocity[1] - v1i * n[1]) + v1f * n[1];
@@ -412,15 +412,15 @@ void collisionReactionParticles2DbasisChange(Particle &p1, Particle &p2)
 
   if (debug[debug_collisionReactionParticles2DbasisChange]) {
     printf("collisionReactionParticles2DbasisChange:\n");
-    printf("velocities before: %f %f %f %f\n", 
-	   p1.velocity[0], p1.velocity[1],
-	   p2.velocity[0], p2.velocity[1]);
+    printf("velocities before: %f %f %f %f\n",
+      p1.velocity[0], p1.velocity[1],
+      p2.velocity[0], p2.velocity[1]);
   }
 
   /* Normal vector n between centres. */
   n[0] = p2.position[0] - p1.position[0];
   n[1] = p2.position[1] - p1.position[1];
-  
+
   /* Normalise n. */
   n_mag = sqrt(n[0] * n[0] + n[1] * n[1]);
   n[0] /= n_mag;
@@ -457,57 +457,57 @@ void collisionReactionParticles2DbasisChange(Particle &p1, Particle &p2)
   p2.velocity[1] = n[1] * v2_nt[0] + t[1] * v2_nt[1];
 
   if (debug[debug_collisionReactionParticles2DbasisChange]) {
-    printf("velocities after: %f %f %f %f\n", 
-	   p1.velocity[0], p1.velocity[1],
-	   p2.velocity[0], p2.velocity[1]);
+    printf("velocities after: %f %f %f %f\n",
+      p1.velocity[0], p1.velocity[1],
+      p2.velocity[0], p2.velocity[1]);
   }
 }
 
 void collideParticlesBruteForce(Real h)
 {
   int i, j;
-  
+
   for (i = 0; i < numParticles - 1; i++) {
     for (j = i + 1; j < numParticles; j++) {
       if (collisionDetectionParticles(particle[i], particle[j])) {
 
-	if (debug[debug_collideParticlesBruteForce])
+        if (debug[debug_collideParticlesBruteForce])
             printf("collideParticlesBruteForce: collision %d %d\n", i, j);
 
         /* Take step back. Better approaches possible. */
-        eulerStepSingleParticle(particle[i], -h);       
-        eulerStepSingleParticle(particle[j], -h);       
+        eulerStepSingleParticle(particle[i], -h);
+        eulerStepSingleParticle(particle[j], -h);
 
         if (debug[debug_collideParticlesBruteForce]) {
-          printf("velocities before: %f %f %f %f\n", 
+          printf("velocities before: %f %f %f %f\n",
                  particle[i].velocity[0], particle[i].velocity[1],
                  particle[j].velocity[0], particle[j].velocity[1]);
         }
 
         /* Collision */
-	if (dimension == 1)
-	  collisionReactionParticles1D(particle[i], particle[j]);
-	else if (dimension == 2) {
-	  if (reacCalc == basisChange)
-	    collisionReactionParticles2DbasisChange(particle[i], particle[j]);
-	  else if (reacCalc == projNormal)
-	    collisionReactionParticles2DprojNormal(particle[i], particle[j]);
-	  else 
-	    panic("collision reaction calculation not specified\n");
-	}
+      	if (dimension == 1)
+      	  collisionReactionParticles1D(particle[i], particle[j]);
+      	else if (dimension == 2) {
+      	  if (reacCalc == basisChange)
+      	    collisionReactionParticles2DbasisChange(particle[i], particle[j]);
+      	  else if (reacCalc == projNormal)
+      	    collisionReactionParticles2DprojNormal(particle[i], particle[j]);
+      	  else
+      	    panic("collision reaction calculation not specified\n");
+      	}
 
         if (debug[debug_collideParticlesBruteForce]) {
-          printf("velocities after: %f %f %f %f\n", 
+          printf("velocities after: %f %f %f %f\n",
                  particle[i].velocity[0], particle[i].velocity[1],
                  particle[j].velocity[0], particle[j].velocity[1]);
         }
 
         /* Step forward. */
-        eulerStepSingleParticle(particle[i], h);        
-        eulerStepSingleParticle(particle[j], h);        
+        eulerStepSingleParticle(particle[i], h);
+        eulerStepSingleParticle(particle[j], h);
 
         if (debug[debug_collideParticlesBruteForce]) {
-          printf("velocities after: %f %f %f %f\n", 
+          printf("velocities after: %f %f %f %f\n",
                  particle[i].velocity[0], particle[i].velocity[1],
                  particle[j].velocity[0], particle[j].velocity[1]);
         }
@@ -517,7 +517,7 @@ void collideParticlesBruteForce(Real h)
         collideParticleWall(particle[j], arena);
 
         if (debug[debug_collideParticlesBruteForce]) {
-          printf("velocities after: %f %f %f %f\n", 
+          printf("velocities after: %f %f %f %f\n",
                  particle[i].velocity[0], particle[i].velocity[1],
                  particle[j].velocity[0], particle[j].velocity[1]);
         }
@@ -526,7 +526,7 @@ void collideParticlesBruteForce(Real h)
   }
 }
 
-inline void calcGridIndex(Particle &p, Arena a, 
+inline void calcGridIndex(Particle &p, Arena a,
                    Real gridCellSize[2], int gridNumCells[2],
                    int index[2])
 {
@@ -547,7 +547,7 @@ void collideParticlesUniformGrid(Real h)
   int gridNumCells[2], gridSize, gridIndex[2], gridCellParticleListStart;
   int gridIndexMin[2], gridIndexMax[2];
   int i, j, k, s, t, p1, p2, total;
-  
+
   /* Work out grid dimensions and allocate. */
   gridNumCells[0] = (int)(sqrt(numParticles) + 1);
   gridNumCells[1] = (int)(sqrt(numParticles) + 1);
@@ -560,7 +560,7 @@ void collideParticlesUniformGrid(Real h)
     if (particle[i].radius * 2.0 > gridCellSize[0] ||
         particle[i].radius * 2.0 > gridCellSize[1])
       panic("collideParticlesUniformGrid: particle diameter > cellSize\n");
- 
+
   /* Allocate arrays. */
   gridCellParticleCount = (int **)malloc(gridNumCells[0] * sizeof(int *));
   if (gridCellParticleCount == 0)
@@ -600,7 +600,7 @@ void collideParticlesUniformGrid(Real h)
   for (i = 0; i < gridNumCells[0]; i++)
     for (j = 0; j < gridNumCells[1]; j++)
       gridCellParticleListEnd[i][j] = 0;
-  
+
   total = 0;
   for (i = 0; i < gridNumCells[0]; i++)
     for (j = 0; j < gridNumCells[1]; j++) {
@@ -622,7 +622,7 @@ void collideParticlesUniformGrid(Real h)
 
   for (i = 0; i < numParticles; i++) {
     calcGridIndex(particle[i], arena, gridCellSize, gridNumCells, gridIndex);
-    gridCellParticleList[gridCellParticleListEnd[gridIndex[0]][gridIndex[1]] - 
+    gridCellParticleList[gridCellParticleListEnd[gridIndex[0]][gridIndex[1]] -
       gridCellParticleCount[gridIndex[0]][gridIndex[1]]] = i;
     gridCellParticleCount[gridIndex[0]][gridIndex[1]] += 1;
   }
@@ -631,10 +631,10 @@ void collideParticlesUniformGrid(Real h)
     printf("collideParticlesUniformGrid: gridCellParticleList\n");
     for (i = 0; i < gridNumCells[0]; i++) {
       for (j = 0; j < gridNumCells[1]; j++) {
-        gridCellParticleListStart = 
+        gridCellParticleListStart =
           gridCellParticleListEnd[i][j] - gridCellParticleCount[i][j] + 1;
         printf("particle list %d %d\n", i, j);
-        for (k = gridCellParticleListStart; 
+        for (k = gridCellParticleListStart;
 	     k < gridCellParticleListEnd[i][j];
              k++)
           printf("%d\n", gridCellParticleList[k]);
@@ -649,25 +649,25 @@ void collideParticlesUniformGrid(Real h)
 
     /* Grid index bounds for this particle. */
     gridIndexMin[0] = gridIndex[0] - 1;
-    if (gridIndexMin[0] < 0) 
+    if (gridIndexMin[0] < 0)
       gridIndexMin[0] = 0;
     gridIndexMin[1] = gridIndex[1] - 1;
-    if (gridIndexMin[1] < 0) 
+    if (gridIndexMin[1] < 0)
       gridIndexMin[1] = 0;
     gridIndexMax[0] = gridIndex[0] + 1;
-    if (gridIndexMax[0] > gridNumCells[0] - 1) 
+    if (gridIndexMax[0] > gridNumCells[0] - 1)
       gridIndexMax[0] = gridNumCells[0] - 1;
     gridIndexMax[1] = gridIndex[1] + 1;
-    if (gridIndexMax[1] > gridNumCells[1] - 1) 
+    if (gridIndexMax[1] > gridNumCells[1] - 1)
       gridIndexMax[1] = gridNumCells[1] - 1;
 
     p1 = i;
 
     for (s = gridIndexMin[0]; s <= gridIndexMax[0]; s++) {
       for (t = gridIndexMin[1]; t <= gridIndexMax[1]; t++) {
-        gridCellParticleListStart = 
+        gridCellParticleListStart =
           gridCellParticleListEnd[s][t] - gridCellParticleCount[s][t] + 1;
-        for (j = gridCellParticleListStart; 
+        for (j = gridCellParticleListStart;
              j <= gridCellParticleListEnd[s][t];
              j++) {
           p2 = gridCellParticleList[j];
@@ -689,11 +689,11 @@ void collideParticlesUniformGrid(Real h)
               printf("collision: %d %d\n", p1, p2);
 
 	    /* Take step back. Better approaches possible. */
-            eulerStepSingleParticle(particle[p1], -h);  
-            eulerStepSingleParticle(particle[p2], -h);  
+            eulerStepSingleParticle(particle[p1], -h);
+            eulerStepSingleParticle(particle[p2], -h);
 
             if (debug[debug_collideParticlesUniformGrid]) {
-              printf("velocities before: %f %f %f %f\n", 
+              printf("velocities before: %f %f %f %f\n",
                      particle[p1].velocity[0], particle[p1].velocity[1],
                      particle[p2].velocity[0], particle[p2].velocity[1]);
             }
@@ -711,13 +711,13 @@ void collideParticlesUniformGrid(Real h)
 	    }
 
             if (debug[debug_collideParticlesUniformGrid])
-              printf("velocities after: %f %f %f %f\n", 
+              printf("velocities after: %f %f %f %f\n",
                      particle[p1].velocity[0], particle[p1].velocity[1],
                      particle[p1].velocity[0], particle[p2].velocity[1]);
 
             /* Step forward. */
-            eulerStepSingleParticle(particle[p1], h);   
-            eulerStepSingleParticle(particle[p2], h);   
+            eulerStepSingleParticle(particle[p1], h);
+            eulerStepSingleParticle(particle[p2], h);
 
             /* Check walls. */
             collideParticleWall(particle[p1], arena);
@@ -727,7 +727,7 @@ void collideParticlesUniformGrid(Real h)
       }
     }
   }
- 
+
   /* Free arrays. */
   for (i = 0; i < gridNumCells[0]; i++) {
     free(gridCellParticleCount[i]);
@@ -755,11 +755,11 @@ void updateParticles(void)
   collideParticlesWall();
 
   /* Collisions amongst particles. */
-  if (CDmethod == bruteForce) 
+  if (CDmethod == bruteForce)
     collideParticlesBruteForce(h);
-  else if (CDmethod == uniformGrid) 
+  else if (CDmethod == uniformGrid)
     collideParticlesUniformGrid(h);
-  else 
+  else
     panic("updateParticles: unknown collision detection method\n");
 
   if (debug[debug_sum_kinetic_energy]) {
@@ -771,7 +771,7 @@ void updateParticles(void)
     printf("p = %f %f\n", p[0], p[1]);
   }
 }
-  
+
 void displayParticles(void)
 {
   int i;
@@ -779,16 +779,16 @@ void displayParticles(void)
   /* Display particles. */
   for (i = 0; i < numParticles; i++) {
     if (debug[debug_particle])
-      printf ("displayParticles: x %f y %f\n", 
+      printf ("displayParticles: x %f y %f\n",
               particle[i].position[0], particle[i].position[1]);
     glPushMatrix();
-    glTranslatef(particle[i].position[0], particle[i].position[1], 0.0); 
+    glTranslatef(particle[i].position[0], particle[i].position[1], 0.0);
     displayParticle(&particle[i], 1.0, 1.0, 1.0);
     glPopMatrix();
   }
 }
 
-void displayOSD(int frameNo) 
+void displayOSD(int frameNo)
 {
   static const Real interval = 1.0;
   static Real frameRateInterval = 0.0;
@@ -801,7 +801,7 @@ void displayOSD(int frameNo)
     return;
 
   if (elapsedTime > elapsedTimeStartInterval + interval) {
-      frameRateInterval = (frameNo - frameNoStartInterval) / 
+      frameRateInterval = (frameNo - frameNoStartInterval) /
         (elapsedTime - elapsedTimeStartInterval);
       elapsedTimeStartInterval = elapsedTime;
       frameNoStartInterval = frameNo;
@@ -809,12 +809,12 @@ void displayOSD(int frameNo)
 
   if (debug[debug_framerate]) {
     printf("displayOSD: frameNo %d elapsedTime %f "
-           "frameRateInterval %f\n", 
+           "frameRateInterval %f\n",
            frameNo, elapsedTime, frameRateInterval);
   }
 
-  sprintf(buffer, "framerate: %5d frametime: %5d", 
-	  int(frameRateInterval), 
+  sprintf(buffer, "framerate: %5d frametime: %5d",
+	  int(frameRateInterval),
 	  int(1.0/frameRateInterval*1000));
   glRasterPos2f(-10,-9);
   len = (int)strlen(buffer);
@@ -824,7 +824,7 @@ void displayOSD(int frameNo)
 
 void update(void)
 {
-  if (!go) 
+  if (!go)
     return;
 
   elapsedTime = glutGet(GLUT_ELAPSED_TIME) / (Real)milli - startTime;
@@ -865,7 +865,7 @@ void display(void)
     printf("%s\n",gluErrorString(err));
 }
 
-void myInit (void) 
+void myInit (void)
 {
   setRenderMode(renMode);
   initialiseArena();
@@ -889,9 +889,9 @@ void keyboardCB(unsigned char key, int x, int y)
     break;
   case 'd':
     if (CDmethod == uniformGrid)
-	CDmethod = bruteForce;
+      CDmethod = bruteForce;
     else if (CDmethod == bruteForce)
-	CDmethod = uniformGrid;
+      CDmethod = uniformGrid;
     break;
   case 'r':
     if (reacCalc == projNormal)
@@ -921,7 +921,7 @@ void myReshape(int w, int h)
 }
 
 /*  Main Loop
- *  Open window with initial window size, title bar, 
+ *  Open window with initial window size, title bar,
  *  RGBA display mode, and handle input events.
  */
 int main(int argc, char** argv)
@@ -939,5 +939,3 @@ int main(int argc, char** argv)
 
   glutMainLoop();
 }
-
-
