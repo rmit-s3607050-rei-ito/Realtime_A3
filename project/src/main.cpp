@@ -196,13 +196,13 @@ void resetPlayer() {
 }
 
 // ##### Movement and Collision detection #####
-void integrate(float t) {
+void integrate(float dt) {
   // Uses analytical approach to movement calculations
-  player.currPos.x += t * player.currVel.x;
-  player.currPos.y += t * player.currVel.y;
+  player.currPos.x += dt * player.currVel.x + 0.5 * gravity * dt * dt;
+  player.currPos.y += dt * player.currVel.y + 0.5 * gravity * dt * dt;
 
   // Factor in gravity in ball movement
-  player.currVel.y += 0.5 * gravity * dt;
+  player.currVel.y += gravity * dt;
 
   // Reset when fall out of level field
   if(player.currPos.y < bottom)
