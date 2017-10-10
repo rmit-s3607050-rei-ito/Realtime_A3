@@ -35,6 +35,7 @@ Player player = {
 
 Obstacle peg {
   { 0.0, 0.0 }, // pos
+  { 0.0, 0.0 }, // vel
 
   0.05, // radius
   0.0, // mass
@@ -183,7 +184,7 @@ void resetPlayer() {
 
 // ##### Movement and Collision detection #####
 void integrate(float dt) {
-  player.currPos.x += dt * player.currVel.x;
+  //player.currPos.x += dt * player.currVel.x;
   player.currPos.y += dt * player.currVel.y;
 
   // Change velocity of x depending on direction
@@ -221,6 +222,26 @@ void bruteForceCollision() {
   if (rightCollide >= right || topCollide >= top) {
     player.currVel.x *= -1;
     player.currVel.y *= -1;
+  }
+
+  float distance, radiusSum;
+  //float m1, m2, M;
+  //vec2 v1i, v2i, v1f, v2f;
+
+  //v1i = player.currVel;
+  //m1 = player.mass;
+  radiusSum = player.radius + peg.radius;
+  distance =  fabs((peg.pos.x - player.currPos.x) -
+    (peg.pos.y - player.currPos.y));
+  if (distance <= radiusSum) {
+    player.currVel.x *= -1;
+    player.currVel.y *= -1;
+    //v2i = peg.vel;
+    //m2 = peg.mass;
+    //M = m1 + m2;
+    //v1f.x = (m1 - m2) / M * v1i.x + 2.0 * m2 / M * v2i.x;
+    //v1f.y = (m1 - m2) / M * v1i.y + 2.0 * m2 / M * v2i.y;
+    //player.currVel = v1f;
   }
 }
 
