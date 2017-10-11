@@ -37,6 +37,8 @@ typedef struct {
   float bounce;
   float minVelocity;
 
+  int balls;
+  int score;
 } Global;
 
 // Constants
@@ -114,8 +116,10 @@ typedef struct {
   color4f color;
 
   bool hit;
+  bool clear;
 } Obstacle;
 
+void initObstacle(Obstacle *);
 void initObstacles(void);
 void drawObstacles(void);
 
