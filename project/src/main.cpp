@@ -12,13 +12,11 @@ Global global = {
   -0.5,    // bounce
   0.1,     // minVelocity
 
-  0, // balls
+  8, // balls
   0, // score
 };
 
 Player player = {
-  0,                     // numLives
-
   { 0.0, 0.0 },          // initPos
   { 0.0, 0.0 },          // currPos
   { 0.0, 0.0 },          // initVel
@@ -63,7 +61,6 @@ Player player = {
 //};
 
 Obstacle pegs[20];
-
 Catcher catcher;
 
 // ##### Misc functions #####
@@ -114,9 +111,6 @@ void initCatcher(void) {
 }
 
 void initPlayer(void) {
-  // Allocate number of lives to player
-  player.numLives = STARTING_LIVES;
-
   // Default color is greyish
   player.color = grey;
 
@@ -267,7 +261,7 @@ void drawGuide(void) {
 void drawPlayer(void) {
   /* Using disk drawing method in tutorial 9
    * Draw ball only when player has enough lives left */
-  if (player.numLives > 0) {
+  if (global.balls > 0) {
     drawGuide();
     glPushMatrix();
       setColoringMethod(player.color);
@@ -302,13 +296,13 @@ void resetPlayer(void) {
   float catcherEnd = catcher.position.x + catcher.rightStart.x;
 
   // Reduce life count by 1 if landed of bounds, or increase by 1 if in catcher
-  // if (player.currPos.x < catcherStart || player.currPos.x > catcherEnd) {
-  //   player.numLives--;
-  //   printf("Life lost\n");
-  // } else {
-  //   printf("Num lives unchanged\n");
-  // }
-  // printf("Num lives: %d\n", player.numLives);
+  if (player.currPos.x < catcherStart || player.currPos.x > catcherEnd) {
+    global.balls--;
+    printf("Ball lost\n");
+  } else {
+    printf("Balls unchanged\n");
+  }
+  printf("Balls left: %d\n", global.balls);
 
   // Reset player position to start of level and reset velocity
   player.currPos = player.initPos;
@@ -316,6 +310,14 @@ void resetPlayer(void) {
 
   // Allow player to launch again
   global.go = !global.go;
+
+  for (int i = 0; i < 10; i++) {
+    if (pegs[i].hit) {
+      pegs[i].clear = true;
+      global.score += 5;
+    }
+  }
+  // printf("Position: %0.2f,%0.2f\n", player.currPos.x, player.currPos.y);
 }
 
 // ##### Movement and Collision detection #####
@@ -398,6 +400,49 @@ void bruteForceCatcherCollide(float leftCollide, float rightCollide, float botto
       printf("COLLIDED WITH CATCHER\n");
       player.currVel.y *= global.bounce;
     }
+  }
+}
+
+void bruteForceCollision() {
+  // Radius of player, with scaling applied
+  float playerRadius = (player.radius * player.size.x);
+
+  // Values to compare for collision with ball
+  float leftCollide = player.currPos.x - playerRadius;
+  float rightCollide = player.currPos.x + playerRadius;
+  float topCollide = player.currPos.y + playerRadius;
+  float bottomCollide = player.currPos.y - playerRadius;
+
+  // 2. Collisions against level wall
+  bruteForceWallCollide(leftCollide, rightCollide, topCollide);
+
+  // 3. Collision with sides of catcher
+  bruteForceCatcherCollide(leftCollide, rightCollide, bottomCollide);
+
+  // 3. Collisions against pegs
+  double radiusSum, radiusSumSqr, dissMagSqr;
+  vec2 diss;
+
+  for (int i = 0; i < 10; i++) {
+    if (!pegs[i].clear) {
+      float pegRadius = (pegs[i].radius * pegs[i].size.x);
+      radiusSum = playerRadius + pegRadius;
+      radiusSumSqr = radiusSum*radiusSum;
+      diss.x = pegs[i].pos.x - player.currPos.x;
+      diss.y = pegs[i].pos.y - player.currPos.y;
+      dissMagSqr = diss.x*diss.x + diss.y*diss.y;
+      if (dissMagSqr <= radiusSumSqr) {
+        if (!pegs[i].hit)
+          global.score++;
+
+        pegs[i].hit = true;
+
+        // change rebound formula
+        player.currVel.x *= global.bounce;
+        player.currVel.y *= global.bounce;
+      }
+    }
+  }
 }
 
 // On screen display
@@ -451,56 +496,6 @@ void displayOSD()
 }
 
 // ##### Main functions #####
-void bruteForceCollision(void) {
-  // Values to compare for collision with ball
-  float leftCollide = player.currPos.x - playerRadius;
-  float rightCollide = player.currPos.x + playerRadius;
-  float topCollide = player.currPos.y + playerRadius;
-  float bottomCollide = player.currPos.y - playerRadius;
-
-  // 1. Collisions between player ball and pegs
-
-  // 2. Collisions against level wall
-  bruteForceWallCollide(leftCollide, rightCollide, topCollide);
-
-  // 3. Collision with sides of catcher
-  bruteForceCatcherCollide(leftCollide, rightCollide, bottomCollide);
-
-  // double radiusSum, radiusSumSqr, dissMagSqr;
-  // vec2 diss;
-  //
-  // radiusSum = playerRadius + pegRadius;
-  // radiusSumSqr = radiusSum*radiusSum;
-  // diss.x = peg.pos.x - player.currPos.x;
-  // diss.y = peg.pos.y - player.currPos.y;
-  // dissMagSqr = diss.x*diss.x + diss.y*diss.y;
-  // if (dissMagSqr <= radiusSumSqr) {
-  //   peg.hit = true;
-  //   player.currVel.x *= global.bounce;
-  //   player.currVel.y *= global.bounce;
-  // }
-
-  for (int i = 0; i < 10; i++) {
-    if (!pegs[i].clear) {
-      float pegRadius = (pegs[i].radius * pegs[i].size.x);
-      radiusSum = playerRadius + pegRadius;
-      radiusSumSqr = radiusSum*radiusSum;
-      diss.x = pegs[i].pos.x - player.currPos.x;
-      diss.y = pegs[i].pos.y - player.currPos.y;
-      dissMagSqr = diss.x*diss.x + diss.y*diss.y;
-      if (dissMagSqr <= radiusSumSqr) {
-        if (!pegs[i].hit)
-          global.score++;
-
-        pegs[i].hit = true;
-
-        // change rebound formula
-        player.currVel.x *= global.bounce;
-        player.currVel.y *= global.bounce;
-      }
-}
-
-// ##### Main functions #####
 void update(void) {
   float dt = getDeltaTime();
 
@@ -530,7 +525,7 @@ void display(void) {
   // Draw level objects
   drawLevel();
   drawPlayer();
-  // drawObstacles();
+  drawObstacles();
 
   glPopMatrix();
 
@@ -570,7 +565,7 @@ void keyboard(unsigned char key, int x, int y) {
       break;
 
     case ' ': // 'space' = launch ball
-      if(!global.go && player.numLives > 0) {
+      if(!global.go && global.balls > 0) {
         // Set velocity of x and y depending on direction rotated to
         player.currVel.x = cos(degreesToRadians(player.rotation)) * player.power;
         player.currVel.y = sin(degreesToRadians(player.rotation)) * player.power;

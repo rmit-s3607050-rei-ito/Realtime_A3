@@ -64,13 +64,8 @@ float degreesToRadians(float);
 void drawLineStrip(vec2, vec2, color4f);
 
 // ########### PLAYER RELATED STUFF ###########
-const int STARTING_LIVES = 5;
-
 // Player
 typedef struct {
-  // Lives
-  int numLives;
-
   // Positioning and velocity
   vec2 initPos, currPos;
   vec2 initVel, currVel;
