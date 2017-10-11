@@ -47,7 +47,8 @@ const float milli = 1000.0;   // One second
 const color4f white = { 1.0, 1.0, 1.0, 0.0 };
 const color4f grey = { 0.8, 0.8, 0.8, 0.0 };
 const color4f red = { 1.0, 0.0, 0.0, 0.0 };
-const color4f yellow = { 1.0, 1.0, 0.0, 0.0 };
+// const color4f yellow = { 1.0, 1.0, 0.0, 0.0 };
+const color4f brown = { 0.55, 0.27, 0.07, 0.0 };
 
 // Window dimensions
 const float WINDOW_X = 600.0;
@@ -56,17 +57,21 @@ const float WINDOW_POS_X = 400.0;
 const float WINDOW_POS_Y = 0.0;
 
 // Functions
-float degreesToRadians(float degrees);
-// float roundDownFloat(int value);
-void drawLineStrip(vec2 start, vec2 end, color4f color);
+float degreesToRadians(float);
+// float roundDownFloat(int);
+void drawLineStrip(vec2, vec2, color4f);
 
 // ########### PLAYER RELATED STUFF ###########
+const int STARTING_LIVES = 5;
+
 // Player
 typedef struct {
-  vec2 initPos;
-  vec2 currPos;
-  vec2 initVel;
-  vec2 currVel;
+  // Lives
+  int numLives;
+
+  // Positioning and velocity
+  vec2 initPos, currPos;
+  vec2 initVel, currVel;
 
   // Strength of projectile launch
   float power;
@@ -74,8 +79,7 @@ typedef struct {
   // Changing launching angle + displaying guide
   float rotation;         // Around z axis
   float rotationInc;
-  float minRotation;
-  float maxRotation;
+  float minRotation, maxRotation;
   float guideSize;
 
   float radius;
@@ -126,9 +130,13 @@ const vec2 topRight = { 0.90, 0.90 };
 const vec2 botLeft  = { -0.90, -0.90 };
 const vec2 botRight = { 0.90, -0.90 };
 
+void bruteForceWallCollide(float, float, float);
 void drawLevelWindow(void);
 
 // Catcher at bottom of level
+const float CATCHER_SPEED = -0.5;
+const float CATCHER_HEIGHT = 0.04;
+
 typedef struct {
   // Positioning
   vec2 position;
@@ -136,8 +144,7 @@ typedef struct {
   vec2 rightStart, rightEnd;
 
   // Movement
-  float speed;
-  bool moveLeft;
+  float velocity;
 
   // Rendering params
   float height;
@@ -146,6 +153,7 @@ typedef struct {
 
 } Catcher;
 
+void bruteForceCatcherCollide(float, float, float);
 void initCatcher(void);
 void drawCatcher(void);
 void moveCatcher(void);
