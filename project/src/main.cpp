@@ -41,26 +41,8 @@ Player player = {
   { 0.0, 0.0, 0.0, 0.0 } // color
 };
 
-//Obstacle peg {
-//  { 0.0, 0.0 }, // pos
-//  { 1.0, 1.0 }, // vel
-//
-//  0.05, // radius
-//  0.0, // mass
-//  0.0, // elasticity
-//
-//  // Rendering params
-//  0, // quadric
-//  10, // slices
-//  3, // loops
-//  { 0.7, 0.7, 0.7 }, // size
-//  { 0.0, 0.0, 1.0, 0.0 }, // color
-//
-//  false, // hit
-//  false, // clear
-//};
-
-Obstacle pegs[20];
+//Obstacle pegs[NUM_PEGS];
+Obstacle pegs[WIDTH][HEIGHT];
 Catcher catcher;
 
 // ##### Misc functions #####
@@ -140,25 +122,42 @@ void initObstacle(Obstacle *peg) {
 
   peg->hit = false;
   peg->clear = false;
+  peg->empty = false;
 }
 
 void initObstacles(void) {
-  for (int i = 0; i < 10; i++) {
-    initObstacle(&pegs[i]);
+  float yInterval = fabs((bottom+0.1)-(top-0.1))/HEIGHT;
+  float yCurr = bottom+0.1;
+  float xInterval = fabs((left+0.1)-(right-0.1))/WIDTH;
+  float xCurr = left+0.1;
+
+  for(int row = 0; row < WIDTH; row++) {
+    for (int col = 0; col < HEIGHT; col++) {
+      if(((col + row) % 2) == 0) {
+        initObstacle(&pegs[row][col]);
+        pegs[row][col].pos = { xCurr, yCurr };
+        xCurr+=xInterval;
+      }
+      else
+        pegs[row][col].empty = true;
+    }
+    if (row%2==0)
+      xCurr = (left+0.1)+(xInterval/2);
+    else
+      xCurr = (left+0.1);
+    yCurr+=yInterval;
   }
 
-  float range = 0.0;
-
-  pegs[0].pos = { -0.85, 0.4 };
-  pegs[1].pos = { -0.51, 0.4 };
-  pegs[2].pos = { -0.17, 0.4 };
-  pegs[3].pos = { 0.17, 0.4 };
-  pegs[4].pos = { 0.51, 0.4 };
-  pegs[5].pos = { -0.68, -0.4 };
-  pegs[6].pos = { -0.34, -0.4 };
-  pegs[7].pos = { 0.0, -0.4 };
-  pegs[8].pos = { 0.34, -0.4 };
-  pegs[9].pos = { 0.68, -0.4 };
+  //pegs[0].pos = { -0.85, 0.4 };
+  //pegs[1].pos = { -0.51, 0.4 };
+  //pegs[2].pos = { -0.17, 0.4 };
+  //pegs[3].pos = { 0.17, 0.4 };
+  //pegs[4].pos = { 0.51, 0.4 };
+  //pegs[5].pos = { -0.68, -0.4 };
+  //pegs[6].pos = { -0.34, -0.4 };
+  //pegs[7].pos = { 0.0, -0.4 };
+  //pegs[8].pos = { 0.34, -0.4 };
+  //pegs[9].pos = { 0.68, -0.4 };
 }
 
 void init(void) {
@@ -275,16 +274,18 @@ void drawPlayer(void) {
 
 void drawObstacles(void) {
   // Using disk drawing method in tutorial 9
-  for (int i = 0; i < 10; i++) {
-    if (!pegs[i].clear) {
-      glPushMatrix();
-        if (pegs[i].hit)
-          pegs[i].color = { 0.0, 1.0, 1.0 };
-        setColoringMethod(pegs[i].color);
-        glTranslatef(pegs[i].pos.x, pegs[i].pos.y, 0.0);
-        glScalef(pegs[i].size.x, pegs[i].size.y, pegs[i].size.z);
-        gluDisk(pegs[i].quadric, 0.0, pegs[i].radius, pegs[i].slices, pegs[i].loops);
-      glPopMatrix();
+  for(int row = 0; row < WIDTH; row++) {
+    for (int col = 0; col < HEIGHT; col++) {
+      if (!pegs[row][col].clear && !pegs[row][col].empty) {
+        glPushMatrix();
+          if (pegs[row][col].hit)
+            pegs[row][col].color = { 0.0, 1.0, 1.0 };
+          setColoringMethod(pegs[row][col].color);
+          glTranslatef(pegs[row][col].pos.x, pegs[row][col].pos.y, 0.0);
+          glScalef(pegs[row][col].size.x, pegs[row][col].size.y, pegs[row][col].size.z);
+          gluDisk(pegs[row][col].quadric, 0.0, pegs[row][col].radius, pegs[row][col].slices, pegs[row][col].loops);
+        glPopMatrix();
+      }
     }
   }
 }
@@ -311,10 +312,14 @@ void resetPlayer(void) {
   // Allow player to launch again
   global.go = !global.go;
 
-  for (int i = 0; i < 10; i++) {
-    if (pegs[i].hit) {
-      pegs[i].clear = true;
-      global.score += 5;
+  for(int row = 0; row < WIDTH; row++) {
+    for (int col = 0; col < HEIGHT; col++) {
+      if (!pegs[row][col].clear && !pegs[row][col].empty) {
+        if (pegs[row][col].hit) {
+          pegs[row][col].clear = true;
+          global.score += 5;
+        }
+      }
     }
   }
   // printf("Position: %0.2f,%0.2f\n", player.currPos.x, player.currPos.y);
@@ -423,23 +428,25 @@ void bruteForceCollision() {
   double radiusSum, radiusSumSqr, dissMagSqr;
   vec2 diss;
 
-  for (int i = 0; i < 10; i++) {
-    if (!pegs[i].clear) {
-      float pegRadius = (pegs[i].radius * pegs[i].size.x);
-      radiusSum = playerRadius + pegRadius;
-      radiusSumSqr = radiusSum*radiusSum;
-      diss.x = pegs[i].pos.x - player.currPos.x;
-      diss.y = pegs[i].pos.y - player.currPos.y;
-      dissMagSqr = diss.x*diss.x + diss.y*diss.y;
-      if (dissMagSqr <= radiusSumSqr) {
-        if (!pegs[i].hit)
-          global.score++;
+  for(int row = 0; row < WIDTH; row++) {
+    for (int col = 0; col < HEIGHT; col++) {
+      if (!pegs[row][col].clear && !pegs[row][col].empty) {
+        float pegRadius = (pegs[row][col].radius * pegs[row][col].size.x);
+        radiusSum = playerRadius + pegRadius;
+        radiusSumSqr = radiusSum*radiusSum;
+        diss.x = pegs[row][col].pos.x - player.currPos.x;
+        diss.y = pegs[row][col].pos.y - player.currPos.y;
+        dissMagSqr = diss.x*diss.x + diss.y*diss.y;
+        if (dissMagSqr <= radiusSumSqr) {
+          if (!pegs[row][col].hit)
+            global.score += 1;
 
-        pegs[i].hit = true;
+          pegs[row][col].hit = true;
 
-        // change rebound formula
-        player.currVel.x *= global.bounce;
-        player.currVel.y *= global.bounce;
+          // change rebound formula
+          player.currVel.x *= global.bounce;
+          player.currVel.y *= global.bounce;
+        }
       }
     }
   }
@@ -477,12 +484,12 @@ void displayOSD()
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
   // Frame rate
   glRasterPos2i(10, h-22);
-  snprintf(buffer, sizeof buffer, "Balls: %2d", global.balls);
+  snprintf(buffer, sizeof buffer, "Balls: %d", global.balls);
   for (bufp = buffer; *bufp; bufp++)
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
   // Frame time
   glRasterPos2i(w-90, h-22);
-  snprintf(buffer, sizeof buffer, "Score: %2d", global.score);
+  snprintf(buffer, sizeof buffer, "Score: %d", global.score);
   for (bufp = buffer; *bufp; bufp++)
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
 

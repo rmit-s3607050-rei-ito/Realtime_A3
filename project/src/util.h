@@ -95,6 +95,9 @@ void initPlayer(void);
 void drawPlayer(void);
 
 // ######## OBSTACLE RELATED STUFF #########
+const int WIDTH = 5;
+const int HEIGHT = 10;
+
 typedef struct {
   vec2 pos;
   vec2 vel;
@@ -112,6 +115,7 @@ typedef struct {
 
   bool hit;
   bool clear;
+  bool empty;
 } Obstacle;
 
 void initObstacle(Obstacle *);
