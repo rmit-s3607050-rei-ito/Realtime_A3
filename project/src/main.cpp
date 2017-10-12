@@ -22,13 +22,12 @@ Player player = {
   { 0.0, 0.0 },          // initVel
   { 0.0, 0.0 },          // currVel
 
-  2.0,                   // power
-
-  270.0,                 // rotation
+  0.0,                   // rotation
+  -180.0,                // minRotation
+  0.0,                   // maxRotation
   1.0,                   // rotationInc
-  180.0,                 // minRotation
-  360.0,                 // maxRotation
-  0.5,                   // guideSize
+  5.0,                   // guideSize
+  16.0,                  // guideSegments
 
   0.05,                  // radius
   0.0,                   // mass
@@ -61,6 +60,8 @@ Player player = {
 //};
 
 Obstacle pegs[20];
+
+Launcher launcher;
 Catcher catcher;
 
 // ##### Misc functions #####
@@ -81,15 +82,37 @@ static float getDeltaTime(void) {
   return dt;
 }
 
-float roundDownFloat(int value) {
-  const int decimalPlace = 10;  // Round to 1 decimal place (in the tens)
-  float result;
-  result = floorf(value * decimalPlace) / decimalPlace;
-
-  return result;
-}
+// float roundDownFloat(int value) {
+//   const int decimalPlace = 10;  // Round to 1 decimal place (in the tens)
+//   float result;
+//   result = floorf(value * decimalPlace) / decimalPlace;
+//
+//   return result;
+// }
 
 // ##### Initialization #####
+void initLauncher(void) {
+  // Base parameters
+  launcher.radius = 0.08;
+  launcher.slices = 64;
+  launcher.loops = 1;
+
+  // Strength of cannon
+  launcher.power = LAUNCHER_POWER;
+
+  // Quadric for base
+  launcher.quadric = gluNewQuadric();
+
+  // Cannon parameters
+  launcher.length = LAUNCHER_LENGTH;
+  launcher.width = LAUNCHER_WIDTH;
+
+  launcher.cTopL = (vec2) { -launcher.width, launcher.length };
+  launcher.cTopR = (vec2) { launcher.width, launcher.length };
+  launcher.cBotL = (vec2) { -launcher.width, -launcher.length };
+  launcher.cBotR = (vec2) { launcher.width, -launcher.length };
+}
+
 void initCatcher(void) {
   // Set default speed, moving leftwards
   catcher.velocity = CATCHER_SPEED;
@@ -97,26 +120,36 @@ void initCatcher(void) {
   catcher.height = CATCHER_HEIGHT;
   catcher.size = (vec3) { 1.0, 1.0, 1.0 };
 
-  // Set positions for all catcher components
-  catcher.leftStart.x = -0.3;
-  // catcher.leftStart.x = -0.5;
-  catcher.leftEnd = (vec2) { -0.18, catcher.height };
-  catcher.rightStart = (vec2) { 0.18, catcher.height };
-  catcher.rightEnd.x = 0.3;
-  // catcher.rightEnd.x = 0.5;
+  // Set positions for catcher left and right components
+  // 1. Left section
+  catcher.leftTL = (vec2) { -CATCHER_BUMPER_END, catcher.height };
+  catcher.leftTR = (vec2) { -CATCHER_BUMPER_START, catcher.height };
+  catcher.leftBL = (vec2) { -CATCHER_BUMPER_END, 0.0 };
+  catcher.leftBR = (vec2) { -CATCHER_BUMPER_START, 0.0 };
+  // 2. Right section
+  catcher.rightTL = (vec2) { CATCHER_BUMPER_START, catcher.height };
+  catcher.rightTR = (vec2) { CATCHER_BUMPER_END, catcher.height };
+  catcher.rightBL = (vec2) { CATCHER_BUMPER_START, 0.0 };
+  catcher.rightBR = (vec2) { CATCHER_BUMPER_END, 0.0 };
+
   // Set catcher to be at bottom of the level
-  catcher.position.y = bottom - catcher.height;
-  // Set color for the catcher
-  catcher.color = brown;
+  catcher.position.y = bottom;
+  catcher.collisionY = catcher.position.y + catcher.height;
+  // Set colors for the catcher
+  catcher.sideColor = yellow;
+  catcher.mainColor = brown;
 }
 
 void initPlayer(void) {
-  // Default color is greyish
-  player.color = grey;
+  // Player color
+  player.color = white;
 
   // Positioning
   player.initPos = (vec2) { 0.0, 0.85 };
   player.currPos = player.initPos;
+
+  // Initialize starting rotation
+  player.rotation = STARTING_ROTATION;
 
   // Initialize quadric for rendering
   player.quadric = gluNewQuadric();
@@ -162,6 +195,7 @@ void initObstacles(void) {
 }
 
 void init(void) {
+  initLauncher();
   initCatcher();
   initObstacles();
   initPlayer();
@@ -194,7 +228,6 @@ void setColoringMethod(color4f color) {
 void drawLineStrip(vec2 start, vec2 end, color4f color) {
   glPushMatrix();
     setColoringMethod(color);
-    // Draw the line
     glBegin(GL_LINE_STRIP);
       glVertex2f(start.x, start.y);
       glVertex2f(end.x, end.y);
@@ -202,26 +235,65 @@ void drawLineStrip(vec2 start, vec2 end, color4f color) {
   glPopMatrix();
 }
 
-void drawCatcher(void) {
+void drawSquare(vec2 topL, vec2 topR, vec2 botR, vec2 botL, color4f color) {
   glPushMatrix();
-    setColoringMethod(catcher.color);
+    setColoringMethod(color);
+    glBegin(GL_POLYGON);
+      glVertex2f(topL.x, topL.y);
+      glVertex2f(topR.x, topR.y);
+      glVertex2f(botR.x, botR.y);
+      glVertex2f(botL.x, botL.y);
+    glEnd();
+  glPopMatrix();
+}
+
+void drawLauncher(void) {
+  // Drawing player
+  drawPlayer();
+
+  glPushMatrix();
+    glTranslatef(0.0, player.initPos.y, 0.0); // Move to start of screen
+
+    // Drawing guide
+    glPushMatrix();
+      drawGuide();
+    glPopMatrix();
+
+    // Drawing launcher
+    glPushMatrix();
+      glRotatef(-STARTING_ROTATION, 0.0, 0.0, 1.0); // Cannon points downwards
+
+      // Drawing cannon
+      glPushMatrix();
+        glRotatef(player.rotation, 0.0, 0.0, 1.0);  // Rotate with player rotation
+        glTranslatef(0.0, - (LAUNCHER_LENGTH + LAUNCHER_LENGTH), 0.0);
+        drawSquare(launcher.cTopL, launcher.cTopR, launcher.cBotR, launcher.cBotL, grey);
+      glPopMatrix();
+
+      // Drawing base
+      glPushMatrix();
+        setColoringMethod(darkGrey);
+        gluDisk(launcher.quadric, 0.0, launcher.radius, launcher.slices, launcher.loops);
+      glPopMatrix();
+    glPopMatrix();
+
+  glPopMatrix();
+}
+
+void drawCatcher(void) {
+  // Draws entire catcher part by part
+  glPushMatrix();
     glTranslatef(catcher.position.x, catcher.position.y, 0.0);
     glScalef(catcher.size.x, catcher.size.y, catcher.size.z);
-    // Drawing entire catcher part by part
-    glBegin(GL_POLYGON);
-      // Left side of catcher, collision detected
-      glVertex2f(catcher.leftStart.x, catcher.leftStart.y);
-      glVertex2f(catcher.leftEnd.x, catcher.leftEnd.y);
-      // Middle, enable falling through
-      glVertex2f(catcher.leftEnd.x, catcher.leftEnd.y);
-      glVertex2f(catcher.rightStart.x, catcher.rightStart.y);
-      // Right side of catcher, collision detected
-      glVertex2f(catcher.rightStart.x, catcher.rightStart.y);
-      glVertex2f(catcher.rightEnd.x, catcher.rightEnd.y);
-      // Bottom of catcher
-      glVertex2f(catcher.rightEnd.x, catcher.rightEnd.y);
-      glVertex2f(catcher.leftStart.x, catcher.leftStart.y);
-    glEnd();
+    // 1. Left side of catcher, collision detected
+    drawSquare(catcher.leftTL, catcher.leftTR, catcher.leftBR, catcher.leftBL,
+               catcher.sideColor);
+    // 3. Right side of catcher, collision detected
+    drawSquare(catcher.rightTL, catcher.rightTR, catcher.rightBR, catcher.rightBL,
+               catcher.sideColor);
+    // 2. Middle, enable falling through
+    drawSquare(catcher.leftTR, catcher.rightTL, catcher.rightBL, catcher.leftBR,
+               catcher.mainColor);
   glPopMatrix();
 }
 
@@ -236,33 +308,54 @@ void drawLevel(void) {
 
   // 2. Draw the catcher
   drawCatcher();
+
+  // 3. Draw the launcher at the top
+  drawLauncher();
 }
 
 void drawGuide(void) {
-  // Only show guide pre launch
-  // if (!global.go) {
-    // Calculating end point, * size scaling
-    vec2 end;
+  if (!global.go && global.balls > 0) {
+    vec2 pos, end;
+    pos = (vec2) { 0.0, 0.0 };
     end.x = cos(degreesToRadians(player.rotation));
     end.y = sin(degreesToRadians(player.rotation));
 
-    // Scale size
-    end.x *= player.guideSize;
-    end.y *= player.guideSize;
+    // Guide drawn as a parabola
+    float tof = (end.y * 2.0) / -gravity;
+    float stepSize = tof / player.guideSegments;
+    float t;
 
-    // Attach guide to initialPosition
-    end.x += player.initPos.x;
-    end.y += player.initPos.y;
+    glPushMatrix();
+      setColoringMethod(red);
+      glBegin(GL_LINE_STRIP);
+        for (float i = 0; i <= player.guideSegments; i++) {
+          t = i * stepSize;
+          pos.x = end.x * t;
+          pos.y = (end.y * t) + (0.5 * gravity * t * t);
 
-    drawLineStrip(player.initPos, end, red);
-  // }
+          // Invert both x and y
+          pos.x = -pos.x;
+          pos.y = -pos.y;
+
+          // Scale guide size
+          pos.x *= player.guideSize;
+          pos.y *= player.guideSize;
+
+          glVertex3f(pos.x, pos.y, 0.0);
+        }
+      glEnd();
+    glPopMatrix();
+
+    // Line version
+    // glScalef(0.5, 0.5, 1.0);
+    // drawLineStrip(pos, end, red);
+  }
 }
 
 void drawPlayer(void) {
   /* Using disk drawing method in tutorial 9
    * Draw ball only when player has enough lives left */
   if (global.balls > 0) {
-    drawGuide();
     glPushMatrix();
       setColoringMethod(player.color);
       glTranslatef(player.currPos.x, player.currPos.y, 0.0);
@@ -289,20 +382,15 @@ void drawObstacles(void) {
   }
 }
 
-// ##### Game Logic implemtation ######
+// ##### Game Logic implementation ######
 void resetPlayer(void) {
   // Range for catcher, if land between these values ball is not lost
-  float catcherStart = catcher.position.x + catcher.leftEnd.x;
-  float catcherEnd = catcher.position.x + catcher.rightStart.x;
+  float catcherStart = catcher.position.x + catcher.leftTR.x;
+  float catcherEnd = catcher.position.x + catcher.rightTL.x;
 
-  // Reduce life count by 1 if landed of bounds, or increase by 1 if in catcher
-  if (player.currPos.x < catcherStart || player.currPos.x > catcherEnd) {
+  // Reduce life count by 1 if ball didnt end up in the catcher
+  if (player.currPos.x < catcherStart || player.currPos.x > catcherEnd)
     global.balls--;
-    printf("Ball lost\n");
-  } else {
-    printf("Balls unchanged\n");
-  }
-  printf("Balls left: %d\n", global.balls);
 
   // Reset player position to start of level and reset velocity
   player.currPos = player.initPos;
@@ -322,8 +410,8 @@ void resetPlayer(void) {
 
 // ##### Movement and Collision detection #####
 void moveCatcher(float dt) {
-  float leftWall = left - catcher.leftEnd.x;
-  float rightWall = right - catcher.rightStart.x;
+  float leftWall = left - catcher.leftTL.x;
+  float rightWall = right - catcher.rightTR.x;
 
   // Move catcher at constant rate
   catcher.position.x += dt * catcher.velocity;
@@ -335,8 +423,8 @@ void moveCatcher(float dt) {
 
 void integrate(float dt) {
   // Uses analytical approach to movement calculations
-  player.currPos.x += dt * player.currVel.x + 0.5 * gravity * dt * dt;
-  player.currPos.y += dt * player.currVel.y + 0.5 * gravity * dt * dt;
+  player.currPos.x += dt * player.currVel.x + (0.5 * gravity * dt * dt);
+  player.currPos.y += dt * player.currVel.y + (0.5 * gravity * dt * dt);
 
   // Factor in gravity in ball movement
   player.currVel.y += gravity * dt;
@@ -364,40 +452,24 @@ void bruteForceWallCollide(float leftCollide, float rightCollide, float topColli
   }
 }
 
-void bruteForceCatcherCollide(float leftCollide, float rightCollide, float bottomCollide) {
-  bool collide = false;
-  float bottomY, topY;
+void bruteForceCatcherCollide(float xPos, float bottomCollide) {
+  bool collided = false;
 
-  float rightBumperStart = catcher.position.x + catcher.rightStart.x;
-  float rightBumperEnd = catcher.position.x + catcher.rightEnd.x;
-  float leftBumperStart = catcher.position.x + catcher.leftStart.x;
-  float leftBumperEnd = catcher.position.x + catcher.leftEnd.x;
+  float leftBumperStart = catcher.position.x + catcher.leftTL.x;
+  float leftBumperEnd = catcher.position.x + catcher.leftTR.x;
+  float rightBumperStart = catcher.position.x + catcher.rightTL.x;
+  float rightBumperEnd = catcher.position.x + catcher.rightTR.x;
 
-  // 1. Check side of collision:
-  // 1a. Left side of ball (Right of catcher)
-  if (leftCollide > rightBumperStart && leftCollide < rightBumperEnd) {
-    collide = true;
-    // printf("HIT RIGHT OF CATCHER\n");
-  }
-  // 1b. Right side of ball (Left of catcher)
-  else if (rightCollide > leftBumperStart && rightCollide < leftBumperEnd) {
-    collide = true;
-    // printf("HIT LEFT OF CATCHER\n");
-  }
+  // Check whether ball reached bottom where catcher is
+  if (bottomCollide <= catcher.collisionY) {
+    // Check whether left or right bumper has been collided with
+    if (xPos > leftBumperStart && xPos < leftBumperEnd)
+      collided = true;
+    else if (xPos > rightBumperStart && xPos < rightBumperEnd)
+      collided = true;
 
-  // 2. If collision in x, ensure collision only occurs when y pos reached
-  if (collide) {
-    // bottomY = bottom;
-    // topY = bottomY + catcher.height;
-    // // Bounce off only when point of collision reached
-    // if (bottomCollide >= bottomY && bottomCollide <= topY) {
-    //   player.currVel.y *= global.bounce;
-    // }
-    // bottomY = bottom;
-    // topY = bottomY + catcher.height;
-    // Bounce off only when point of collision reached
-    if (bottomCollide <= bottom + catcher.height) {
-      printf("COLLIDED WITH CATCHER\n");
+    if (collided) {
+      // printf("COLLIDED WITH CATCHER\n");
       player.currVel.y *= global.bounce;
     }
   }
@@ -417,37 +489,36 @@ void bruteForceCollision() {
   bruteForceWallCollide(leftCollide, rightCollide, topCollide);
 
   // 3. Collision with sides of catcher
-  bruteForceCatcherCollide(leftCollide, rightCollide, bottomCollide);
+  bruteForceCatcherCollide(player.currPos.x, bottomCollide);
 
   // 3. Collisions against pegs
-  double radiusSum, radiusSumSqr, dissMagSqr;
-  vec2 diss;
-
-  for (int i = 0; i < 10; i++) {
-    if (!pegs[i].clear) {
-      float pegRadius = (pegs[i].radius * pegs[i].size.x);
-      radiusSum = playerRadius + pegRadius;
-      radiusSumSqr = radiusSum*radiusSum;
-      diss.x = pegs[i].pos.x - player.currPos.x;
-      diss.y = pegs[i].pos.y - player.currPos.y;
-      dissMagSqr = diss.x*diss.x + diss.y*diss.y;
-      if (dissMagSqr <= radiusSumSqr) {
-        if (!pegs[i].hit)
-          global.score++;
-
-        pegs[i].hit = true;
-
-        // change rebound formula
-        player.currVel.x *= global.bounce;
-        player.currVel.y *= global.bounce;
-      }
-    }
-  }
+  // double radiusSum, radiusSumSqr, dissMagSqr;
+  // vec2 diss;
+  //
+  // for (int i = 0; i < 10; i++) {
+  //   if (!pegs[i].clear) {
+  //     float pegRadius = (pegs[i].radius * pegs[i].size.x);
+  //     radiusSum = playerRadius + pegRadius;
+  //     radiusSumSqr = radiusSum*radiusSum;
+  //     diss.x = pegs[i].pos.x - player.currPos.x;
+  //     diss.y = pegs[i].pos.y - player.currPos.y;
+  //     dissMagSqr = diss.x*diss.x + diss.y*diss.y;
+  //     if (dissMagSqr <= radiusSumSqr) {
+  //       if (!pegs[i].hit)
+  //         global.score++;
+  //
+  //       pegs[i].hit = true;
+  //
+  //       // change rebound formula
+  //       player.currVel.x *= global.bounce;
+  //       player.currVel.y *= global.bounce;
+  //     }
+  //   }
+  // }
 }
 
 // On screen display
-void displayOSD()
-{
+void displayOSD() {
   char buffer[30];
   char *bufp;
   int w, h;
@@ -505,7 +576,6 @@ void update(void) {
   // Move player and check for collisions only when launching
   if (global.go) {
     integrate(dt);
-    // Check for collisions
     bruteForceCollision();
   }
 
@@ -524,8 +594,8 @@ void display(void) {
 
   // Draw level objects
   drawLevel();
-  drawPlayer();
-  drawObstacles();
+  // drawPlayer();
+  // drawObstacles();
 
   glPopMatrix();
 
@@ -567,8 +637,8 @@ void keyboard(unsigned char key, int x, int y) {
     case ' ': // 'space' = launch ball
       if(!global.go && global.balls > 0) {
         // Set velocity of x and y depending on direction rotated to
-        player.currVel.x = cos(degreesToRadians(player.rotation)) * player.power;
-        player.currVel.y = sin(degreesToRadians(player.rotation)) * player.power;
+        player.currVel.x = cos(degreesToRadians(player.rotation)) * launcher.power;
+        player.currVel.y = sin(degreesToRadians(player.rotation)) * launcher.power;
         // Get initial start time, enable resetting
         global.startTime = glutGet(GLUT_ELAPSED_TIME) / (float)milli;
         global.go = !global.go;
