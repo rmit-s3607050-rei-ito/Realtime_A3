@@ -116,6 +116,7 @@ void initCatcher(void) {
   // Set catcher to be at bottom of the level
   catcher.position.y = bottom;
   catcher.collisionY = catcher.position.y + catcher.height;
+
   // Set colors for the catcher
   catcher.sideColor = yellow;
   catcher.mainColor = brown;
@@ -310,34 +311,34 @@ void drawGuide(void) {
     end.y = sin(degreesToRadians(player.rotation));
 
     // Guide drawn as a parabola
-    float tof = (end.y * 2.0) / -gravity;
-    float stepSize = tof / player.guideSegments;
-    float t;
-
-    glPushMatrix();
-      setColoringMethod(red);
-      glBegin(GL_LINE_STRIP);
-        for (float i = 0; i <= player.guideSegments; i++) {
-          t = i * stepSize;
-          pos.x = end.x * t;
-          pos.y = (end.y * t) + (0.5 * gravity * t * t);
-
-          // Invert both x and y
-          pos.x = -pos.x;
-          pos.y = -pos.y;
-
-          // Scale guide size
-          pos.x *= player.guideSize;
-          pos.y *= player.guideSize;
-
-          glVertex3f(pos.x, pos.y, 0.0);
-        }
-      glEnd();
-    glPopMatrix();
+    // float tof = (end.y * 2.0) / -gravity;
+    // float stepSize = tof / player.guideSegments;
+    // float t;
+    //
+    // glPushMatrix();
+    //   setColoringMethod(red);
+    //   glBegin(GL_LINE_STRIP);
+    //     for (float i = 0; i <= player.guideSegments; i++) {
+    //       t = i * stepSize;
+    //       pos.x = end.x * t;
+    //       pos.y = (end.y * t) + (0.5 * gravity * t * t);
+    //
+    //       // Invert both x and y
+    //       pos.x = -pos.x;
+    //       pos.y = -pos.y;
+    //
+    //       // Scale guide size
+    //       pos.x *= player.guideSize;
+    //       pos.y *= player.guideSize;
+    //
+    //       glVertex3f(pos.x, pos.y, 0.0);
+    //     }
+    //   glEnd();
+    // glPopMatrix();
 
     // Line version
     // glScalef(0.5, 0.5, 1.0);
-    // drawLineStrip(pos, end, red);
+    drawLineStrip(pos, end, red);
   }
 }
 
@@ -400,7 +401,6 @@ void resetPlayer(void) {
       }
     }
   }
-  // printf("Position: %0.2f,%0.2f\n", player.currPos.x, player.currPos.y);
 }
 
 // ##### Movement and Collision detection #####
@@ -418,7 +418,7 @@ void moveCatcher(float dt) {
 
 void integrate(float dt) {
   // Uses analytical approach to movement calculations
-  player.currPos.x += dt * player.currVel.x + (0.5 * gravity * dt * dt);
+  player.currPos.x += dt * player.currVel.x;
   player.currPos.y += dt * player.currVel.y + (0.5 * gravity * dt * dt);
 
   // Factor in gravity in ball movement
@@ -429,27 +429,37 @@ void integrate(float dt) {
     resetPlayer();
 }
 
-void bruteForceWallCollide(float leftCollide, float rightCollide, float topCollide) {
-  // Left Wall
-  if (leftCollide <= left && player.currVel.x < global.minVelocity) {
-    // printf("COLLIDED LEFT\n");
+void rebound(collision collide) {
+  if (collide == xCollide) {
+    // Collision changing velocity in x direction
     player.currVel.x *= global.bounce;
+
+    // Shift a bit left or right when colliding
+    if (player.currVel.x > 0)
+      player.currPos.x += COLLISION_SHIFT;
+    else
+      player.currPos.x -= COLLISION_SHIFT;
   }
-  // Right Wall
-  else if (rightCollide >= right && player.currVel.x > global.minVelocity) {
-    // printf("COLLIDED RIGHT\n");
-    player.currVel.x *= global.bounce;
-  }
-  // Top Wall - Not part of else if as can collide with both top + left or right
-  if (topCollide >= top && player.currVel.y > global.minVelocity) {
-    // printf("COLLIDED TOP\n");
+  else {
+    // Collision changing velocity in y direction
     player.currVel.y *= global.bounce;
+
+    // Shift a bit left or right when colliding
+    if (player.currVel.y > 0)
+      player.currPos.y += COLLISION_SHIFT;
+    else
+      player.currPos.y -= COLLISION_SHIFT;
   }
 }
 
-void bruteForceCatcherCollide(float xPos, float bottomCollide) {
-  bool collided = false;
+void bruteForceWallCollide(float leftCollide, float rightCollide, float topCollide) {
+  if (leftCollide <= left || rightCollide >= right)
+    rebound(xCollide);
+  if (topCollide >= top) // Top Wall - Can collide with both top + left/right (corner)
+    rebound(yCollide);
+}
 
+void bruteForceCatcherCollide(float xPos, float bottomCollide) {
   float leftBumperStart = catcher.position.x + catcher.leftTL.x;
   float leftBumperEnd = catcher.position.x + catcher.leftTR.x;
   float rightBumperStart = catcher.position.x + catcher.rightTL.x;
@@ -458,14 +468,11 @@ void bruteForceCatcherCollide(float xPos, float bottomCollide) {
   // Check whether ball reached bottom where catcher is
   if (bottomCollide <= catcher.collisionY) {
     // Check whether left or right bumper has been collided with
-    if (xPos > leftBumperStart && xPos < leftBumperEnd)
-      collided = true;
-    else if (xPos > rightBumperStart && xPos < rightBumperEnd)
-      collided = true;
-
-    if (collided) {
-      // printf("COLLIDED WITH CATCHER\n");
-      player.currVel.y *= global.bounce;
+    if ((xPos > leftBumperStart && xPos < leftBumperEnd) ||
+        (xPos > rightBumperStart && xPos < rightBumperEnd))
+    {
+      rebound(xCollide);
+      rebound(yCollide);
     }
   }
 }
@@ -494,20 +501,27 @@ void bruteForceCollision() {
     for (int col = 0; col < WIDTH; col++) {
       if (!pegs[row][col].clear && !pegs[row][col].empty) {
         float pegRadius = (pegs[row][col].radius * pegs[row][col].size.x);
+
         radiusSum = playerRadius + pegRadius;
-        radiusSumSqr = radiusSum*radiusSum;
+        radiusSumSqr = radiusSum * radiusSum;
+
         diss.x = pegs[row][col].pos.x - player.currPos.x;
         diss.y = pegs[row][col].pos.y - player.currPos.y;
-        dissMagSqr = diss.x*diss.x + diss.y*diss.y;
+
+        dissMagSqr = (diss.x * diss.x) + (diss.y * diss.y);
         if (dissMagSqr <= radiusSumSqr) {
+          // If peg not already hit, add to score
           if (!pegs[row][col].hit)
             global.score += 1;
 
           pegs[row][col].hit = true;
 
-          // change rebound formula
-          player.currVel.x *= global.bounce;
-          player.currVel.y *= global.bounce;
+          rebound(yCollide);
+
+          // Rebound left, from top
+          // if (hitLeft) {
+          //   player.currVel.x *= global.bounce;
+          // }
         }
       }
     }
@@ -591,7 +605,6 @@ void display(void) {
 
   // Draw level objects
   drawLevel();
-  // drawPlayer();
   drawObstacles();
 
   glPopMatrix();
@@ -616,14 +629,12 @@ void keyboard(unsigned char key, int x, int y) {
   switch (key) {
     // Rotate launch position
     case 'a': // left
-      if (!global.go && player.rotation > player.minRotation) {
+      if (!global.go && player.rotation > player.minRotation)
         player.rotation -= player.rotationInc;
-      }
       break;
     case 'd': // right
-      if (!global.go && player.rotation < player.maxRotation) {
+      if (!global.go && player.rotation < player.maxRotation)
         player.rotation += player.rotationInc;
-      }
       break;
 
     // Toggle wireframe/filled mode
