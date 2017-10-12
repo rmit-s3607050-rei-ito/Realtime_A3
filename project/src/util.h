@@ -97,8 +97,8 @@ void drawGuide(void);
 void drawPlayer(void);
 
 // ######## OBSTACLE RELATED STUFF #########
-const int WIDTH = 5;
-const int HEIGHT = 10;
+const int WIDTH = 15;
+const int HEIGHT = 6;
 
 typedef struct {
   vec2 pos;

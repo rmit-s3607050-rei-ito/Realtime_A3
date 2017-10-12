@@ -41,7 +41,7 @@ Player player = {
 };
 
 //Obstacle pegs[NUM_PEGS];
-Obstacle pegs[WIDTH][HEIGHT];
+Obstacle pegs[HEIGHT][WIDTH];
 Launcher launcher;
 Catcher catcher;
 
@@ -137,7 +137,7 @@ void initPlayer(void) {
 }
 
 void initObstacle(Obstacle *peg) {
-  peg->vel = { 1.0, 1.0 };
+  peg->vel = { 0.0, 0.0 };
 
   peg->radius = 0.05;
   peg->mass = 0.0;
@@ -158,38 +158,29 @@ void initObstacle(Obstacle *peg) {
 }
 
 void initObstacles(void) {
-  float yInterval = fabs((bottom+0.1)-(top-0.1))/HEIGHT;
-  float yCurr = bottom+0.1;
-  float xInterval = fabs((left+0.1)-(right-0.1))/WIDTH;
-  float xCurr = left+0.1;
+  float leftLimit = left+0.1;
+  float rightLimit = right;
+  float bottomLimit = bottom+0.35;
+  float topLimit = top;
 
-  for(int row = 0; row < WIDTH; row++) {
-    for (int col = 0; col < HEIGHT; col++) {
+  float xInterval = (fabs(leftLimit-rightLimit))/WIDTH;
+  float xCurr = leftLimit;
+
+  float yInterval = (fabs(bottomLimit-topLimit))/HEIGHT;
+  float yCurr = bottomLimit;
+
+  for(int row = 0; row < HEIGHT; row++) {
+    for (int col = 0; col < WIDTH; col++) {
       if(((col + row) % 2) == 0) {
         initObstacle(&pegs[row][col]);
         pegs[row][col].pos = { xCurr, yCurr };
-        xCurr+=xInterval;
-      }
-      else
+      } else
         pegs[row][col].empty = true;
+      xCurr+=xInterval;
     }
-    if (row%2==0)
-      xCurr = (left+0.1)+(xInterval/2);
-    else
-      xCurr = (left+0.1);
+    xCurr = leftLimit;
     yCurr+=yInterval;
   }
-
-  //pegs[0].pos = { -0.85, 0.4 };
-  //pegs[1].pos = { -0.51, 0.4 };
-  //pegs[2].pos = { -0.17, 0.4 };
-  //pegs[3].pos = { 0.17, 0.4 };
-  //pegs[4].pos = { 0.51, 0.4 };
-  //pegs[5].pos = { -0.68, -0.4 };
-  //pegs[6].pos = { -0.34, -0.4 };
-  //pegs[7].pos = { 0.0, -0.4 };
-  //pegs[8].pos = { 0.34, -0.4 };
-  //pegs[9].pos = { 0.68, -0.4 };
 }
 
 void init(void) {
@@ -366,8 +357,8 @@ void drawPlayer(void) {
 
 void drawObstacles(void) {
   // Using disk drawing method in tutorial 9
-  for(int row = 0; row < WIDTH; row++) {
-    for (int col = 0; col < HEIGHT; col++) {
+  for(int row = 0; row < HEIGHT; row++) {
+    for (int col = 0; col < WIDTH; col++) {
       if (!pegs[row][col].clear && !pegs[row][col].empty) {
         glPushMatrix();
           if (pegs[row][col].hit)
@@ -399,8 +390,8 @@ void resetPlayer(void) {
   // Allow player to launch again
   global.go = !global.go;
 
-  for(int row = 0; row < WIDTH; row++) {
-    for (int col = 0; col < HEIGHT; col++) {
+  for(int row = 0; row < HEIGHT; row++) {
+    for (int col = 0; col < WIDTH; col++) {
       if (!pegs[row][col].clear && !pegs[row][col].empty) {
         if (pegs[row][col].hit) {
           pegs[row][col].clear = true;
@@ -499,8 +490,8 @@ void bruteForceCollision() {
   double radiusSum, radiusSumSqr, dissMagSqr;
   vec2 diss;
 
-  for(int row = 0; row < WIDTH; row++) {
-    for (int col = 0; col < HEIGHT; col++) {
+  for(int row = 0; row < HEIGHT; row++) {
+    for (int col = 0; col < WIDTH; col++) {
       if (!pegs[row][col].clear && !pegs[row][col].empty) {
         float pegRadius = (pegs[row][col].radius * pegs[row][col].size.x);
         radiusSum = playerRadius + pegRadius;
@@ -601,7 +592,7 @@ void display(void) {
   // Draw level objects
   drawLevel();
   // drawPlayer();
-  // drawObstacles();
+  drawObstacles();
 
   glPopMatrix();
 
