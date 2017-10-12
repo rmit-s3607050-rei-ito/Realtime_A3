@@ -25,6 +25,8 @@ typedef struct { float x, y, z; } vec3;
 typedef struct { float x, y; } vec2;
 typedef struct { GLfloat r, g, b, a; } color4f;
 
+typedef enum { xCollide, yCollide } collision;
+
 // Global
 typedef struct {
   bool go;
@@ -42,7 +44,8 @@ typedef struct {
 } Global;
 
 // Constants
-const float gravity = -9.8;   // Gravity
+// const float gravity = -9.8;   // Gravity
+const float gravity = -2.0;   // Fake Gravity
 const float milli = 1000.0;   // One second
 
 // Colors
@@ -59,12 +62,16 @@ const float WINDOW_Y = 700.0;
 const float WINDOW_POS_X = 400.0;
 const float WINDOW_POS_Y = 0.0;
 
+// Collision
+const float COLLISION_SHIFT = 0.0001;
+
 // Functions
 float degreesToRadians(float);
 // float roundDownFloat(int);
 void drawLineStrip(vec2, vec2, color4f);
 void drawSquare(vec2, vec2, vec2, vec2, color4f);
 void resetPlayer(void);
+void rebound(collision);
 
 // ########### PLAYER RELATED STUFF ###########
 // Player
@@ -139,7 +146,7 @@ const vec2 botRight = { 0.90, -0.925 };
 const float STARTING_ROTATION = -90.0;
 const float LAUNCHER_LENGTH = 0.04;
 const float LAUNCHER_WIDTH = 0.035;
-const float LAUNCHER_POWER = 2.0;
+const float LAUNCHER_POWER = 1.2;
 
 // Catcher at bottom of level
 const float CATCHER_SPEED = -0.5;
