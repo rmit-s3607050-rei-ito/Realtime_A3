@@ -29,13 +29,11 @@ Player player = {
   5.0,                   // guideSize
   16.0,                  // guideSegments
 
+  8.0,                   // segments
   0.05,                  // radius
   0.0,                   // mass
   0.0,                   // elasticity
 
-  0,                     // quadric
-  10,                    // slices
-  3,                     // loops
   { 0.5, 0.5, 1.0 },     // size
   { 0.0, 0.0, 0.0, 0.0 } // color
 };
@@ -63,26 +61,14 @@ static float getDeltaTime(void) {
   return dt;
 }
 
-// float roundDownFloat(int value) {
-//   const int decimalPlace = 10;  // Round to 1 decimal place (in the tens)
-//   float result;
-//   result = floorf(value * decimalPlace) / decimalPlace;
-//
-//   return result;
-// }
-
 // ##### Initialization #####
 void initLauncher(void) {
   // Base parameters
-  launcher.radius = 0.08;
-  launcher.slices = 64;
-  launcher.loops = 1;
+  launcher.segments = LAUNCHER_SEGMENTS;
+  launcher.radius = LAUNCHER_RADIUS;
 
   // Strength of cannon
   launcher.power = LAUNCHER_POWER;
-
-  // Quadric for base
-  launcher.quadric = gluNewQuadric();
 
   // Cannon parameters
   launcher.length = LAUNCHER_LENGTH;
@@ -132,9 +118,6 @@ void initPlayer(void) {
 
   // Initialize starting rotation
   player.rotation = STARTING_ROTATION;
-
-  // Initialize quadric for rendering
-  player.quadric = gluNewQuadric();
 }
 
 void initObstacle(Obstacle *peg) {
@@ -145,11 +128,7 @@ void initObstacle(Obstacle *peg) {
   peg->elasticity = 0.0;
 
   // Rendering params
-  // Initialize quadric for rendering
-  peg->quadric = gluNewQuadric();
-  peg->slices = 10;
-  peg->loops = 3;
-
+  peg->segments = 8.0;
   peg->size = { 0.7, 0.7, 0.7 };
   peg->color = { 0.0, 0.0, 1.0, 0.0 };
 
@@ -237,12 +216,27 @@ void drawSquare(vec2 topL, vec2 topR, vec2 botR, vec2 botL, color4f color) {
   glPopMatrix();
 }
 
+void drawCircle(float segments, float radius) {
+  vec2 pos;
+  float theta;
+
+  glBegin(GL_POLYGON);
+    for (int i = 0; i <= segments * 2.0; i++) {
+      theta = i / segments * M_PI;
+      pos.x = radius * cosf(theta);
+      pos.y = radius * sinf(theta);
+
+      glVertex3f(pos.x, pos.y, 0.0);
+    }
+  glEnd();
+}
+
 void drawLauncher(void) {
   // Drawing player
   drawPlayer();
 
   glPushMatrix();
-    glTranslatef(0.0, player.initPos.y, 0.0); // Move to start of screen
+    glTranslatef(0.0, player.initPos.y, 0.0); // Move to top of level
 
     // Drawing guide
     glPushMatrix();
@@ -263,7 +257,7 @@ void drawLauncher(void) {
       // Drawing base
       glPushMatrix();
         setColoringMethod(darkGrey);
-        gluDisk(launcher.quadric, 0.0, launcher.radius, launcher.slices, launcher.loops);
+        drawCircle(launcher.segments, launcher.radius);
       glPopMatrix();
     glPopMatrix();
 
@@ -351,7 +345,7 @@ void drawPlayer(void) {
       glTranslatef(player.currPos.x, player.currPos.y, 0.0);
       glRotatef(player.rotation, 0.0, 0.0, 1.0);
       glScalef(player.size.x, player.size.y, player.size.z);
-      gluDisk(player.quadric, 0.0, player.radius, player.slices, player.loops);
+      drawCircle(player.segments, player.radius);
     glPopMatrix();
   }
 }
@@ -367,7 +361,7 @@ void drawObstacles(void) {
           setColoringMethod(pegs[row][col].color);
           glTranslatef(pegs[row][col].pos.x, pegs[row][col].pos.y, 0.0);
           glScalef(pegs[row][col].size.x, pegs[row][col].size.y, pegs[row][col].size.z);
-          gluDisk(pegs[row][col].quadric, 0.0, pegs[row][col].radius, pegs[row][col].slices, pegs[row][col].loops);
+          drawCircle(pegs[row][col].segments, pegs[row][col].radius);
         glPopMatrix();
       }
     }
@@ -391,6 +385,7 @@ void resetPlayer(void) {
   // Allow player to launch again
   global.go = !global.go;
 
+  // Remove all hit pegs and add to score per hit peg
   for(int row = 0; row < HEIGHT; row++) {
     for (int col = 0; col < WIDTH; col++) {
       if (!pegs[row][col].clear && !pegs[row][col].empty) {
@@ -452,11 +447,22 @@ void rebound(collision collide) {
   }
 }
 
-void bruteForceWallCollide(float leftCollide, float rightCollide, float topCollide) {
-  if (leftCollide <= left || rightCollide >= right)
-    rebound(xCollide);
-  if (topCollide >= top) // Top Wall - Can collide with both top + left/right (corner)
-    rebound(yCollide);
+void wallCollide(float leftCollide, float rightCollide, float topCollide) {
+  // Based on tutorial 10 wall collision
+  // Left wall hit
+  if (leftCollide <= left) {
+    player.currPos.x += 2.0 * (left - leftCollide);
+    player.currVel.x *= -1.0;
+  } else if (rightCollide >= right) {
+    // Right wall hit
+    player.currPos.x += 2.0 * (right - rightCollide);
+    player.currVel.x *= -1.0;
+  }
+  // Top wall hit - Can collide with both top + left/right (corner)
+  if (topCollide >= top) {
+    player.currPos.y += 2.0 * (top - topCollide);
+    player.currVel.y *= -1.0;
+  }
 }
 
 void bruteForceCatcherCollide(float xPos, float bottomCollide) {
@@ -482,16 +488,16 @@ void bruteForceCollision() {
   float playerRadius = (player.radius * player.size.x);
 
   // Values to compare for collision with ball
-  float leftCollide = player.currPos.x - playerRadius;
-  float rightCollide = player.currPos.x + playerRadius;
-  float topCollide = player.currPos.y + playerRadius;
-  float bottomCollide = player.currPos.y - playerRadius;
+  float playerLeft = player.currPos.x - playerRadius;
+  float playerRight = player.currPos.x + playerRadius;
+  float playerTop = player.currPos.y + playerRadius;
+  float playerBottom = player.currPos.y - playerRadius;
 
   // 2. Collisions against level wall
-  bruteForceWallCollide(leftCollide, rightCollide, topCollide);
+  wallCollide(playerLeft, playerRight, playerTop);
 
   // 3. Collision with sides of catcher
-  bruteForceCatcherCollide(player.currPos.x, bottomCollide);
+  bruteForceCatcherCollide(player.currPos.x, playerBottom);
 
   // 3. Collisions against pegs
   double radiusSum, radiusSumSqr, dissMagSqr;
@@ -517,11 +523,6 @@ void bruteForceCollision() {
           pegs[row][col].hit = true;
 
           rebound(yCollide);
-
-          // Rebound left, from top
-          // if (hitLeft) {
-          //   player.currVel.x *= global.bounce;
-          // }
         }
       }
     }
