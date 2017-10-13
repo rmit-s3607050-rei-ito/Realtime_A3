@@ -114,9 +114,6 @@ void initPlayer(void) {
   player.initPos = (vec2) { 0.0, 0.85 };
   player.currPos = player.initPos;
 
-  player.initVel.x = cos(degreesToRadians(player.rotation));
-  player.initVel.y = sin(degreesToRadians(player.rotation));
-
   // Initialize starting rotation
   player.rotation = STARTING_ROTATION;
 }
@@ -299,13 +296,16 @@ void drawLevel(void) {
 }
 
 void drawGuide(void) {
-  if (!global.go && global.balls > 0) {
+  // if (!global.go && global.balls > 0) {
+  if (global.balls > 0) {
     vec2 start, vel;
     vel.x = cos(degreesToRadians(player.rotation)) * launcher.power;
-    vel.y = sin(degreesToRadians(-player.rotation)) * launcher.power;
+    vel.y = sin(degreesToRadians(player.rotation)) * launcher.power;
+    // vel.x = cos(degreesToRadians(player.rotation));
+    // vel.y = sin(degreesToRadians(-player.rotation));
 
     // Guide drawn as a parabola
-    float tof = (vel.y * 2.0) / -gravity;
+    float tof = (vel.y * 2.0) / gravity;
     float stepSize = tof / player.guideSegments;
     float t;
 
@@ -654,9 +654,12 @@ void keyboard(unsigned char key, int x, int y) {
 
     case ' ': // 'space' = launch ball
       if(!global.go && global.balls > 0) {
+        // player.currVel = player.initVel;
         // Set velocity of x and y depending on direction rotated to
         player.currVel.x = cos(degreesToRadians(player.rotation)) * launcher.power;
         player.currVel.y = sin(degreesToRadians(player.rotation)) * launcher.power;
+        // player.currVel.x = cos(degreesToRadians(player.rotation));
+        // player.currVel.y = sin(degreesToRadians(player.rotation));
         global.go = !global.go;
       }
       break;
