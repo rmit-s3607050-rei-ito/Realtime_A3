@@ -31,8 +31,8 @@ Player player = {
 
   8.0,                   // segments
   0.05,                  // radius
-  0.0,                   // mass
-  0.0,                   // elasticity
+  1.0,                   // mass
+  1.0,                   // elasticity
 
   { 0.5, 0.5, 1.0 },     // size
   { 0.0, 0.0, 0.0, 0.0 } // color
@@ -124,8 +124,8 @@ void initObstacle(Obstacle *peg) {
   peg->vel = { 0.0, 0.0 };
 
   peg->radius = 0.05;
-  peg->mass = 0.0;
-  peg->elasticity = 0.0;
+  peg->mass = 1.0;
+  peg->elasticity = 1.0;
 
   // Rendering params
   peg->segments = 8.0;
@@ -485,33 +485,65 @@ void bruteForceCollision() {
   bruteForceCatcherCollide(player.currPos.x, playerBottom);
 
   // 3. Collisions against pegs
-  // double radiusSum, radiusSumSqr, dissMagSqr;
-  // vec2 diss;
-  //
-  // for(int row = 0; row < HEIGHT; row++) {
-  //   for (int col = 0; col < WIDTH; col++) {
-  //     if (!pegs[row][col].clear && !pegs[row][col].empty) {
-  //       float pegRadius = (pegs[row][col].radius * pegs[row][col].size.x);
-  //
-  //       radiusSum = playerRadius + pegRadius;
-  //       radiusSumSqr = radiusSum * radiusSum;
-  //
-  //       diss.x = pegs[row][col].pos.x - player.currPos.x;
-  //       diss.y = pegs[row][col].pos.y - player.currPos.y;
-  //
-  //       dissMagSqr = (diss.x * diss.x) + (diss.y * diss.y);
-  //       if (dissMagSqr <= radiusSumSqr) {
-  //         // If peg not already hit, add to score
-  //         if (!pegs[row][col].hit)
-  //           global.score += 1;
-  //
-  //         pegs[row][col].hit = true;
-  //
-  //         rebound(yCollide);
-  //       }
-  //     }
-  //   }
-  // }
+  double radiusSum, radiusSumSqr, dissMagSqr;
+  vec2 diss;
+
+  for(int row = 0; row < HEIGHT; row++) {
+    for (int col = 0; col < WIDTH; col++) {
+      if (!pegs[row][col].clear && !pegs[row][col].empty) {
+        float pegRadius = (pegs[row][col].radius * pegs[row][col].size.x);
+
+        radiusSum = playerRadius + pegRadius;
+        radiusSumSqr = radiusSum * radiusSum;
+
+        diss.x = pegs[row][col].pos.x - player.currPos.x;
+        diss.y = pegs[row][col].pos.y - player.currPos.y;
+
+        dissMagSqr = (diss.x * diss.x) + (diss.y * diss.y);
+        if (dissMagSqr <= radiusSumSqr) {
+          float n[2], t[2], n_mag;
+          float v1_nt[2], v2_nt[2];
+          float m1, m2, v1i, v2i, v1f, v2f;
+
+          n[0] = pegs[row][col].pos.x - player.currPos.x;;
+          n[1] = pegs[row][col].pos.y - player.currPos.y;;
+
+          n_mag = sqrt(n[0] * n[0] + n[1] * n[1]);
+          n[0] /= n_mag;
+          n[1] /= n_mag;
+
+          t[0] = -n[1];
+          t[1] = n[0];
+
+          v1_nt[0] = n[0] * player.currVel.x + n[1] * player.currVel.y;
+          v1_nt[1] = t[0] * player.currVel.x + t[1] * player.currVel.y;
+          v2_nt[0] = n[0] * 0 + n[1] * 0;
+          v2_nt[1] = t[0] * 0 + t[1] * 0;
+
+          m1 = player.mass;
+          m2 = pegs[row][col].mass;
+          v1i = v1_nt[0];
+          v2i = v2_nt[0];
+          v1f = (m1 - m2) / (m1 + m2) * v1i + 2.0 * m2 / (m1 + m2) * v2i;
+          v2f = 2.0 * m1 / (m1 + m2) * v1i + (m2 - m1) / (m1 + m2) * v2i;
+
+          v1_nt[0] = v1f;
+          v2_nt[0] = v2f;
+
+          player.currVel.x = n[0] * v1_nt[0] + t[0] * v1_nt[1]
+            - n[0] * v2_nt[0] + t[0] * v2_nt[1];
+          player.currVel.y = n[1] * v1_nt[0] + t[1] * v1_nt[1]
+            - n[1] * v2_nt[0] + t[1] * v2_nt[1];
+
+          // If peg not already hit, add to score
+          if (!pegs[row][col].hit)
+            global.score += 1;
+
+          pegs[row][col].hit = true;
+        }
+      }
+    }
+  }
 }
 
 // On screen display
