@@ -453,8 +453,9 @@ void wallCollide(float leftCollide, float rightCollide, float topCollide) {
   if (leftCollide <= left) {
     player.currPos.x += 2.0 * (left - leftCollide);
     player.currVel.x *= -1.0;
-  } else if (rightCollide >= right) {
-    // Right wall hit
+  }
+  else if (rightCollide >= right) {
+  // Right wall hit
     player.currPos.x += 2.0 * (right - rightCollide);
     player.currVel.x *= -1.0;
   }
