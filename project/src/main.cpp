@@ -2,8 +2,6 @@
 // #include "level.h"
 #include "util.h"
 
-//test
-
 Global global = {
   false,   // go
   false,   // wireframe
