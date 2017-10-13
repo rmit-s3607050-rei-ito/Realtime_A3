@@ -32,9 +32,8 @@ typedef struct {
   bool go;
   bool wireframe;
 
-  float elapsedTime;
-  float startTime;
-
+  float dt;
+  
   // Strength of bounce off the wall, should always be -ive
   float bounce;
   float minVelocity;

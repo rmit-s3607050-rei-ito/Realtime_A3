@@ -6,8 +6,7 @@ Global global = {
   false,   // go
   false,   // wireframe
 
-  0.0,     // elapsedTime
-  0.0,     // startTime
+  0.0,     // dt
 
   -0.5,    // bounce
   0.1,     // minVelocity
@@ -114,6 +113,9 @@ void initPlayer(void) {
   // Positioning
   player.initPos = (vec2) { 0.0, 0.85 };
   player.currPos = player.initPos;
+
+  player.initVel.x = cos(degreesToRadians(player.rotation));
+  player.initVel.y = sin(degreesToRadians(player.rotation));
 
   // Initialize starting rotation
   player.rotation = STARTING_ROTATION;
@@ -298,40 +300,30 @@ void drawLevel(void) {
 
 void drawGuide(void) {
   if (!global.go && global.balls > 0) {
-    vec2 pos, end;
-    pos = (vec2) { 0.0, 0.0 };
-    end.x = cos(degreesToRadians(player.rotation));
-    end.y = sin(degreesToRadians(player.rotation));
+    vec2 start, vel;
+    vel.x = cos(degreesToRadians(player.rotation)) * launcher.power;
+    vel.y = sin(degreesToRadians(-player.rotation)) * launcher.power;
 
     // Guide drawn as a parabola
-    // float tof = (end.y * 2.0) / -gravity;
-    // float stepSize = tof / player.guideSegments;
-    // float t;
-    //
-    // glPushMatrix();
-    //   setColoringMethod(red);
-    //   glBegin(GL_LINE_STRIP);
-    //     for (float i = 0; i <= player.guideSegments; i++) {
-    //       t = i * stepSize;
-    //       pos.x = end.x * t;
-    //       pos.y = (end.y * t) + (0.5 * gravity * t * t);
-    //
-    //       // Invert both x and y
-    //       pos.x = -pos.x;
-    //       pos.y = -pos.y;
-    //
-    //       // Scale guide size
-    //       pos.x *= player.guideSize;
-    //       pos.y *= player.guideSize;
-    //
-    //       glVertex3f(pos.x, pos.y, 0.0);
-    //     }
-    //   glEnd();
-    // glPopMatrix();
+    float tof = (vel.y * 2.0) / -gravity;
+    float stepSize = tof / player.guideSegments;
+    float t;
 
-    // Line version
-    // glScalef(0.5, 0.5, 1.0);
-    drawLineStrip(pos, end, red);
+    setColoringMethod(red);
+    glBegin(GL_LINE_STRIP);
+      for (float i = 0; i <= player.guideSegments; i++) {
+        t = i * stepSize;
+        start.x = t * vel.x;
+        start.y = (vel.y * t) + (0.5 * gravity * t * t);
+        vel.y += gravity * t;
+
+        // Invert both x and y
+        // pos.x = -pos.x;
+        // pos.y = -pos.y;
+
+        glVertex3f(start.x, start.y, 0.0);
+      }
+    glEnd();
   }
 }
 
@@ -596,14 +588,15 @@ void displayOSD() {
 
 // ##### Main functions #####
 void update(void) {
-  float dt = getDeltaTime();
+  // float dt = getDeltaTime();
+  global.dt = getDeltaTime();
 
   // Constantly move catcher
-  moveCatcher(dt);
+  moveCatcher(global.dt);
 
   // Move player and check for collisions only when launching
   if (global.go) {
-    integrate(dt);
+    integrate(global.dt);
     bruteForceCollision();
   }
 
@@ -664,8 +657,6 @@ void keyboard(unsigned char key, int x, int y) {
         // Set velocity of x and y depending on direction rotated to
         player.currVel.x = cos(degreesToRadians(player.rotation)) * launcher.power;
         player.currVel.y = sin(degreesToRadians(player.rotation)) * launcher.power;
-        // Get initial start time, enable resetting
-        global.startTime = glutGet(GLUT_ELAPSED_TIME) / (float)milli;
         global.go = !global.go;
       }
       break;
