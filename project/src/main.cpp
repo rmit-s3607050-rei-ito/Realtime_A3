@@ -38,7 +38,6 @@ Player player = {
   { 0.0, 0.0, 0.0, 0.0 } // color
 };
 
-//Obstacle pegs[NUM_PEGS];
 Obstacle pegs[HEIGHT][WIDTH];
 Launcher launcher;
 Catcher catcher;
@@ -600,7 +599,7 @@ void update(void) {
   float dt = getDeltaTime();
 
   // Constantly move catcher
-  // moveCatcher(dt);
+  moveCatcher(dt);
 
   // Move player and check for collisions only when launching
   if (global.go) {
