@@ -556,11 +556,6 @@ void bruteForceCollision() {
             global.score += 1;
 
           pegs[row][col].hit = true;
-<<<<<<< HEAD
-=======
-
-          rebound(yCollide);
->>>>>>> a2f174fa12dfa55ec0771cc00ddd77d42e00a333
         }
       }
     }
