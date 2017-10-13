@@ -299,27 +299,35 @@ void drawGuide(void) {
   // if (!global.go && global.balls > 0) {
   if (global.balls > 0) {
     vec2 start, vel;
+    start = {0,0};
     vel.x = cos(degreesToRadians(player.rotation)) * launcher.power;
     vel.y = sin(degreesToRadians(player.rotation)) * launcher.power;
-    // vel.x = cos(degreesToRadians(player.rotation));
-    // vel.y = sin(degreesToRadians(-player.rotation));
 
     // Guide drawn as a parabola
-    float tof = (vel.y * 2.0) / gravity;
+    float tof = (2.0 * vel.y) / gravity;
     float stepSize = tof / player.guideSegments;
     float t;
+
+    float pR = player.radius * player.size.x;
 
     setColoringMethod(red);
     glBegin(GL_LINE_STRIP);
       for (float i = 0; i <= player.guideSegments; i++) {
         t = i * stepSize;
-        start.x = t * vel.x;
-        start.y = (vel.y * t) + (0.5 * gravity * t * t);
+        start.x += vel.x * t;
+        start.y += (vel.y * t) + (0.5 * gravity * t * t);
+
         vel.y += gravity * t;
 
-        // Invert both x and y
-        // pos.x = -pos.x;
-        // pos.y = -pos.y;
+        if (start.x <= left) {
+          start.x += 2.0 * (left - start.x + pR);
+          vel.x *= -1.0;
+        }
+        else if (start.x >= right) {
+          // Right wall hit
+          start.x += 2.0 * (right - start.x + pR);
+          vel.x *= -1.0;
+        }
 
         glVertex3f(start.x, start.y, 0.0);
       }
@@ -479,62 +487,62 @@ void bruteForceCollision() {
   double radiusSum, radiusSumSqr, dissMagSqr;
   vec2 diss;
 
-  for(int row = 0; row < HEIGHT; row++) {
-    for (int col = 0; col < WIDTH; col++) {
-      if (!pegs[row][col].clear && !pegs[row][col].empty) {
-        float pegRadius = (pegs[row][col].radius * pegs[row][col].size.x);
+  //for(int row = 0; row < HEIGHT; row++) {
+  //  for (int col = 0; col < WIDTH; col++) {
+  //    if (!pegs[row][col].clear && !pegs[row][col].empty) {
+  //      float pegRadius = (pegs[row][col].radius * pegs[row][col].size.x);
 
-        radiusSum = playerRadius + pegRadius;
-        radiusSumSqr = radiusSum * radiusSum;
+  //      radiusSum = playerRadius + pegRadius;
+  //      radiusSumSqr = radiusSum * radiusSum;
 
-        diss.x = pegs[row][col].pos.x - player.currPos.x;
-        diss.y = pegs[row][col].pos.y - player.currPos.y;
+  //      diss.x = pegs[row][col].pos.x - player.currPos.x;
+  //      diss.y = pegs[row][col].pos.y - player.currPos.y;
 
-        dissMagSqr = (diss.x * diss.x) + (diss.y * diss.y);
-        if (dissMagSqr <= radiusSumSqr) {
-          float n[2], t[2], n_mag;
-          float v1_nt[2], v2_nt[2];
-          float m1, m2, v1i, v2i, v1f, v2f;
+  //      dissMagSqr = (diss.x * diss.x) + (diss.y * diss.y);
+  //      if (dissMagSqr <= radiusSumSqr) {
+  //        float n[2], t[2], n_mag;
+  //        float v1_nt[2], v2_nt[2];
+  //        float m1, m2, v1i, v2i, v1f, v2f;
 
-          n[0] = pegs[row][col].pos.x - player.currPos.x;;
-          n[1] = pegs[row][col].pos.y - player.currPos.y;;
+  //        n[0] = pegs[row][col].pos.x - player.currPos.x;;
+  //        n[1] = pegs[row][col].pos.y - player.currPos.y;;
 
-          n_mag = sqrt(n[0] * n[0] + n[1] * n[1]);
-          n[0] /= n_mag;
-          n[1] /= n_mag;
+  //        n_mag = sqrt(n[0] * n[0] + n[1] * n[1]);
+  //        n[0] /= n_mag;
+  //        n[1] /= n_mag;
 
-          t[0] = -n[1];
-          t[1] = n[0];
+  //        t[0] = -n[1];
+  //        t[1] = n[0];
 
-          v1_nt[0] = n[0] * player.currVel.x + n[1] * player.currVel.y;
-          v1_nt[1] = t[0] * player.currVel.x + t[1] * player.currVel.y;
-          v2_nt[0] = n[0] * 0 + n[1] * 0;
-          v2_nt[1] = t[0] * 0 + t[1] * 0;
+  //        v1_nt[0] = n[0] * player.currVel.x + n[1] * player.currVel.y;
+  //        v1_nt[1] = t[0] * player.currVel.x + t[1] * player.currVel.y;
+  //        v2_nt[0] = n[0] * 0 + n[1] * 0;
+  //        v2_nt[1] = t[0] * 0 + t[1] * 0;
 
-          m1 = player.mass;
-          m2 = pegs[row][col].mass;
-          v1i = v1_nt[0];
-          v2i = v2_nt[0];
-          v1f = (m1 - m2) / (m1 + m2) * v1i + 2.0 * m2 / (m1 + m2) * v2i;
-          v2f = 2.0 * m1 / (m1 + m2) * v1i + (m2 - m1) / (m1 + m2) * v2i;
+  //        m1 = player.mass;
+  //        m2 = pegs[row][col].mass;
+  //        v1i = v1_nt[0];
+  //        v2i = v2_nt[0];
+  //        v1f = (m1 - m2) / (m1 + m2) * v1i + 2.0 * m2 / (m1 + m2) * v2i;
+  //        v2f = 2.0 * m1 / (m1 + m2) * v1i + (m2 - m1) / (m1 + m2) * v2i;
 
-          v1_nt[0] = v1f;
-          v2_nt[0] = v2f;
+  //        v1_nt[0] = v1f;
+  //        v2_nt[0] = v2f;
 
-          player.currVel.x = (n[0] * v1_nt[0] + t[0] * v1_nt[1])
-            - (n[0] * v2_nt[0] + t[0] * v2_nt[1]);
-          player.currVel.y = (n[1] * v1_nt[0] + t[1] * v1_nt[1])
-            - (n[1] * v2_nt[0] + t[1] * v2_nt[1]);
+  //        player.currVel.x = (n[0] * v1_nt[0] + t[0] * v1_nt[1])
+  //          - (n[0] * v2_nt[0] + t[0] * v2_nt[1]);
+  //        player.currVel.y = (n[1] * v1_nt[0] + t[1] * v1_nt[1])
+  //          - (n[1] * v2_nt[0] + t[1] * v2_nt[1]);
 
-          // If peg not already hit, add to score
-          if (!pegs[row][col].hit)
-            global.score += 1;
+  //        // If peg not already hit, add to score
+  //        if (!pegs[row][col].hit)
+  //          global.score += 1;
 
-          pegs[row][col].hit = true;
-        }
-      }
-    }
-  }
+  //        pegs[row][col].hit = true;
+  //      }
+  //    }
+  //  }
+  //}
 }
 
 // On screen display
