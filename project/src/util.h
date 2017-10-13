@@ -67,9 +67,9 @@ const float COLLISION_SHIFT = 0.0001;
 
 // Functions
 float degreesToRadians(float);
-// float roundDownFloat(int);
 void drawLineStrip(vec2, vec2, color4f);
 void drawSquare(vec2, vec2, vec2, vec2, color4f);
+void drawCircle(float, float);
 void resetPlayer(void);
 void rebound(collision);
 
@@ -87,14 +87,11 @@ typedef struct {
   float guideSize;
   float guideSegments;
 
+  float segments;
   float radius;
   float mass;
   float elasticity;
 
-  // Rendering params
-  GLUquadric *quadric;
-  int slices;
-  int loops;
   vec3 size;
   color4f color;
 } Player;
@@ -116,9 +113,7 @@ typedef struct {
   float elasticity;
 
   // Rendering params
-  GLUquadric *quadric;
-  int slices;
-  int loops;
+  float segments;
   vec3 size;
   color4f color;
 
@@ -147,6 +142,8 @@ const float STARTING_ROTATION = -90.0;
 const float LAUNCHER_LENGTH = 0.04;
 const float LAUNCHER_WIDTH = 0.035;
 const float LAUNCHER_POWER = 1.2;
+const float LAUNCHER_SEGMENTS = 8.0;
+const float LAUNCHER_RADIUS = 0.08;
 
 // Catcher at bottom of level
 const float CATCHER_SPEED = -0.5;
@@ -164,10 +161,8 @@ typedef struct {
   float power;
 
   // Base parameters
+  float segments;
   float radius;
-  float slices;
-  float loops;
-  GLUquadric *quadric;
 
 } Launcher;
 
