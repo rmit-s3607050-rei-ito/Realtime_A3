@@ -407,8 +407,14 @@ void moveCatcher(float dt) {
   catcher.position.x += dt * catcher.velocity;
 
   // When catcher collide with side of wall, flip direction
-  if (catcher.position.x <= leftWall || catcher.position.x >= rightWall)
-    catcher.velocity *= -1;
+  if (catcher.position.x <= leftWall) {
+    catcher.position.x += 2.0 * (leftWall - catcher.position.x);
+    catcher.velocity *= -1.0;
+  }
+  else if (catcher.position.x >= rightWall) {
+    catcher.position.x += 2.0 * (rightWall - catcher.position.x);
+    catcher.velocity *= -1.0;
+  }
 }
 
 void integrate(float dt) {
@@ -422,29 +428,6 @@ void integrate(float dt) {
   // Reset when fall out of level field
   if(player.currPos.y < bottom)
     resetPlayer();
-}
-
-void rebound(collision collide) {
-  if (collide == xCollide) {
-    // Collision changing velocity in x direction
-    player.currVel.x *= global.bounce;
-
-    // Shift a bit left or right when colliding
-    if (player.currVel.x > 0)
-      player.currPos.x += COLLISION_SHIFT;
-    else
-      player.currPos.x -= COLLISION_SHIFT;
-  }
-  else {
-    // Collision changing velocity in y direction
-    player.currVel.y *= global.bounce;
-
-    // Shift a bit left or right when colliding
-    if (player.currVel.y > 0)
-      player.currPos.y += COLLISION_SHIFT;
-    else
-      player.currPos.y -= COLLISION_SHIFT;
-  }
 }
 
 void wallCollide(float leftCollide, float rightCollide, float topCollide) {
@@ -475,11 +458,12 @@ void bruteForceCatcherCollide(float xPos, float bottomCollide) {
   // Check whether ball reached bottom where catcher is
   if (bottomCollide <= catcher.collisionY) {
     // Check whether left or right bumper has been collided with
-    if ((xPos > leftBumperStart && xPos < leftBumperEnd) ||
-        (xPos > rightBumperStart && xPos < rightBumperEnd))
-    {
-      rebound(xCollide);
-      rebound(yCollide);
+    if (xPos > leftBumperStart && xPos < leftBumperEnd) {
+      player.currPos.y += 2.0 * (bottom + catcher.height - bottomCollide);
+      player.currVel.y *= -1.0;
+    } else if (xPos > rightBumperStart && xPos < rightBumperEnd) {
+      player.currPos.y += 2.0 * (bottom + catcher.height - bottomCollide);
+      player.currVel.y *= -1.0;
     }
   }
 }
@@ -616,7 +600,7 @@ void update(void) {
   float dt = getDeltaTime();
 
   // Constantly move catcher
-  moveCatcher(dt);
+  // moveCatcher(dt);
 
   // Move player and check for collisions only when launching
   if (global.go) {

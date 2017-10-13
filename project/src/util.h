@@ -71,7 +71,6 @@ void drawLineStrip(vec2, vec2, color4f);
 void drawSquare(vec2, vec2, vec2, vec2, color4f);
 void drawCircle(float, float);
 void resetPlayer(void);
-void rebound(collision);
 
 // ########### PLAYER RELATED STUFF ###########
 // Player
