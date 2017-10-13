@@ -30,8 +30,8 @@ Player player = {
   16.0,                  // guideSegments
 
   0.05,                  // radius
-  0.0,                   // mass
-  0.0,                   // elasticity
+  1.0,                   // mass
+  1.0,                   // elasticity
 
   0,                     // quadric
   10,                    // slices
@@ -141,8 +141,8 @@ void initObstacle(Obstacle *peg) {
   peg->vel = { 0.0, 0.0 };
 
   peg->radius = 0.05;
-  peg->mass = 0.0;
-  peg->elasticity = 0.0;
+  peg->mass = 1.0;
+  peg->elasticity = 1.0;
 
   // Rendering params
   // Initialize quadric for rendering
@@ -510,18 +510,45 @@ void bruteForceCollision() {
 
         dissMagSqr = (diss.x * diss.x) + (diss.y * diss.y);
         if (dissMagSqr <= radiusSumSqr) {
+          float n[2], t[2], n_mag;
+          float v1_nt[2], v2_nt[2];
+          float m1, m2, v1i, v2i, v1f, v2f;
+
+          n[0] = pegs[row][col].pos.x - player.currPos.x;;
+          n[1] = pegs[row][col].pos.y - player.currPos.y;;
+
+          n_mag = sqrt(n[0] * n[0] + n[1] * n[1]);
+          n[0] /= n_mag;
+          n[1] /= n_mag;
+
+          t[0] = -n[1];
+          t[1] = n[0];
+
+          v1_nt[0] = n[0] * player.currVel.x + n[1] * player.currVel.y;
+          v1_nt[1] = t[0] * player.currVel.x + t[1] * player.currVel.y;
+          v2_nt[0] = n[0] * 0 + n[1] * 0;
+          v2_nt[1] = t[0] * 0 + t[1] * 0;
+
+          m1 = player.mass;
+          m2 = pegs[row][col].mass;
+          v1i = v1_nt[0];
+          v2i = v2_nt[0];
+          v1f = (m1 - m2) / (m1 + m2) * v1i + 2.0 * m2 / (m1 + m2) * v2i;
+          v2f = 2.0 * m1 / (m1 + m2) * v1i + (m2 - m1) / (m1 + m2) * v2i;
+
+          v1_nt[0] = v1f;
+          v2_nt[0] = v2f;
+
+          player.currVel.x = n[0] * v1_nt[0] + t[0] * v1_nt[1]
+            - n[0] * v2_nt[0] + t[0] * v2_nt[1];
+          player.currVel.y = n[1] * v1_nt[0] + t[1] * v1_nt[1]
+            - n[1] * v2_nt[0] + t[1] * v2_nt[1];
+
           // If peg not already hit, add to score
           if (!pegs[row][col].hit)
             global.score += 1;
 
           pegs[row][col].hit = true;
-
-          rebound(yCollide);
-
-          // Rebound left, from top
-          // if (hitLeft) {
-          //   player.currVel.x *= global.bounce;
-          // }
         }
       }
     }
