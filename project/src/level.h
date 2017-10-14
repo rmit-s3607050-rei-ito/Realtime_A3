@@ -12,7 +12,7 @@ struct Level {
   glm::vec2 topLeft, topRight;
   glm::vec2 botLeft, botRight;
 
-  color4f wallColor;
+  glm::vec3 wallColor;
 };
 
 void initLevel(Level *);

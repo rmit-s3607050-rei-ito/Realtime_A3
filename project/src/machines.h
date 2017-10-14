@@ -30,8 +30,8 @@ struct Launcher {
   float segments;
   float radius;
 
-  color4f cannonColor;
-  color4f baseColor;
+  glm::vec3 cannonColor;
+  glm::vec3 baseColor;
 };
 
 struct Catcher {
@@ -49,8 +49,8 @@ struct Catcher {
   // Rendering params
   float height;
   glm::vec3 size;
-  color4f mainColor;
-  color4f sideColor;
+  glm::vec3 mainColor;
+  glm::vec3 sideColor;
 };
 
 // Initialization
