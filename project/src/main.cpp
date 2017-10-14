@@ -38,7 +38,6 @@ void init(void) {
   global.wireframe = false;
 
   global.dt = 0.0;
-  global.bounce = BOUNCE_FACTOR;
 }
 
 // ##### Drawing and display #####

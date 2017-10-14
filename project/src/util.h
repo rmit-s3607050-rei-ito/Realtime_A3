@@ -2,7 +2,7 @@
 #pragma once
 
 // SHADER STUFF
-// #define GL_GLEXT_PROTOTYPES
+#define GL_GLEXT_PROTOTYPES
 // #include "shaders.h"
 
 #include <stdlib.h>
@@ -29,7 +29,8 @@
 enum reflection { X_REFLECTION, Y_REFLECTION };
 enum direction { LEFTWARDS, RIGHTWARDS };
 
-const float BOUNCE_FACTOR = -0.7;
+// VBO buffers
+#define BUFFER_OFFSET(i) ((void *) (i))
 
 // Constants
 // const float gravity = -9.8;   // Gravity

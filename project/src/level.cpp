@@ -1,8 +1,70 @@
 #include "level.h"
 
-// Main level functionality
+// ########## VBOs for level walls ##########
+void Level::init_vbo(void)
+{
+  // Generate buffers for verticies and indices
+  glGenBuffers(1, &vbo);
+  glGenBuffers(1, &ibo);
+
+  // Allocate memory for indices and verticies
+  verticies = (glm::vec2 *) calloc(num_vertices, sizeof(glm::vec2));
+  indices = (unsigned int*) calloc(num_indices, sizeof(int));
+
+  // Store coordinates for wall
+  verticies[0] = top_left;
+  verticies[1] = top_right;
+  verticies[2] = bot_left;
+  verticies[3] = bot_right;
+
+  // Store indices to access wall
+  // Left wall
+  indices[0] = 2;
+  indices[1] = 0;
+  // Top wall
+  indices[2] = 0;
+  indices[3] = 1;
+  // Right wall
+  indices[4] = 1;
+  indices[5] = 3;
+}
+
+void Level::bind_vbo(void)
+{
+  // Verticies
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glBufferData(GL_ARRAY_BUFFER, num_vertices * sizeof(glm::vec2),
+               verticies, GL_STATIC_DRAW);
+
+  // Indices
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, num_indices * sizeof(unsigned int),
+               indices, GL_STATIC_DRAW);
+
+  // Enable pointer sot vertex coordinate arrays
+  glEnableClientState(GL_VERTEX_ARRAY);
+}
+
+// void unbind_vbo(void)
+// {
+//   // Disable enabled client states
+//   glDisableClientState(GL_VERTEX_ARRAY);
+//
+//   // Free memory allocated to indices and verticies
+//   free(indices);
+//   free(verticies);
+//
+//   // Empty buffers
+//   glBindBuffer(GL_ARRAY_BUFFER, 0);
+//   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+// }
+
+// ########## Level functionality ##########
 void Level::init_level(void)
 {
+  num_vertices = NUM_VERTICES;
+  num_indices = NUM_INDICES;
+
   top_left  = { LEFT, TOP };
   top_right = { RIGHT, TOP };
   bot_left  = { LEFT, BOTTOM + WALL_GAP };
@@ -13,6 +75,9 @@ void Level::init_level(void)
   balls = NUM_BALLS;
   score = 0;
 
+  init_vbo();
+  bind_vbo();
+
   player.init_peg();
   launcher.init_launcher();
   catcher.init_catcher();
@@ -20,13 +85,12 @@ void Level::init_level(void)
 
 void Level::draw_level(void)
 {
-  /* 1. Draw 3 lines forming top and sides of game level, collidable
-   * a. Line from Top Left -> Top Right */
-  drawLineStrip(top_left, top_right, wall_color);
-  // b. Line from Top Right -> Bottom Right
-  drawLineStrip(top_right, bot_right, wall_color);
-  // c. Line from Top Left -> Bottom Left
-  drawLineStrip(top_left, bot_left, wall_color);
+  // 1. Draw walls using stored VBO data
+  glPushMatrix();
+    setColoringMethod(white);
+    glVertexPointer(2, GL_FLOAT, sizeof(glm::vec2), BUFFER_OFFSET(0));
+    glDrawElements(GL_LINE_STRIP, num_indices, GL_UNSIGNED_INT, 0);
+  glPopMatrix();
 
   // 2. Draw player and trajectory guide
   if (balls > 0) { // Only when there are balls left to launch
@@ -34,7 +98,7 @@ void Level::draw_level(void)
     player.draw_guide();
   }
 
-  // Draw all pegs
+  // 3. Draw all pegs
 
   // 4. Draw the launcher at the top, collidable
   launcher.draw_launcher(player);
@@ -64,6 +128,7 @@ bool Level::reset_player(void)
   return false;
 }
 
+// ########## Collision detection ##########
 void Level::check_all_collisions(void)
 {
   // Colisions against level walls: left, right and top
@@ -106,6 +171,7 @@ void Level::check_wall_collision(void)
   }
 }
 
+// ########## Getters ##########
 int Level::get_balls(void)
 {
   return balls;
@@ -116,7 +182,7 @@ int Level::get_score(void)
   return score;
 }
 
-// Calling functions from attached classes
+// ########## Functions from attached classes ##########
 // Catcher
 void Level::move_catcher(float dt)
 {
