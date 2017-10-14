@@ -128,8 +128,8 @@ void clearPegs(void) {
 
 void resetPlayer(void) {
   // Range for catcher, if land between these values ball is not lost
-  float catcherStart = catcher.position.x + catcher.leftTR.x;
-  float catcherEnd = catcher.position.x + catcher.rightTL.x;
+  float catcherStart = globals.catcher.position.x + globals.catcher.leftTR.x;
+  float catcherEnd = globals.catcher.position.x + globals.catcher.rightTL.x;
 
   // Reduce life count by 1 if ball didnt end up in the catcher
   if (globals.player.currPos.x < catcherStart || globals.player.currPos.x > catcherEnd)
