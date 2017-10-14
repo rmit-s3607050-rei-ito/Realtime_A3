@@ -93,6 +93,166 @@ void setColoringMethod(color4f color) {
     glMaterialfv(GL_FRONT, GL_DIFFUSE, &color.r);
 }
 
+<<<<<<< HEAD
+=======
+void drawLineStrip(vec2 start, vec2 end, color4f color) {
+  glPushMatrix();
+    setColoringMethod(color);
+    glBegin(GL_LINE_STRIP);
+      glVertex2f(start.x, start.y);
+      glVertex2f(end.x, end.y);
+    glEnd();
+  glPopMatrix();
+}
+
+void drawSquare(vec2 topL, vec2 topR, vec2 botR, vec2 botL, color4f color) {
+  glPushMatrix();
+    setColoringMethod(color);
+    glBegin(GL_POLYGON);
+      glVertex2f(topL.x, topL.y);
+      glVertex2f(topR.x, topR.y);
+      glVertex2f(botR.x, botR.y);
+      glVertex2f(botL.x, botL.y);
+    glEnd();
+  glPopMatrix();
+}
+
+void drawCircle(float segments, float radius) {
+  vec2 pos;
+  float theta;
+
+  glBegin(GL_POLYGON);
+    for (int i = 0; i <= segments * 2.0; i++) {
+      theta = i / segments * M_PI;
+      pos.x = radius * cosf(theta);
+      pos.y = radius * sinf(theta);
+
+      glVertex3f(pos.x, pos.y, 0.0);
+    }
+  glEnd();
+}
+
+void drawLauncher(void) {
+  // Drawing player
+  drawPlayer();
+
+  glPushMatrix();
+    glTranslatef(0.0, player.initPos.y, 0.0); // Move to top of level
+
+    // Drawing guide
+    glPushMatrix();
+      drawGuide();
+    glPopMatrix();
+
+    // Drawing launcher
+    glPushMatrix();
+      glRotatef(-STARTING_ROTATION, 0.0, 0.0, 1.0); // Cannon points downwards
+
+      // Drawing cannon
+      glPushMatrix();
+        glRotatef(player.rotation, 0.0, 0.0, 1.0);  // Rotate with player rotation
+        glTranslatef(0.0, - (LAUNCHER_LENGTH + LAUNCHER_LENGTH), 0.0);
+        drawSquare(launcher.cTopL, launcher.cTopR, launcher.cBotR, launcher.cBotL, grey);
+      glPopMatrix();
+
+      // Drawing base
+      glPushMatrix();
+        setColoringMethod(darkGrey);
+        drawCircle(launcher.segments, launcher.radius);
+      glPopMatrix();
+    glPopMatrix();
+
+  glPopMatrix();
+}
+
+void drawCatcher(void) {
+  // Draws entire catcher part by part
+  glPushMatrix();
+    glTranslatef(catcher.position.x, catcher.position.y, 0.0);
+    glScalef(catcher.size.x, catcher.size.y, catcher.size.z);
+    // 1. Left side of catcher, collision detected
+    drawSquare(catcher.leftTL, catcher.leftTR, catcher.leftBR, catcher.leftBL,
+               catcher.sideColor);
+    // 3. Right side of catcher, collision detected
+    drawSquare(catcher.rightTL, catcher.rightTR, catcher.rightBR, catcher.rightBL,
+               catcher.sideColor);
+    // 2. Middle, enable falling through
+    drawSquare(catcher.leftTR, catcher.rightTL, catcher.rightBL, catcher.leftBR,
+               catcher.mainColor);
+  glPopMatrix();
+}
+
+void drawLevel(void) {
+  /* 1. Draw 3 lines forming top and sides of game level, can collide with these
+   * a. Line from Top Left -> Top Right */
+  drawLineStrip(topLeft, topRight, white);
+  // b. Line from Top Right -> Bottom Right
+  drawLineStrip(topRight, botRight, white);
+  // c. Line from Top Left -> Bottom Left
+  drawLineStrip(topLeft, botLeft, white);
+
+  // 2. Draw the catcher
+  drawCatcher();
+
+  // 3. Draw the launcher at the top
+  drawLauncher();
+}
+
+void drawGuide(void) {
+  // if (!global.go && global.balls > 0) {
+  if (global.balls > 0) {
+    vec2 start, vel;
+    start = {0,0};
+    vel.x = cos(degreesToRadians(player.rotation)) * launcher.power;
+    vel.y = sin(degreesToRadians(player.rotation)) * launcher.power;
+
+    // Guide drawn as a parabola
+    float tof = (2.0 * vel.y) / gravity;
+    float stepSize = tof / player.guideSegments;
+    float t;
+
+    float pR = player.radius * player.size.x;
+
+    setColoringMethod(red);
+    glBegin(GL_LINE_STRIP);
+      for (float i = 0; i <= player.guideSegments; i++) {
+        t = i * stepSize;
+        start.x += vel.x * t;
+        start.y += (vel.y * t) + (0.5 * gravity * t * t);
+
+        vel.y += gravity * t;
+
+        if (start.x <= left) {
+          start.x += 2.0 * (left - start.x + pR);
+          vel.x *= -1.0;
+        }
+        else if (start.x >= right) {
+          // Right wall hit
+          start.x += 2.0 * (right - start.x + pR);
+          vel.x *= -1.0;
+        }
+
+        glVertex3f(start.x, start.y, 0.0);
+      }
+    glEnd();
+  }
+}
+
+void drawPlayer(void) {
+  /* Using disk drawing method in tutorial 9
+   * Draw ball only when player has enough lives left */
+  if (global.balls > 0) {
+    glPushMatrix();
+      setColoringMethod(player.color);
+      glTranslatef(player.currPos.x, player.currPos.y, 0.0);
+      glRotatef(player.rotation, 0.0, 0.0, 1.0);
+      glScalef(player.size.x, player.size.y, player.size.z);
+      drawCircle(player.segments, player.radius);
+    glPopMatrix();
+  }
+}
+
+>>>>>>> 177023d66c55078df8f78824d5c0c797c8992859
 void drawObstacles(void) {
   // Using disk drawing method in tutorial 9
   for(int row = 0; row < HEIGHT; row++) {
@@ -158,6 +318,7 @@ void bruteForceCollision() {
   catcherCollide(&globals.catcher, &globals.player, playerBottom);
 
   // 3. Collisions against pegs
+<<<<<<< HEAD
   // double radiusSum, radiusSumSqr, dissMagSqr;
   // vec2 diss;
   //
@@ -217,6 +378,67 @@ void bruteForceCollision() {
   //     }
   //   }
   // }
+=======
+  double radiusSum, radiusSumSqr, dissMagSqr;
+  vec2 diss;
+
+  //for(int row = 0; row < HEIGHT; row++) {
+  //  for (int col = 0; col < WIDTH; col++) {
+  //    if (!pegs[row][col].clear && !pegs[row][col].empty) {
+  //      float pegRadius = (pegs[row][col].radius * pegs[row][col].size.x);
+
+  //      radiusSum = playerRadius + pegRadius;
+  //      radiusSumSqr = radiusSum * radiusSum;
+
+  //      diss.x = pegs[row][col].pos.x - player.currPos.x;
+  //      diss.y = pegs[row][col].pos.y - player.currPos.y;
+
+  //      dissMagSqr = (diss.x * diss.x) + (diss.y * diss.y);
+  //      if (dissMagSqr <= radiusSumSqr) {
+  //        float n[2], t[2], n_mag;
+  //        float v1_nt[2], v2_nt[2];
+  //        float m1, m2, v1i, v2i, v1f, v2f;
+
+  //        n[0] = pegs[row][col].pos.x - player.currPos.x;;
+  //        n[1] = pegs[row][col].pos.y - player.currPos.y;;
+
+  //        n_mag = sqrt(n[0] * n[0] + n[1] * n[1]);
+  //        n[0] /= n_mag;
+  //        n[1] /= n_mag;
+
+  //        t[0] = -n[1];
+  //        t[1] = n[0];
+
+  //        v1_nt[0] = n[0] * player.currVel.x + n[1] * player.currVel.y;
+  //        v1_nt[1] = t[0] * player.currVel.x + t[1] * player.currVel.y;
+  //        v2_nt[0] = n[0] * 0 + n[1] * 0;
+  //        v2_nt[1] = t[0] * 0 + t[1] * 0;
+
+  //        m1 = player.mass;
+  //        m2 = pegs[row][col].mass;
+  //        v1i = v1_nt[0];
+  //        v2i = v2_nt[0];
+  //        v1f = (m1 - m2) / (m1 + m2) * v1i + 2.0 * m2 / (m1 + m2) * v2i;
+  //        v2f = 2.0 * m1 / (m1 + m2) * v1i + (m2 - m1) / (m1 + m2) * v2i;
+
+  //        v1_nt[0] = v1f;
+  //        v2_nt[0] = v2f;
+
+  //        player.currVel.x = (n[0] * v1_nt[0] + t[0] * v1_nt[1])
+  //          - (n[0] * v2_nt[0] + t[0] * v2_nt[1]);
+  //        player.currVel.y = (n[1] * v1_nt[0] + t[1] * v1_nt[1])
+  //          - (n[1] * v2_nt[0] + t[1] * v2_nt[1]);
+
+  //        // If peg not already hit, add to score
+  //        if (!pegs[row][col].hit)
+  //          global.score += 1;
+
+  //        pegs[row][col].hit = true;
+  //      }
+  //    }
+  //  }
+  //}
+>>>>>>> 177023d66c55078df8f78824d5c0c797c8992859
 }
 
 // On screen display
