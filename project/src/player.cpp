@@ -1,9 +1,6 @@
 #include "player.h"
 
-Player::Player(void)
-{
-  init_peg();
-}
+Player::Player(void) {}
 
 void Player::init_peg()
 {
@@ -41,7 +38,6 @@ void Player::init_peg()
   collision_radius = radius * size.x;
 }
 
-// void Player::draw_peg(bool type)
 void Player::draw_peg(void)
 {
   glPushMatrix();
@@ -50,7 +46,6 @@ void Player::draw_peg(void)
     glRotatef(rotation, 0.0, 0.0, 1.0);
     glScalef(size.x, size.y, size.z);
     drawCircle(segments, radius);
-    draw_guide();
   glPopMatrix();
 }
 
@@ -67,7 +62,7 @@ void Player::draw_guide(void)
   float t;
 
   glPushMatrix();
-    glTranslatef(0.0, PLAYER_START_POS_Y, 0.0); // Move to top of level
+    glTranslatef(init_pos.x, init_pos.y, 0.0);
     setColoringMethod(GUIDE_COLOR);
     glBegin(GL_LINE_STRIP);
       for (float i = 0; i <= guide_segments; i++) {
@@ -91,7 +86,18 @@ void Player::draw_guide(void)
   // glEnd();
 }
 
-void Player::set_launch()
+void Player::rotate_launch(direction path)
+{
+  // Rotate leftwards - do so when greater than minimum rotation
+  if (path == LEFTWARDS && rotation > min_rotation)
+    rotation -= rotation_inc;
+  else if (path == RIGHTWARDS && rotation < max_rotation) {
+  // Rotate rightwards - do so when less than maximum rotation
+    rotation += rotation_inc;
+  }
+}
+
+void Player::set_launch(void)
 {
   curr_vel.x = cos(degreesToRadians(rotation)) * power;
   curr_vel.y = sin(degreesToRadians(rotation)) * power;
@@ -105,6 +111,24 @@ void Player::integrate(float dt)
 
   // Factor in gravity in ball movement
   curr_vel.y += gravity * dt;
+}
+
+void Player::reset(void)
+{
+  // Ball has fallen out, reset positioning
+  curr_pos = init_pos;
+  curr_vel = init_vel;
+}
+
+void Player::rebound(reflection axis, float displacement, float reflectPower) {
+  if (axis == X_REFLECTION) {
+    curr_pos.x += displacement;
+    curr_vel.x *= reflectPower;
+  }
+  else if (axis == Y_REFLECTION) {
+    curr_pos.y += displacement;
+    curr_vel.y *= reflectPower;
+  }
 }
 
 // bool Player::peg_collide(Normal peg)
@@ -217,6 +241,17 @@ void Player::integrate(float dt)
 //     - (n[1] * v2_nt[0] + t[1] * v2_nt[1]);
 // }
 
-float Player::get_rotation(void) {
+float Player::get_collision_radius(void)
+{
+  return collision_radius;
+}
+
+float Player::get_rotation(void)
+{
   return rotation;
+}
+
+glm::vec2 Player::get_curr_pos(void)
+{
+  return curr_pos;
 }

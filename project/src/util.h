@@ -25,8 +25,9 @@
   #define M_PI 4.0 * atan(1.0)
 #endif
 
-// Custom structs
-// typedef enum { xCollide, yCollide } collision;
+// Rotating launch
+enum reflection { X_REFLECTION, Y_REFLECTION };
+enum direction { LEFTWARDS, RIGHTWARDS };
 
 const float BOUNCE_FACTOR = -0.7;
 
@@ -61,35 +62,8 @@ const float STARTING_ROTATION = -90.0;
 // Functions
 float degreesToRadians(float);
 void setColoringMethod(glm::vec3);
-
 void drawLineStrip(glm::vec2, glm::vec2, glm::vec3);
 void drawSquare(glm::vec2, glm::vec2, glm::vec2, glm::vec2, glm::vec3);
 void drawCircle(float, float);
 
 void resetPlayer(void);
-
-// ######## OBSTACLE RELATED STUFF #########
-// const int WIDTH = 15;
-// const int HEIGHT = 6;
-//
-// typedef struct {
-//   glm::vec2 pos;
-//   glm::vec2 vel;
-//
-//   float radius;
-//   float mass;
-//   float elasticity;
-//
-//   // Rendering params
-//   float segments;
-//   glm::vec3 size;
-//   glm::vec3 color;
-//
-//   bool hit;
-//   bool clear;
-//   bool empty;
-// } Obstacle;
-//
-// void initObstacle(Obstacle *);
-// void initObstacles(void);
-// void drawObstacles(void);

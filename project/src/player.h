@@ -1,8 +1,9 @@
 #pragma once
 
+#include "util.h"
 #include "peg.h"
-#include "normal.h"
-#include "orange.h"
+// #include "normal.h"
+// #include "orange.h"
 
 const float LAUNCH_POWER = 1.2;
 const float PLAYER_SIZE = 0.5;
@@ -21,11 +22,14 @@ class Player : public Peg
 {
   glm::vec2 init_pos, curr_pos;
   glm::vec2 init_vel, curr_vel;
+
   float rotation;
   float min_rotation, max_rotation;
   float rotation_inc;
+
   float guide_size;
   float guide_segments;
+
   float power;
   float radius;
   float segments;
@@ -38,10 +42,18 @@ class Player : public Peg
     virtual void draw_peg(void) override;
 
     void draw_guide(void);
+    void rotate_launch(direction);
     void set_launch(void);
     void integrate(float);
+    void reset(void);
 
+    // Collisions
+    void rebound(reflection, float, float);
+
+    // Getters
+    float get_collision_radius(void);
     float get_rotation(void);
+    glm::vec2 get_curr_pos(void);
 
     // bool peg_collide(Normal);
     // bool peg_collide(Orange);

@@ -1,11 +1,6 @@
-// #include "globals.h"
 #include "level.h"
 
 struct Global {
-  // All other class files
-  Level level;
-
-  // Global related variables
   bool go;
   bool wireframe;
 
@@ -13,7 +8,8 @@ struct Global {
   float bounce;
 };
 
-Global globals;
+Global global;
+Level level;
 
 // int numPoints = 0;
 // const int MAX_POINTS = 1000;
@@ -33,19 +29,21 @@ static float getDeltaTime(void) {
   return dt;
 }
 
-void init_globals(void) {
-  globals.level.init_level();
+void init(void) {
+  // Initialize level
+  level.init_level();
 
-  globals.go = false;
-  globals.wireframe = false;
+  // Initialize global variables
+  global.go = false;
+  global.wireframe = false;
 
-  globals.dt = 0.0;
-  globals.bounce = BOUNCE_FACTOR;
+  global.dt = 0.0;
+  global.bounce = BOUNCE_FACTOR;
 }
 
 // ##### Drawing and display #####
 void setRenderMode(void) {
-  if(globals.wireframe) {
+  if(global.wireframe) {
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_NORMALIZE);
@@ -61,7 +59,7 @@ void setRenderMode(void) {
 }
 
 void setColoringMethod(glm::vec3 color) {
-  if(globals.wireframe)
+  if(global.wireframe)
     glColor3fv(&color.x);
   else
     glMaterialfv(GL_FRONT, GL_DIFFUSE, &color.r);
@@ -75,7 +73,7 @@ void setColoringMethod(glm::vec3 color) {
 //       if (!pegs[row][col].clear && !pegs[row][col].empty) {
 //         if (pegs[row][col].hit) {
 //           pegs[row][col].clear = true;
-//           globals.score += 5;
+//           global.score += 5;
 //         }
 //       }
 //     }
@@ -84,8 +82,8 @@ void setColoringMethod(glm::vec3 color) {
 
 // void resetPlayer(Player *player) {
 //   // Check whether player landed in catcher, if not reduce ball count by 1
-//   if (!catcher.caught_player(&globals.player))
-//     globals.balls--;
+//   if (!catcher.caught_player(&global.player))
+//     global.balls--;
 //
 //   // clearPegs();
 //
@@ -94,16 +92,13 @@ void setColoringMethod(glm::vec3 color) {
 //   player->currVel = player->initVel;
 //
 //   // Allow player to launch again
-//   globals.go = !globals.go;
+//   global.go = !global.go;
 // }
 
 // ##### Collision detection #####
-void bruteForceCollision() {
-  // 1. Collisions against level wall
-  // level.wall_collide(&globals.player);
-
+// void bruteForceCollision() {
   // 2. Collision with sides of catcher
-  // catcher.catcher_collide(&globals.player);
+  // catcher.catcher_collide(&global.player);
 
   // 3. Collisions against pegs
   // double radiusSum, radiusSumSqr, dissMagSqr;
@@ -158,14 +153,14 @@ void bruteForceCollision() {
   //
   //         // If peg not already hit, add to score
   //         if (!pegs[row][col].hit)
-  //           globals.score += 1;
+  //           global.score += 1;
   //
   //         pegs[row][col].hit = true;
   //       }
   //     }
   //   }
   // }
-}
+// }
 
 // On screen display
 void displayOSD() {
@@ -198,12 +193,12 @@ void displayOSD() {
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
   // Frame rate
   glRasterPos2i(10, h-22);
-  snprintf(buffer, sizeof buffer, "Balls: %d", globals.level.get_balls());
+  snprintf(buffer, sizeof buffer, "Balls: %d", level.get_balls());
   for (bufp = buffer; *bufp; bufp++)
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
   // Frame time
   glRasterPos2i(w-90, h-22);
-  snprintf(buffer, sizeof buffer, "Score: %d", globals.level.get_score());
+  snprintf(buffer, sizeof buffer, "Score: %d", level.get_score());
   for (bufp = buffer; *bufp; bufp++)
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
 
@@ -218,19 +213,19 @@ void displayOSD() {
 
 // ##### Main functions #####
 void update(void) {
-  globals.dt = getDeltaTime();
+  global.dt = getDeltaTime();
 
   // Constantly move catcher
-  // catcher.move_catcher(globals.dt);
+  level.move_catcher(global.dt);
 
   // Move player and check for collisions only when launching
-  if (globals.go) {
-    // integrate(globals.dt, &globals.player);
-    // bruteForceCollision();
+  if (global.go) {
+    level.integrate(global.dt);
+    level.check_all_collisions();
 
-    // Reset when fall out of level field
-    // if(globals.player.currPos.y < BOTTOM)
-    //   resetPlayer(&globals.player);
+    // Check when player falls out of arena and is to be resetted
+    if(level.reset_player())
+      global.go = !global.go;
   }
 
   glutPostRedisplay();
@@ -247,7 +242,7 @@ void display(void) {
   setRenderMode();
 
   // Draw level objects
-  globals.level.draw_level();
+  level.draw_level();
 
   glPopMatrix();
 
@@ -271,29 +266,25 @@ void keyboard(unsigned char key, int x, int y) {
   switch (key) {
     // Rotate launch position
     case 'a': // left
-      // if (!globals.go && globals.player.rotation > globals.player.minRotation) {
-      //   globals.player.rotation -= globals.player.rotationInc;
-      //   // prediction = calculateGuidePoints();
-      // }
+      if (!global.go)
+        level.rotate_launcher(LEFTWARDS);
       break;
     case 'd': // right
-      // if (!globals.go && globals.player.rotation < globals.player.maxRotation) {
-      //   globals.player.rotation += globals.player.rotationInc;
-      //   // prediction = calculateGuidePoints();
-      // }
+      if (!global.go)
+        level.rotate_launcher(RIGHTWARDS);
       break;
 
     // Toggle wireframe/filled mode
     case '1':
-      globals.wireframe = !globals.wireframe;
+      global.wireframe = !global.wireframe;
       break;
 
     case ' ': // 'space' = launch ball
-      // if(!globals.go && globals.balls > 0) {
-        // Set velocity of x and y depending on direction rotated to
-        // setLaunch(&globals.player);
-        // globals.go = !globals.go;
-      // }
+      if(!global.go && level.get_balls() > 0) {
+        // Set velocity of x and y depending on direction rotated to launch
+        level.set_launch();
+        global.go = !global.go;
+      }
       break;
 
     case 'q':
@@ -317,7 +308,7 @@ int main(int argc, char** argv) {
   glutInitWindowPosition(WINDOW_POS_X, WINDOW_POS_Y);
   glutCreateWindow(argv[0]);
 
-  init_globals();
+  init();
 
   glutDisplayFunc(display);
   glutIdleFunc(update);

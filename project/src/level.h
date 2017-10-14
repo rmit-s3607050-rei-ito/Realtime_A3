@@ -1,8 +1,9 @@
 #pragma once
 
 #include "util.h"
-// #include "player.h"
-#include "machines.h"
+#include "catcher.h"
+#include "launcher.h"
+#include "player.h"
 
 const float WALL_GAP = 0.075;
 const float WALL_REBOUND = -1.0;
@@ -22,10 +23,23 @@ class Level {
 
   public:
     Level(void) {};
-    // void wall_collide(Player *);
+    // Main functions
     void init_level(void);
     void draw_level(void);
+    bool reset_player(void);
 
+    void check_all_collisions(void);
+    void check_wall_collision(void);
+
+    // Getters
     int get_balls(void);
     int get_score(void);
+
+    // Functions from attached classes
+    // Catcher
+    void move_catcher(float);
+    // Player
+    void rotate_launcher(direction);
+    void set_launch(void);
+    void integrate(float dt);
 };
