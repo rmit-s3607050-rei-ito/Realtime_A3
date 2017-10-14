@@ -1,6 +1,3 @@
-// #include "player.h"
-// #include "level.h"
-// #include "util.h"
 #include "globals.h"
 
 Globals globals;
@@ -86,9 +83,9 @@ void setRenderMode(void) {
   }
 }
 
-void setColoringMethod(color4f color) {
+void setColoringMethod(glm::vec3 color) {
   if(globals.wireframe)
-    glColor4fv(&color.r);
+    glColor3fv(&color.x);
   else
     glMaterialfv(GL_FRONT, GL_DIFFUSE, &color.r);
 }
@@ -126,36 +123,28 @@ void clearPegs(void) {
   }
 }
 
-void resetPlayer(void) {
-  // Range for catcher, if land between these values ball is not lost
-  float catcherStart = globals.catcher.position.x + globals.catcher.leftTR.x;
-  float catcherEnd = globals.catcher.position.x + globals.catcher.rightTL.x;
-
-  // Reduce life count by 1 if ball didnt end up in the catcher
-  if (globals.player.currPos.x < catcherStart || globals.player.currPos.x > catcherEnd)
+void resetPlayer(Player *player) {
+  // Check whether player landed in catcher, if not reduce ball count by 1
+  if (!caughtPlayer(&globals.catcher, &globals.player))
     globals.balls--;
 
+  clearPegs();
+
   // Reset player position to start of level and reset velocity
-  globals.player.currPos = globals.player.initPos;
-  globals.player.currVel = globals.player.initVel;
+  player->currPos = player->initPos;
+  player->currVel = player->initVel;
+
+  // Allow player to launch again
+  globals.go = !globals.go;
 }
 
 // ##### Collision detection #####
 void bruteForceCollision() {
-  // Radius of player, with scaling applied
-  float playerRadius = (globals.player.radius * globals.player.size.x);
+  // 1. Collisions against level wall
+  wallCollide(&globals.player);
 
-  // Values to compare for collision with ball
-  float playerLeft = globals.player.currPos.x - playerRadius;
-  float playerRight = globals.player.currPos.x + playerRadius;
-  float playerTop = globals.player.currPos.y + playerRadius;
-  float playerBottom = globals.player.currPos.y - playerRadius;
-
-  // 2. Collisions against level wall
-  wallCollide(&globals.player, playerLeft, playerRight, playerTop);
-
-  // 3. Collision with sides of catcher
-  catcherCollide(&globals.catcher, &globals.player, playerBottom);
+  // 2. Collision with sides of catcher
+  catcherCollide(&globals.catcher, &globals.player);
 
   // 3. Collisions against pegs
   // double radiusSum, radiusSumSqr, dissMagSqr;
@@ -273,7 +262,7 @@ void update(void) {
   globals.dt = getDeltaTime();
 
   // Constantly move catcher
-  moveCatcher(&globals.catcher, globals.dt);
+  // moveCatcher(&globals.catcher, globals.dt);
 
   // Move player and check for collisions only when launching
   if (globals.go) {
@@ -281,12 +270,8 @@ void update(void) {
     bruteForceCollision();
 
     // Reset when fall out of level field
-    if(globals.player.currPos.y < BOTTOM) {
-      resetPlayer();
-      clearPegs();
-      // Allow player to launch again
-      globals.go = !globals.go;
-    }
+    if(globals.player.currPos.y < BOTTOM)
+      resetPlayer(&globals.player);
   }
 
   glutPostRedisplay();

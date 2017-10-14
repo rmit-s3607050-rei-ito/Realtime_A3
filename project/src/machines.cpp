@@ -12,10 +12,10 @@ void initLauncher(Launcher *launcher) {
   launcher->width = LAUNCHER_WIDTH;
 
   // Positioning to draw shapes
-  launcher->cTopL = (vec2) { -launcher->width, launcher->length };
-  launcher->cTopR = (vec2) { launcher->width, launcher->length };
-  launcher->cBotL = (vec2) { -launcher->width, -launcher->length };
-  launcher->cBotR = (vec2) { launcher->width, -launcher->length };
+  launcher->cTopL = { -launcher->width, launcher->length };
+  launcher->cTopR = { launcher->width, launcher->length };
+  launcher->cBotL = { -launcher->width, -launcher->length };
+  launcher->cBotR = { launcher->width, -launcher->length };
 
   // Coloring
   launcher->cannonColor = grey;
@@ -27,19 +27,19 @@ void initCatcher(Catcher *catcher) {
   catcher->velocity = CATCHER_SPEED;
   // Set how tall catcher is and size scaling
   catcher->height = CATCHER_HEIGHT;
-  catcher->size = (vec3) { 1.0, 1.0, 1.0 };
+  catcher->size = { CATCHER_SIZE, CATCHER_SIZE, CATCHER_SIZE };
 
   // Set positions for catcher left and right components
   // 1. Left section
-  catcher->leftTL = (vec2) { -CATCHER_BUMPER_END, catcher->height };
-  catcher->leftTR = (vec2) { -CATCHER_BUMPER_START, catcher->height };
-  catcher->leftBL = (vec2) { -CATCHER_BUMPER_END, 0.0 };
-  catcher->leftBR = (vec2) { -CATCHER_BUMPER_START, 0.0 };
+  catcher->leftTL = { -CATCHER_BUMPER_END, catcher->height };
+  catcher->leftTR = { -CATCHER_BUMPER_START, catcher->height };
+  catcher->leftBL = { -CATCHER_BUMPER_END, 0.0 };
+  catcher->leftBR = { -CATCHER_BUMPER_START, 0.0 };
   // 2. Right section
-  catcher->rightTL = (vec2) { CATCHER_BUMPER_START, catcher->height };
-  catcher->rightTR = (vec2) { CATCHER_BUMPER_END, catcher->height };
-  catcher->rightBL = (vec2) { CATCHER_BUMPER_START, 0.0 };
-  catcher->rightBR = (vec2) { CATCHER_BUMPER_END, 0.0 };
+  catcher->rightTL = { CATCHER_BUMPER_START, catcher->height };
+  catcher->rightTR = { CATCHER_BUMPER_END, catcher->height };
+  catcher->rightBL = { CATCHER_BUMPER_START, 0.0 };
+  catcher->rightBR = { CATCHER_BUMPER_END, 0.0 };
 
   // Set catcher to be at bottom of the level
   catcher->position.y = BOTTOM;
@@ -113,7 +113,9 @@ void moveCatcher(Catcher *catcher, float dt) {
   }
 }
 
-void catcherCollide(Catcher *catcher, Player *player, float bottomCollide) {
+void catcherCollide(Catcher *catcher, Player *player) {
+  float bottomCollide = player->currPos.y - player->collisionRadius;
+
   float leftBumperStart = catcher->position.x + catcher->leftTL.x;
   float leftBumperEnd = catcher->position.x + catcher->leftTR.x;
   float rightBumperStart = catcher->position.x + catcher->rightTL.x;
@@ -132,4 +134,16 @@ void catcherCollide(Catcher *catcher, Player *player, float bottomCollide) {
       player->currVel.y *= -1.0;
     }
   }
+}
+
+bool caughtPlayer(Catcher *catcher, Player *player) {
+  // Range for catcher, if land between these values ball is not lost
+  float catcherStart = catcher->position.x + catcher->leftTR.x;
+  float catcherEnd = catcher->position.x + catcher->rightTL.x;
+
+  // Reduce life count by 1 if ball didnt end up in the catcher
+  if (player->currPos.x < catcherStart || player->currPos.x > catcherEnd)
+    return false;
+
+  return true;
 }

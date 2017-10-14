@@ -26,8 +26,6 @@
 #endif
 
 // Custom structs
-typedef struct { float x, y, z; } vec3;
-typedef struct { float x, y; } vec2;
 typedef struct { GLfloat r, g, b, a; } color4f;
 
 typedef enum { xCollide, yCollide } collision;
@@ -38,12 +36,12 @@ const float gravity = -2.0;   // Fake Gravity
 const float milli = 1000.0;   // One second
 
 // Colors
-const color4f white = { 1.0, 1.0, 1.0, 0.0 };
-const color4f grey = { 0.2, 0.2, 0.2, 0.0 };
-const color4f red = { 1.0, 0.0, 0.0, 0.0 };
-const color4f yellow = { 1.0, 1.0, 0.0, 0.0 };
-const color4f brown = { 0.55, 0.27, 0.07, 0.0 };
-const color4f darkGrey = { 0.1, 0.1, 0.1, 0.0 };
+const glm::vec3 white = { 1.0, 1.0, 1.0 };
+const glm::vec3 grey = { 0.2, 0.2, 0.2 };
+const glm::vec3 red = { 1.0, 0.0, 0.0 };
+const glm::vec3 yellow = { 1.0, 1.0, 0.0 };
+const glm::vec3 brown = { 0.55, 0.27, 0.07 };
+const glm::vec3 darkGrey = { 0.1, 0.1, 0.1 };
 
 // Window dimensions
 const float WINDOW_X = 600.0;
@@ -62,9 +60,9 @@ const float STARTING_ROTATION = -90.0;
 
 // Functions
 float degreesToRadians(float);
-void setColoringMethod(color4f color);
-void drawLineStrip(vec2, vec2, color4f);
-void drawSquare(vec2, vec2, vec2, vec2, color4f);
+void setColoringMethod(glm::vec3 color);
+void drawLineStrip(glm::vec2, glm::vec2, color4f);
+void drawSquare(glm::vec2, glm::vec2, glm::vec2, glm::vec2, color4f);
 void drawCircle(float, float);
 void resetPlayer(void);
 
@@ -73,8 +71,8 @@ const int WIDTH = 15;
 const int HEIGHT = 6;
 
 typedef struct {
-  vec2 pos;
-  vec2 vel;
+  glm::vec2 pos;
+  glm::vec2 vel;
 
   float radius;
   float mass;
@@ -82,7 +80,7 @@ typedef struct {
 
   // Rendering params
   float segments;
-  vec3 size;
+  glm::vec3 size;
   color4f color;
 
   bool hit;
