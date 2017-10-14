@@ -1,11 +1,11 @@
 #include "normal.h"
 
-Normal(void)
+Orange(void)
 {
   init_peg();
 }
 
-void Normal::init_peg()
+void Orange::init_peg()
 {
   // Peg specific
   mass = MASS;
@@ -23,7 +23,7 @@ void Normal::init_peg()
   clear = false;
 }
 
-void Normal::draw_peg(bool type)
+void Orange::draw_peg(bool type)
 {
   glPushMatrix();
     if (type)
@@ -36,16 +36,16 @@ void Normal::draw_peg(bool type)
   glPopMatrix();
 }
 
-int Normal::hit()
+int Orange::hit()
 {
   hit = true;
   color = HIT_COLOR;
-  return 1;
+  return 2;
 }
 
-int Normal::clear()
+int Orange::clear()
 {
   if (hit)
     clear = true;
-  return 5;
+  return 10;
 }

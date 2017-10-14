@@ -2,10 +2,10 @@
 
 #include "peg.h"
 
-const glm::vec3 DEFAULT_COLOR = { 0.0, 0.0, 1.0 };
-const glm::vec3 HIT_COLOR = { 0.0, 1.0, 1.0 };
+const glm::vec3 DEFAULT_COLOR = { 1.0, 0.5, 0.0 };
+const glm::vec3 HIT_COLOR = { 1.0, 1.0, 0.0 };
 
-class Normal : public Peg
+class Orange : public Peg
 {
   glm::vec2 position;
   glm::vec2 velocity;

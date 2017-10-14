@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util.h"
+#include "peg.h"
 
 const float LAUNCH_POWER = 1.2;
 const float PLAYER_SIZE = 0.5;
@@ -12,44 +12,33 @@ const float ROTATION_INCREMENT = 1.0;
 const float GUIDE_SIZE = 5.0;
 const float GUIDE_SEGMENTS = 16.0;
 
-const float PLAYER_SEGMENTS = 8.0;
-const float PLAYER_RADIUS = 0.05;
-const float PLAYER_MASS = 1.0;
-const float PLAYER_ELASTICITY = 1.0;
+const glm::vec3 DEFAULT_COLOR = { 1.0, 1.0, 1.0 };
+const glm::vec3 GUIDE_COLOR = { 1.0, 0.0, 0.0 };
 
-typedef struct Player Player;
-
-struct Player {
-  // Positioning and velocity
-  glm::vec2 initPos, currPos;
-  glm::vec2 initVel, currVel;
-  glm::vec3 size;
-
-  // Changing launching angle + displaying guide
-  float rotation;         // Around z axis
-  float minRotation, maxRotation;
-  float rotationInc;
-  float guideSize;
-  float guideSegments;
-
-  // Strength of projectile launch
+class Player : public Peg
+{
+  glm::vec2 init_pos, curr_pos;
+  glm::vec2 init_vel, curr_vel;
+  float rotation;
+  float min_rotation, max_rotation;
+  float rotation_inc;
+  float guide_size;
+  float guide_segments;
   float power;
-
-  // Collision detection
-  float collisionRadius;
-  float segments;
   float radius;
-  float mass;
-  float elasticity;
+  float segments;
+  float collision_radius;
 
-  color4f color;
+  public:
+    Player(void);
+    // Overridden functions
+    virtual void init_peg(void) override;
+    virtual void draw_peg(bool) override;
+    void draw_guide(bool);
+    void set_launch(void);
+    void integrate(float);
+    bool peg_collide(Normal);
+    bool peg_collide(Orange);
+    void peg_collide_reflect(Normal peg);
+    void peg_collide_reflect(Orange peg);
 };
-
-// Initialization
-void initPlayer(Player *);
-// Drawing
-void drawGuide(Player *);
-void drawPlayer(Player *);
-// Launch and movement
-void setLaunch(Player *);
-void integrate(float, Player *);
