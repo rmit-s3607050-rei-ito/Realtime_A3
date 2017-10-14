@@ -1,11 +1,12 @@
 #include "globals.h"
 
 // Initialization
-void initGlobals(Globals *globals) {
-  initLevel(&globals->level);
+void init_globals(Globals *globals) {
+  globals->level.init_level();
+  globals->launcher.init_launcher();
+  globals->catcher.init_catcher();
+
   initPlayer(&globals->player);
-  initLauncher(&globals->launcher);
-  initCatcher(&globals->catcher);
 
   globals->go = false;
   globals->wireframe = false;
@@ -18,9 +19,9 @@ void initGlobals(Globals *globals) {
 }
 
 // Drawing the entire scene, level, player, walls, pegs, launcher and catcher
-void drawScene(Globals *globals) {
+void draw_scene(Globals *globals) {
   // 1. Draw level walls
-  drawLevel(&globals->level);
+  globals->level.draw_level();
 
   // 2. Draw player and trajectory prediction / guide
   if (globals->balls > 0) {
@@ -31,8 +32,8 @@ void drawScene(Globals *globals) {
   }
 
   // 3. Draw the launcher at the top
-  drawLauncher(&globals->launcher, &globals->player);
+  globals->launcher.draw_launcher(&globals->player);
 
   // 4. Draw the catcher at the bottom
-  drawCatcher(&globals->catcher);
+  globals->catcher.draw_catcher();
 }

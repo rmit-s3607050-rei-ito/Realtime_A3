@@ -6,15 +6,14 @@
 const float WALL_GAP = 0.075;
 const float WALL_REBOUND = -1.0;
 
-typedef struct Level Level;
+class Level {
+  glm::vec2 top_left, top_right;
+  glm::vec2 bot_left, bot_right;
+  glm::vec3 wall_color;
 
-struct Level {
-  glm::vec2 topLeft, topRight;
-  glm::vec2 botLeft, botRight;
-
-  glm::vec3 wallColor;
+  public:
+    Level(void) { };
+    void wall_collide(Player *);
+    void init_level(void);
+    void draw_level(void);
 };
-
-void initLevel(Level *);
-void drawLevel(Level *);
-void wallCollide(Player *);

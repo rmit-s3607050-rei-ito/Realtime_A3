@@ -26,7 +26,6 @@
 #endif
 
 // Custom structs
-typedef struct { GLfloat r, g, b, a; } color4f;
 typedef enum { xCollide, yCollide } collision;
 
 // Constants
@@ -68,27 +67,27 @@ void drawCircle(float, float);
 void resetPlayer(void);
 
 // ######## OBSTACLE RELATED STUFF #########
-const int WIDTH = 15;
-const int HEIGHT = 6;
-
-typedef struct {
-  glm::vec2 pos;
-  glm::vec2 vel;
-
-  float radius;
-  float mass;
-  float elasticity;
-
-  // Rendering params
-  float segments;
-  glm::vec3 size;
-  color4f color;
-
-  bool hit;
-  bool clear;
-  bool empty;
-} Obstacle;
-
-void initObstacle(Obstacle *);
-void initObstacles(void);
-void drawObstacles(void);
+// const int WIDTH = 15;
+// const int HEIGHT = 6;
+//
+// typedef struct {
+//   glm::vec2 pos;
+//   glm::vec2 vel;
+//
+//   float radius;
+//   float mass;
+//   float elasticity;
+//
+//   // Rendering params
+//   float segments;
+//   glm::vec3 size;
+//   glm::vec3 color;
+//
+//   bool hit;
+//   bool clear;
+//   bool empty;
+// } Obstacle;
+//
+// void initObstacle(Obstacle *);
+// void initObstacles(void);
+// void drawObstacles(void);

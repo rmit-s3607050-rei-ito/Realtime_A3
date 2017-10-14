@@ -13,8 +13,8 @@ typedef struct Globals Globals;
 struct Globals {
   // All other class files
   Level level;
-  Player player;
   Launcher launcher;
+  Player player;
   Catcher catcher;
 
   // Global related variables
@@ -28,5 +28,5 @@ struct Globals {
   int score;
 };
 
-void initGlobals(Globals *globals);
-void drawScene(Globals *globals);
+void init_globals(Globals *globals);
+void draw_scene(Globals *globals);

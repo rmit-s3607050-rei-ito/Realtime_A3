@@ -2,7 +2,9 @@
 
 Globals globals;
 
-Obstacle pegs[HEIGHT][WIDTH];
+Level level = globals.level;
+Catcher catcher = globals.catcher;
+Launcher launcher = globals.launcher;
 
 // int numPoints = 0;
 // const int MAX_POINTS = 1000;
@@ -20,50 +22,6 @@ static float getDeltaTime(void) {
   float dt = (t2 - t1) / milli;
   t1 = t2;
   return dt;
-}
-
-// ##### Initialization #####
-void initObstacle(Obstacle *peg) {
-  peg->vel = { 0.0, 0.0 };
-
-  peg->radius = 0.05;
-  peg->mass = 5.0;
-  peg->elasticity = 1.0;
-
-  // Rendering params
-  peg->segments = 8.0;
-  peg->size = { 0.7, 0.7, 0.7 };
-  peg->color = { 0.0, 0.0, 1.0, 0.0 };
-
-  peg->hit = false;
-  peg->clear = false;
-  peg->empty = false;
-}
-
-void initObstacles(void) {
-  float leftLimit = LEFT + 0.1;
-  float rightLimit = RIGHT;
-  float bottomLimit = BOTTOM + 0.35;
-  float topLimit = TOP;
-
-  float xInterval = (fabs(leftLimit-rightLimit))/WIDTH;
-  float xCurr = leftLimit;
-
-  float yInterval = (fabs(bottomLimit-topLimit))/HEIGHT;
-  float yCurr = bottomLimit;
-
-  for(int row = 0; row < HEIGHT; row++) {
-    for (int col = 0; col < WIDTH; col++) {
-      if(((col + row) % 2) == 0) {
-        initObstacle(&pegs[row][col]);
-        pegs[row][col].pos = { xCurr, yCurr };
-      } else
-        pegs[row][col].empty = true;
-      xCurr+=xInterval;
-    }
-    xCurr = leftLimit;
-    yCurr+=yInterval;
-  }
 }
 
 // ##### Drawing and display #####
@@ -90,45 +48,27 @@ void setColoringMethod(glm::vec3 color) {
     glMaterialfv(GL_FRONT, GL_DIFFUSE, &color.r);
 }
 
-void drawObstacles(void) {
-  // Using disk drawing method in tutorial 9
-  for(int row = 0; row < HEIGHT; row++) {
-    for (int col = 0; col < WIDTH; col++) {
-      if (!pegs[row][col].clear && !pegs[row][col].empty) {
-        glPushMatrix();
-          if (pegs[row][col].hit)
-            pegs[row][col].color = { 0.0, 1.0, 1.0 };
-          setColoringMethod(pegs[row][col].color);
-          glTranslatef(pegs[row][col].pos.x, pegs[row][col].pos.y, 0.0);
-          glScalef(pegs[row][col].size.x, pegs[row][col].size.y, pegs[row][col].size.z);
-          drawCircle(pegs[row][col].segments, pegs[row][col].radius);
-        glPopMatrix();
-      }
-    }
-  }
-}
-
 // ##### Game Logic implementation ######
-void clearPegs(void) {
-  // Remove all hit pegs and add to score per hit peg
-  for(int row = 0; row < HEIGHT; row++) {
-    for (int col = 0; col < WIDTH; col++) {
-      if (!pegs[row][col].clear && !pegs[row][col].empty) {
-        if (pegs[row][col].hit) {
-          pegs[row][col].clear = true;
-          globals.score += 5;
-        }
-      }
-    }
-  }
-}
+// void clearPegs(void) {
+//   // Remove all hit pegs and add to score per hit peg
+//   for(int row = 0; row < HEIGHT; row++) {
+//     for (int col = 0; col < WIDTH; col++) {
+//       if (!pegs[row][col].clear && !pegs[row][col].empty) {
+//         if (pegs[row][col].hit) {
+//           pegs[row][col].clear = true;
+//           globals.score += 5;
+//         }
+//       }
+//     }
+//   }
+// }
 
 void resetPlayer(Player *player) {
   // Check whether player landed in catcher, if not reduce ball count by 1
-  if (!caughtPlayer(&globals.catcher, &globals.player))
+  if (!catcher.caught_player(&globals.player))
     globals.balls--;
 
-  clearPegs();
+  // clearPegs();
 
   // Reset player position to start of level and reset velocity
   player->currPos = player->initPos;
@@ -141,10 +81,10 @@ void resetPlayer(Player *player) {
 // ##### Collision detection #####
 void bruteForceCollision() {
   // 1. Collisions against level wall
-  wallCollide(&globals.player);
+  level.wall_collide(&globals.player);
 
   // 2. Collision with sides of catcher
-  catcherCollide(&globals.catcher, &globals.player);
+  catcher.catcher_collide(&globals.player);
 
   // 3. Collisions against pegs
   // double radiusSum, radiusSumSqr, dissMagSqr;
@@ -262,7 +202,7 @@ void update(void) {
   globals.dt = getDeltaTime();
 
   // Constantly move catcher
-  // moveCatcher(&globals.catcher, globals.dt);
+  catcher.move_catcher(globals.dt);
 
   // Move player and check for collisions only when launching
   if (globals.go) {
@@ -288,8 +228,8 @@ void display(void) {
   setRenderMode();
 
   // Draw level objects
-  drawScene(&globals);
-  drawObstacles();
+  draw_scene(&globals);
+  // drawObstacles();
 
   glPopMatrix();
 
@@ -359,13 +299,12 @@ int main(int argc, char** argv) {
   glutInitWindowPosition(WINDOW_POS_X, WINDOW_POS_Y);
   glutCreateWindow(argv[0]);
 
+  init_globals(&globals);
+
   glutDisplayFunc(display);
   glutIdleFunc(update);
   glutReshapeFunc(reshape);
   glutKeyboardFunc(keyboard);
-
-  initObstacles();
-  initGlobals(&globals);
 
   glutMainLoop();
 

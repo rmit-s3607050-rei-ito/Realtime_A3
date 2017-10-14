@@ -1,26 +1,26 @@
 
 #include "level.h"
 
-void initLevel(Level *level) {
-  level->topLeft  = { LEFT, TOP };
-  level->topRight = { RIGHT, TOP };
-  level->botLeft  = { LEFT, BOTTOM + WALL_GAP };
-  level->botRight = { RIGHT, BOTTOM + WALL_GAP };
+void Level::init_level(void) {
+  top_left  = { LEFT, TOP };
+  top_right = { RIGHT, TOP };
+  bot_left  = { LEFT, BOTTOM + WALL_GAP };
+  bot_right = { RIGHT, BOTTOM + WALL_GAP };
 
-  level->wallColor = white;
+  wall_color = white;
 }
 
-void drawLevel(Level *level) {
+void Level::draw_level(void) {
   /* 1. Draw 3 lines forming top and sides of game level, can collide with these
    * a. Line from Top Left -> Top Right */
-  drawLineStrip(level->topLeft, level->topRight, level->wallColor);
+  drawLineStrip(top_left, top_right, wall_color);
   // b. Line from Top Right -> Bottom Right
-  drawLineStrip(level->topRight, level->botRight, level->wallColor);
+  drawLineStrip(top_right, bot_right, wall_color);
   // c. Line from Top Left -> Bottom Left
-  drawLineStrip(level->topLeft, level->botLeft, level->wallColor);
+  drawLineStrip(top_left, bot_left, wall_color);
 }
 
-void wallCollide(Player *player) {
+void Level::wall_collide(Player *player) {
   float leftCollide = player->currPos.x - player->collisionRadius;
   float rightCollide = player->currPos.x + player->collisionRadius;
   float topCollide = player->currPos.y + player->collisionRadius;
