@@ -9,14 +9,12 @@ const float WALL_REBOUND = -1.0;
 typedef struct Level Level;
 
 struct Level {
-  vec2 topLeft;
-  vec2 topRight;
-  vec2 botLeft;
-  vec2 botRight;
+  glm::vec2 topLeft, topRight;
+  glm::vec2 botLeft, botRight;
 
   color4f wallColor;
 };
 
 void initLevel(Level *);
 void drawLevel(Level *);
-void wallCollide(Player *, float, float, float);
+void wallCollide(Player *);

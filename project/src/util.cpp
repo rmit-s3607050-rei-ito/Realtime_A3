@@ -5,7 +5,7 @@ float degreesToRadians(float degrees) {
   return radians;
 }
 
-void drawLineStrip(vec2 start, vec2 end, color4f color) {
+void drawLineStrip(glm::vec2 start, glm::vec2 end, color4f color) {
   glPushMatrix();
     setColoringMethod(color);
     glBegin(GL_LINE_STRIP);
@@ -15,7 +15,7 @@ void drawLineStrip(vec2 start, vec2 end, color4f color) {
   glPopMatrix();
 }
 
-void drawSquare(vec2 topL, vec2 topR, vec2 botR, vec2 botL, color4f color) {
+void drawSquare(glm::vec2 topL, glm::vec2 topR, glm::vec2 botR, glm::vec2 botL, color4f color) {
   glPushMatrix();
     setColoringMethod(color);
     glBegin(GL_POLYGON);
@@ -28,7 +28,7 @@ void drawSquare(vec2 topL, vec2 topR, vec2 botR, vec2 botL, color4f color) {
 }
 
 void drawCircle(float segments, float radius) {
-  vec2 pos;
+  glm::vec2 pos;
   float theta;
 
   glBegin(GL_POLYGON);

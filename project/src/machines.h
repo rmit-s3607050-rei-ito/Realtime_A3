@@ -10,6 +10,7 @@ const float LAUNCHER_SEGMENTS = 8.0;
 const float LAUNCHER_RADIUS = 0.08;
 
 // Catcher at bottom of level
+const float CATCHER_SIZE = 1.0;
 const float CATCHER_SPEED = -0.5;
 const float CATCHER_HEIGHT = 0.075;
 const float CATCHER_BUMPER_START = 0.125;
@@ -23,7 +24,7 @@ struct Launcher {
   // Cannon parameters
   float width;
   float length;
-  vec2 cTopL, cTopR, cBotL, cBotR;
+  glm::vec2 cTopL, cTopR, cBotL, cBotR;
 
   // Base parameters
   float segments;
@@ -35,9 +36,9 @@ struct Launcher {
 
 struct Catcher {
   // Positioning
-  vec2 position;
-  vec2 leftTL, leftBL, leftTR, leftBR;
-  vec2 rightTL, rightBL, rightTR, rightBR;
+  glm::vec2 position;
+  glm::vec2 leftTL, leftBL, leftTR, leftBR;
+  glm::vec2 rightTL, rightBL, rightTR, rightBR;
 
   // Collision detection
   float collisionY;
@@ -47,7 +48,7 @@ struct Catcher {
 
   // Rendering params
   float height;
-  vec3 size;
+  glm::vec3 size;
   color4f mainColor;
   color4f sideColor;
 };
@@ -60,4 +61,5 @@ void drawLauncher(Launcher *, Player *);
 void drawCatcher(Catcher *);
 // Movement and Collision
 void moveCatcher(Catcher *, float);
-void catcherCollide(Catcher *, Player *, float);
+void catcherCollide(Catcher *, Player *);
+bool caughtPlayer(Catcher *, Player *);

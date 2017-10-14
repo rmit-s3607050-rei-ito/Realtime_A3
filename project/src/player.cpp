@@ -3,35 +3,41 @@
 
 void initPlayer(Player *player) {
   // Positioning
-  player->initPos = (vec2) { 0.0, PLAYER_START_POS_Y };
+  player->initPos = { 0.0, PLAYER_START_POS_Y };
   player->currPos = player->initPos;
-  player->initVel = (vec2) { 0.0, 0.0 };
+  player->initVel = { 0.0, 0.0 };
   player->currVel = player->initVel;
+  player->size = { PLAYER_SIZE, PLAYER_SIZE, 1.0 };
 
-  // Initialize starting rotation
+  // Rotations
   player->rotation = STARTING_ROTATION;
-  player->minRotation = -180.0;
-  player->maxRotation = 0.0;
-  player->rotationInc = 1.0;
+  player->minRotation = MIN_ROTATION;
+  player->maxRotation = MAX_ROTATION;
+  player->rotationInc = ROTATION_INCREMENT;
 
-  player->guideSize = 5.0;
-  player->guideSegments = 16.0;
+  // Trajectory guide
+  player->guideSize = GUIDE_SIZE;
+  player->guideSegments = GUIDE_SEGMENTS;
 
+  // Launch strength
   player->power = LAUNCH_POWER;
 
-  player->segments = 8.0;
-  player->radius = 0.05;
-  player->mass = 1.0;
-  player->elasticity = 1.0;
+  // Collision
+  player->collisionRadius = player->radius * player->size.x;
 
-  // Player size and color
-  player->size = (vec3) { 0.5, 0.5, 1.0 };
+  // Drawing + internal params
+  player->segments = PLAYER_SEGMENTS;
+  player->radius = PLAYER_RADIUS;
+  player->mass = PLAYER_MASS;
+  player->elasticity = PLAYER_ELASTICITY;
+
+  // Color
   player->color = white;
 }
 
 void drawGuide(Player *player) {
-  vec2 pos = { 0.0, 0.0 };
-  vec2 vel;
+  glm::vec2 pos = { 0.0, 0.0 };
+  glm::vec2 vel;
   vel.x = cos(degreesToRadians(player->rotation)) * player->power;
   vel.y = sin(degreesToRadians(player->rotation)) * player->power;
 

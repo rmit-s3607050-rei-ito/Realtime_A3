@@ -2,10 +2,10 @@
 #include "level.h"
 
 void initLevel(Level *level) {
-  level->topLeft  = (vec2) { LEFT, TOP };
-  level->topRight = (vec2) { RIGHT, TOP };
-  level->botLeft  = (vec2) { LEFT, BOTTOM + WALL_GAP };
-  level->botRight = (vec2) { RIGHT, BOTTOM + WALL_GAP };
+  level->topLeft  = { LEFT, TOP };
+  level->topRight = { RIGHT, TOP };
+  level->botLeft  = { LEFT, BOTTOM + WALL_GAP };
+  level->botRight = { RIGHT, BOTTOM + WALL_GAP };
 
   level->wallColor = white;
 }
@@ -20,7 +20,11 @@ void drawLevel(Level *level) {
   drawLineStrip(level->topLeft, level->botLeft, level->wallColor);
 }
 
-void wallCollide(Player *player, float leftCollide, float rightCollide, float topCollide) {
+void wallCollide(Player *player) {
+  float leftCollide = player->currPos.x - player->collisionRadius;
+  float rightCollide = player->currPos.x + player->collisionRadius;
+  float topCollide = player->currPos.y + player->collisionRadius;
+
   // Based on tutorial 10 wall collision
   // Left wall hit
   if (leftCollide <= LEFT) {
