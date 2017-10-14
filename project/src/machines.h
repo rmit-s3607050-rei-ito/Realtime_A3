@@ -57,6 +57,6 @@ class Catcher {
     void init_catcher(void);
     void draw_catcher(void);
     void move_catcher(float);
-    void catcher_collide(Player *);
-    bool caught_player(Player *);
+    // void catcher_collide(Player *);
+    // bool caught_player(Player *);
 };

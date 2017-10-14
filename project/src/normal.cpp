@@ -1,6 +1,6 @@
 #include "normal.h"
 
-Normal(void)
+Normal::Normal(void)
 {
   init_peg();
 }
@@ -11,11 +11,11 @@ void Normal::init_peg()
   mass = MASS;
   elasticity = ELASTICITY;
   size = SIZE;
-  color = DEFAULT_COLOR;
+  color = BLUE;
 
   // Normal specific
-  position = 0.0;
-  velocity = 0.0;
+  position = { 0.0, 0.0 };
+  velocity = { 0.0, 0.0 };
   radius = RADIUS;
   segments = SEGMENTS;
   collision_radius = radius * size.x;
@@ -23,27 +23,28 @@ void Normal::init_peg()
   clear = false;
 }
 
-void Normal::draw_peg(bool type)
+void Normal::draw_peg(void)
 {
   glPushMatrix();
-    if (type)
-      glColor3fv(color);
-    else
-      glMaterialfv(GL_FRONT, GL_DIFFUSE, color);
-    glTranslatef(position.x, posistion.y, 0.0);
+    // if (type)
+    //   glColor3fv(color);
+    // else
+    //   glMaterialfv(GL_FRONT, GL_DIFFUSE, color);
+    setColoringMethod(color);
+    glTranslatef(position.x, position.y, 0.0);
     glScalef(size.x, size.y, size.z);
     drawCircle(segments, radius);
   glPopMatrix();
 }
 
-int Normal::hit()
+int Normal::peg_hit()
 {
   hit = true;
-  color = HIT_COLOR;
+  color = BLUE_HIT;
   return 1;
 }
 
-int Normal::clear()
+int Normal::peg_clear()
 {
   if (hit)
     clear = true;

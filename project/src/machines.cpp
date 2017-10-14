@@ -22,7 +22,7 @@ void Launcher::init_launcher(void) {
   base_color = darkGrey;
 }
 
-void Launcher::draw_launcher(Player *player) {
+void Launcher::draw_launcher(Player * player) {
   glPushMatrix();
     glTranslatef(0.0, PLAYER_START_POS_Y, 0.0); // Move to top of level
 
@@ -32,7 +32,7 @@ void Launcher::draw_launcher(Player *player) {
 
       // Drawing cannon
       glPushMatrix();
-        glRotatef(player->rotation, 0.0, 0.0, 1.0);  // Rotate with player rotation
+        glRotatef(player->get_rotation(), 0.0, 0.0, 1.0);  // Rotate with player rotation
         glTranslatef(0.0, - (LAUNCHER_LENGTH + LAUNCHER_LENGTH), 0.0);
         drawSquare(cannon_top_l, cannon_top_r, cannon_bot_r, cannon_bot_l, cannon_color);
       glPopMatrix();
@@ -109,39 +109,39 @@ void Catcher::move_catcher(float dt) {
   }
 }
 
-void Catcher::catcher_collide(Player *player) {
-  float bottomCollide = player->currPos.y - player->collisionRadius;
+// void Catcher::catcher_collide(Player *player) {
+//   float bottomCollide = player->currPos.y - player->collisionRadius;
+//
+//   float leftBumperStart = position.x + left_top_l.x;
+//   float leftBumperEnd = position.x + left_top_r.x;
+//   float rightBumperStart = position.x + right_top_l.x;
+//   float rightBumperEnd = position.x + right_top_r.x;
+//
+//   printf("Left top l: %f,%f\n", left_top_l.x);
+//
+//   float xPos = player->currPos.x;
+//
+//   // Check whether ball reached bottom where catcher is
+//   if (bottomCollide <= collision_y) {
+//     // Check whether left or right bumper has been collided with
+//     if (xPos > leftBumperStart && xPos < leftBumperEnd) {
+//       player->currPos.y += 2.0 * (BOTTOM + height - bottomCollide);
+//       player->currVel.y *= -1.0;
+//     } else if (xPos > rightBumperStart && xPos < rightBumperEnd) {
+//       player->currPos.y += 2.0 * (BOTTOM + height - bottomCollide);
+//       player->currVel.y *= -1.0;
+//     }
+//   }
+// }
 
-  float leftBumperStart = position.x + left_top_l.x;
-  float leftBumperEnd = position.x + left_top_r.x;
-  float rightBumperStart = position.x + right_top_l.x;
-  float rightBumperEnd = position.x + right_top_r.x;
-
-  printf("Left top l: %f,%f\n", left_top_l.x, left_top_l.y);
-
-  float xPos = player->currPos.x;
-
-  // Check whether ball reached bottom where catcher is
-  if (bottomCollide <= collision_y) {
-    // Check whether left or right bumper has been collided with
-    if (xPos > leftBumperStart && xPos < leftBumperEnd) {
-      player->currPos.y += 2.0 * (BOTTOM + height - bottomCollide);
-      player->currVel.y *= -1.0;
-    } else if (xPos > rightBumperStart && xPos < rightBumperEnd) {
-      player->currPos.y += 2.0 * (BOTTOM + height - bottomCollide);
-      player->currVel.y *= -1.0;
-    }
-  }
-}
-
-bool Catcher::caught_player(Player *player) {
-  // Range for catcher, if land between these values ball is not lost
-  float catcherStart = position.x + left_top_r.x;
-  float catcherEnd = position.x + right_top_l.x;
-
-  // Reduce life count by 1 if ball didnt end up in the catcher
-  if (player->currPos.x < catcherStart || player->currPos.x > catcherEnd)
-    return false;
-
-  return true;
-}
+// bool Catcher::caught_player(Player * player) {
+//   // Range for catcher, if land between these values ball is not lost
+//   float catcherStart = position.x + left_top_r.x;
+//   float catcherEnd = position.x + right_top_l.x;
+//
+//   // Reduce life count by 1 if ball didnt end up in the catcher
+//   if (player.currPos.x < catcherStart || player.currPos.x > catcherEnd)
+//     return false;
+//
+//   return true;
+// }

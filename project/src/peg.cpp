@@ -1,6 +1,6 @@
 #include "peg.h"
 
 // Constructor
-Peg(void)
+Peg::Peg(void)
 {
 }

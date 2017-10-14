@@ -1,6 +1,8 @@
 #pragma once
 
 #include "peg.h"
+#include "normal.h"
+#include "orange.h"
 
 const float LAUNCH_POWER = 1.2;
 const float PLAYER_SIZE = 0.5;
@@ -12,7 +14,7 @@ const float ROTATION_INCREMENT = 1.0;
 const float GUIDE_SIZE = 5.0;
 const float GUIDE_SEGMENTS = 16.0;
 
-const glm::vec3 DEFAULT_COLOR = { 1.0, 1.0, 1.0 };
+const glm::vec3 PLAYER_COLOR = { 1.0, 1.0, 1.0 };
 const glm::vec3 GUIDE_COLOR = { 1.0, 0.0, 0.0 };
 
 class Player : public Peg
@@ -33,12 +35,16 @@ class Player : public Peg
     Player(void);
     // Overridden functions
     virtual void init_peg(void) override;
-    virtual void draw_peg(bool) override;
-    void draw_guide(bool);
+    virtual void draw_peg(void) override;
+
+    void draw_guide(void);
     void set_launch(void);
     void integrate(float);
-    bool peg_collide(Normal);
-    bool peg_collide(Orange);
-    void peg_collide_reflect(Normal peg);
-    void peg_collide_reflect(Orange peg);
+
+    float get_rotation(void);
+
+    // bool peg_collide(Normal);
+    // bool peg_collide(Orange);
+    // void peg_collide_reflect(Normal peg);
+    // void peg_collide_reflect(Orange peg);
 };

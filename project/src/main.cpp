@@ -1,10 +1,19 @@
-#include "globals.h"
+// #include "globals.h"
+#include "level.h"
 
-Globals globals;
+struct Global {
+  // All other class files
+  Level level;
 
-Level level = globals.level;
-Catcher catcher = globals.catcher;
-Launcher launcher = globals.launcher;
+  // Global related variables
+  bool go;
+  bool wireframe;
+
+  float dt;
+  float bounce;
+};
+
+Global globals;
 
 // int numPoints = 0;
 // const int MAX_POINTS = 1000;
@@ -22,6 +31,16 @@ static float getDeltaTime(void) {
   float dt = (t2 - t1) / milli;
   t1 = t2;
   return dt;
+}
+
+void init_globals(void) {
+  globals.level.init_level();
+
+  globals.go = false;
+  globals.wireframe = false;
+
+  globals.dt = 0.0;
+  globals.bounce = BOUNCE_FACTOR;
 }
 
 // ##### Drawing and display #####
@@ -63,28 +82,28 @@ void setColoringMethod(glm::vec3 color) {
 //   }
 // }
 
-void resetPlayer(Player *player) {
-  // Check whether player landed in catcher, if not reduce ball count by 1
-  if (!catcher.caught_player(&globals.player))
-    globals.balls--;
-
-  // clearPegs();
-
-  // Reset player position to start of level and reset velocity
-  player->currPos = player->initPos;
-  player->currVel = player->initVel;
-
-  // Allow player to launch again
-  globals.go = !globals.go;
-}
+// void resetPlayer(Player *player) {
+//   // Check whether player landed in catcher, if not reduce ball count by 1
+//   if (!catcher.caught_player(&globals.player))
+//     globals.balls--;
+//
+//   // clearPegs();
+//
+//   // Reset player position to start of level and reset velocity
+//   player->currPos = player->initPos;
+//   player->currVel = player->initVel;
+//
+//   // Allow player to launch again
+//   globals.go = !globals.go;
+// }
 
 // ##### Collision detection #####
 void bruteForceCollision() {
   // 1. Collisions against level wall
-  level.wall_collide(&globals.player);
+  // level.wall_collide(&globals.player);
 
   // 2. Collision with sides of catcher
-  catcher.catcher_collide(&globals.player);
+  // catcher.catcher_collide(&globals.player);
 
   // 3. Collisions against pegs
   // double radiusSum, radiusSumSqr, dissMagSqr;
@@ -179,12 +198,12 @@ void displayOSD() {
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
   // Frame rate
   glRasterPos2i(10, h-22);
-  snprintf(buffer, sizeof buffer, "Balls: %d", globals.balls);
+  snprintf(buffer, sizeof buffer, "Balls: %d", globals.level.get_balls());
   for (bufp = buffer; *bufp; bufp++)
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
   // Frame time
   glRasterPos2i(w-90, h-22);
-  snprintf(buffer, sizeof buffer, "Score: %d", globals.score);
+  snprintf(buffer, sizeof buffer, "Score: %d", globals.level.get_score());
   for (bufp = buffer; *bufp; bufp++)
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
 
@@ -202,16 +221,16 @@ void update(void) {
   globals.dt = getDeltaTime();
 
   // Constantly move catcher
-  catcher.move_catcher(globals.dt);
+  // catcher.move_catcher(globals.dt);
 
   // Move player and check for collisions only when launching
   if (globals.go) {
-    integrate(globals.dt, &globals.player);
-    bruteForceCollision();
+    // integrate(globals.dt, &globals.player);
+    // bruteForceCollision();
 
     // Reset when fall out of level field
-    if(globals.player.currPos.y < BOTTOM)
-      resetPlayer(&globals.player);
+    // if(globals.player.currPos.y < BOTTOM)
+    //   resetPlayer(&globals.player);
   }
 
   glutPostRedisplay();
@@ -228,8 +247,7 @@ void display(void) {
   setRenderMode();
 
   // Draw level objects
-  draw_scene(&globals);
-  // drawObstacles();
+  globals.level.draw_level();
 
   glPopMatrix();
 
@@ -253,16 +271,16 @@ void keyboard(unsigned char key, int x, int y) {
   switch (key) {
     // Rotate launch position
     case 'a': // left
-      if (!globals.go && globals.player.rotation > globals.player.minRotation) {
-        globals.player.rotation -= globals.player.rotationInc;
-        // prediction = calculateGuidePoints();
-      }
+      // if (!globals.go && globals.player.rotation > globals.player.minRotation) {
+      //   globals.player.rotation -= globals.player.rotationInc;
+      //   // prediction = calculateGuidePoints();
+      // }
       break;
     case 'd': // right
-      if (!globals.go && globals.player.rotation < globals.player.maxRotation) {
-        globals.player.rotation += globals.player.rotationInc;
-        // prediction = calculateGuidePoints();
-      }
+      // if (!globals.go && globals.player.rotation < globals.player.maxRotation) {
+      //   globals.player.rotation += globals.player.rotationInc;
+      //   // prediction = calculateGuidePoints();
+      // }
       break;
 
     // Toggle wireframe/filled mode
@@ -271,11 +289,11 @@ void keyboard(unsigned char key, int x, int y) {
       break;
 
     case ' ': // 'space' = launch ball
-      if(!globals.go && globals.balls > 0) {
+      // if(!globals.go && globals.balls > 0) {
         // Set velocity of x and y depending on direction rotated to
-        setLaunch(&globals.player);
-        globals.go = !globals.go;
-      }
+        // setLaunch(&globals.player);
+        // globals.go = !globals.go;
+      // }
       break;
 
     case 'q':
@@ -299,7 +317,7 @@ int main(int argc, char** argv) {
   glutInitWindowPosition(WINDOW_POS_X, WINDOW_POS_Y);
   glutCreateWindow(argv[0]);
 
-  init_globals(&globals);
+  init_globals();
 
   glutDisplayFunc(display);
   glutIdleFunc(update);

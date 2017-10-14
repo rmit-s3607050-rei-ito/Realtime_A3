@@ -26,7 +26,9 @@
 #endif
 
 // Custom structs
-typedef enum { xCollide, yCollide } collision;
+// typedef enum { xCollide, yCollide } collision;
+
+const float BOUNCE_FACTOR = -0.7;
 
 // Constants
 // const float gravity = -9.8;   // Gravity

@@ -1,6 +1,6 @@
-#include "normal.h"
+#include "orange.h"
 
-Orange(void)
+Orange::Orange(void)
 {
   init_peg();
 }
@@ -11,11 +11,11 @@ void Orange::init_peg()
   mass = MASS;
   elasticity = ELASTICITY;
   size = SIZE;
-  color = DEFAULT_COLOR;
+  color = ORANGE;
 
   // Normal specific
-  position = 0.0;
-  velocity = 0.0;
+  position = { 0.0, 0.0 };
+  velocity = { 0.0, 0.0 };
   radius = RADIUS;
   segments = SEGMENTS;
   collision_radius = radius * size.x;
@@ -23,27 +23,28 @@ void Orange::init_peg()
   clear = false;
 }
 
-void Orange::draw_peg(bool type)
+void Orange::draw_peg(void)
 {
   glPushMatrix();
-    if (type)
-      glColor3fv(color);
-    else
-      glMaterialfv(GL_FRONT, GL_DIFFUSE, color);
-    glTranslatef(position.x, posistion.y, 0.0);
+    // if (type)
+    //   glColor3fv(color);
+    // else
+    //   glMaterialfv(GL_FRONT, GL_DIFFUSE, color);
+    setColoringMethod(color);
+    glTranslatef(position.x, position.y, 0.0);
     glScalef(size.x, size.y, size.z);
     drawCircle(segments, radius);
   glPopMatrix();
 }
 
-int Orange::hit()
+int Orange::peg_hit()
 {
   hit = true;
-  color = HIT_COLOR;
+  color = ORANGE_HIT;
   return 2;
 }
 
-int Orange::clear()
+int Orange::peg_clear()
 {
   if (hit)
     clear = true;

@@ -2,8 +2,8 @@
 
 #include "peg.h"
 
-const glm::vec3 DEFAULT_COLOR = { 0.0, 0.0, 1.0 };
-const glm::vec3 HIT_COLOR = { 0.0, 1.0, 1.0 };
+const glm::vec3 BLUE = { 0.0, 0.0, 1.0 };
+const glm::vec3 BLUE_HIT = { 0.0, 1.0, 1.0 };
 
 class Normal : public Peg
 {
@@ -19,7 +19,7 @@ class Normal : public Peg
     Normal(void);
     // Overridden functions
     virtual void init_peg(void) override;
-    virtual void draw_peg(bool) override;
-    int hit(void);
-    int clear(void);
+    virtual void draw_peg(void) override;
+    int peg_hit(void);
+    int peg_clear(void);
 };
