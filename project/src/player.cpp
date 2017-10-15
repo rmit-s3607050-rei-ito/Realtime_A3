@@ -46,7 +46,7 @@ void Player::init_peg()
 void Player::draw_peg()
 {
   glPushMatrix();
-    setColoringMethod(color);
+    set_coloring_method(color);
     glTranslatef(curr_pos.x, curr_pos.y, 0.0);
     glRotatef(rotation, 0.0, 0.0, 1.0);
     glScalef(size.x, size.y, size.z);
@@ -68,7 +68,7 @@ void Player::draw_guide()
 
   glPushMatrix();
     glTranslatef(init_pos.x, init_pos.y, 0.0);
-    setColoringMethod(GUIDE_COLOR);
+    set_coloring_method(GUIDE_COLOR);
     glBegin(GL_LINE_STRIP);
       for (float i = 0; i <= guide_segments; i++) {
         t = i * stepSize;
@@ -81,7 +81,7 @@ void Player::draw_guide()
     glEnd();
   glPopMatrix();
 
-  // setColoringMethod(red);
+  // set_coloring_method(red);
   // glBegin(GL_LINE_STRIP);
   //   for (int i = 0; i < numPoints; i++) {
   //     vec2 guide = calculateGuidePoints();

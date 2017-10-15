@@ -4,44 +4,43 @@
 void Level::init_vbo(void)
 {
   // Allocate memory for indices and verticies
-  wall_vbo.verts = (Vertex *) calloc(wall_vbo.num_verts, sizeof(Vertex));
-  wall_vbo.inds = (unsigned int*) calloc(wall_vbo.num_inds, sizeof(int));
+  wall.verts = (Vertex *) calloc(wall.num_verts, sizeof(Vertex));
+  wall.inds = (unsigned int*) calloc(wall.num_inds, sizeof(int));
 
   // Store coordinates for wall
-  wall_vbo.verts[0].pos = top_left;
-  wall_vbo.verts[1].pos = top_right;
-  wall_vbo.verts[2].pos = bot_left;
-  wall_vbo.verts[3].pos = bot_right;
-  // Store colors for each wall coordinate (wireframe mode only)
-  wall_vbo.verts[0].color = wall_color;
-  wall_vbo.verts[1].color = wall_color;
-  wall_vbo.verts[2].color = wall_color;
-  wall_vbo.verts[3].color = wall_color;
+  wall.verts[0].pos = top_left;
+  wall.verts[1].pos = top_right;
+  wall.verts[2].pos = bot_left;
+  wall.verts[3].pos = bot_right;
+
+  // Store colors for each wall coordinate (wireframe mode only), all same color
+  for (int i = 0; i < LEVEL_NUM_VERTICES; i++)
+    wall.verts[i].color = wall_color;
 
   // Store indices to access wall
   // Left wall
-  wall_vbo.inds[0] = 2;
-  wall_vbo.inds[1] = 0;
+  wall.inds[0] = 2;
+  wall.inds[1] = 0;
   // Top wall
-  wall_vbo.inds[2] = 0;
-  wall_vbo.inds[3] = 1;
+  wall.inds[2] = 0;
+  wall.inds[3] = 1;
   // Right wall
-  wall_vbo.inds[4] = 1;
-  wall_vbo.inds[5] = 3;
+  wall.inds[4] = 1;
+  wall.inds[5] = 3;
 }
 
 void Level::bind_vbo()
 {
   // Store data for both vertices and indices in the VBO
   // Verticies
-  glBindBuffer(GL_ARRAY_BUFFER, wall_vbo.vbo);
-  glBufferData(GL_ARRAY_BUFFER, wall_vbo.num_verts * sizeof(Vertex),
-               wall_vbo.verts, GL_STATIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER, wall.vbo);
+  glBufferData(GL_ARRAY_BUFFER, wall.num_verts * sizeof(Vertex),
+               wall.verts, GL_STATIC_DRAW);
 
   // Indices
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, wall_vbo.ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, wall_vbo.num_inds * sizeof(unsigned int),
-               wall_vbo.inds, GL_STATIC_DRAW);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, wall.ibo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, wall.num_inds * sizeof(unsigned int),
+               wall.inds, GL_STATIC_DRAW);
 }
 
 // void Level::unbind_vbo(void)
@@ -51,8 +50,8 @@ void Level::bind_vbo()
 //   glDisableClientState(GL_COLOR_ARRAY);
 //
 //   // Free memory allocated to indices and verticies
-//   free(wall_vbo.inds);
-//   free(wall_vbo.verts);
+//   free(wall.inds);
+//   free(wall.verts);
 //
 //   // Empty buffers
 //   glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -88,7 +87,7 @@ void Level::init_pegs()
       xCurr+=xInterval;
     }
     xCurr = leftLimit;
-    yCurr+=yInterval;
+    yCurr += yInterval;
   }
 }
 
@@ -102,12 +101,12 @@ void Level::init_level()
   init_pegs();
 
   // Generate buffers for verticies and indices
-  glGenBuffers(1, &wall_vbo.vbo);
-  glGenBuffers(1, &wall_vbo.ibo);
+  glGenBuffers(1, &wall.vbo);
+  glGenBuffers(1, &wall.ibo);
 
   // Allocate number of verticies and indices for VBO
-  wall_vbo.num_verts = LEVEL_NUM_VERTICES;
-  wall_vbo.num_inds = LEVEL_NUM_INDICES;
+  wall.num_verts = LEVEL_NUM_VERTICES;
+  wall.num_inds = LEVEL_NUM_INDICES;
 
   // Assign position of walls and color
   top_left  = { LEFT, TOP };
@@ -134,16 +133,16 @@ void Level::draw_walls(void)
 
   // Via using VBOs
   glPushMatrix();
-    setColoringMethod(wall_color);
+    set_coloring_method(wall_color);
     // Enable pointers to vertex/color coordinate arrays, bind current buffers
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
-    glBindBuffer(GL_ARRAY_BUFFER, wall_vbo.vbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, wall_vbo.ibo);
+    glBindBuffer(GL_ARRAY_BUFFER, wall.vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, wall.ibo);
 
     glVertexPointer(2, GL_FLOAT, sizeof(Vertex), BUFFER_OFFSET(0));
     glColorPointer(3, GL_FLOAT, sizeof(Vertex), BUFFER_OFFSET(sizeof(glm::vec2)));
-    glDrawElements(GL_LINE_STRIP, wall_vbo.num_inds, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_LINE_STRIP, wall.num_inds, GL_UNSIGNED_INT, 0);
   glPopMatrix();
 }
 

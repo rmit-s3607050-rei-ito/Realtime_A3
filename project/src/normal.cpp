@@ -28,7 +28,7 @@ void Normal::draw_peg()
 {
   if (!clear && !empty) {
     glPushMatrix();
-      setColoringMethod(color);
+      set_coloring_method(color);
       glTranslatef(position.x, position.y, 0.0);
       glScalef(size.x, size.y, size.z);
       drawCircle(segments, radius);
@@ -65,7 +65,7 @@ int Normal::peg_clear()
       else
         ret = 5;
     }
-    
+
     clear = true;
   }
 

@@ -75,9 +75,11 @@ const float STARTING_ROTATION = -90.0;
 
 // Functions
 float degreesToRadians(float);
-void setColoringMethod(glm::vec3);
+void set_coloring_method(glm::vec3);
 void drawLineStrip(glm::vec2, glm::vec2, glm::vec3);
 void drawSquare(glm::vec2, glm::vec2, glm::vec2, glm::vec2, glm::vec3);
 void drawCircle(float, float);
+
+// void init_square_vbo()
 
 void resetPlayer(void);

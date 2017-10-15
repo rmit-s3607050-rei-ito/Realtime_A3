@@ -24,7 +24,7 @@ class Level {
   Normal *pegs[HEIGHT][WIDTH];
 
   // VBOs
-  Buffer wall_vbo;
+  Buffer wall;
 
   // Positioning and Color
   glm::vec2 top_left, top_right;

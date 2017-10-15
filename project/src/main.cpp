@@ -57,7 +57,7 @@ void setRenderMode(void) {
   }
 }
 
-void setColoringMethod(glm::vec3 color) {
+void set_coloring_method(glm::vec3 color) {
   if(global.wireframe)
     glColor3fv(&color.x);
   else

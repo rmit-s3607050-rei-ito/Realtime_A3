@@ -40,7 +40,7 @@ void Launcher::draw_launcher(Player &player) {
 
       // Drawing base
       glPushMatrix();
-        setColoringMethod(base_color);
+        set_coloring_method(base_color);
         drawCircle(segments, radius);
       glPopMatrix();
     glPopMatrix();

@@ -7,7 +7,7 @@ float degreesToRadians(float degrees) {
 
 void drawLineStrip(glm::vec2 start, glm::vec2 end, glm::vec3 color) {
   glPushMatrix();
-    setColoringMethod(color);
+    set_coloring_method(color);
     glBegin(GL_LINE_STRIP);
       glVertex2f(start.x, start.y);
       glVertex2f(end.x, end.y);
@@ -19,7 +19,7 @@ void drawSquare(glm::vec2 topL, glm::vec2 topR, glm::vec2 botR, glm::vec2 botL,
                 glm::vec3 color)
 {
   glPushMatrix();
-    setColoringMethod(color);
+    set_coloring_method(color);
     glBegin(GL_POLYGON);
       glVertex2f(topL.x, topL.y);
       glVertex2f(topR.x, topR.y);
