@@ -128,14 +128,14 @@ void Level::draw_level(void)
   // 1. Draw walls
   draw_walls();
 
-  // 2. Draw player and trajectory guide
-  if (balls > 0) { // Only when there are balls left to launch
+  // 2. Draw player/ trajectory when there are balls left / game not ended
+  if (balls > 0 && num_orange_pegs > 0) {
     player.draw_player();
     player.draw_guide();
-  }
 
-  // 3. Draw all pegs
-  draw_pegs();
+    // 3. Draw all pegs using same condition
+    draw_pegs();
+  }
 
   // 4. Draw the launcher at the top, collidable
   launcher.draw_launcher(player);
@@ -144,7 +144,8 @@ void Level::draw_level(void)
   catcher.draw_catcher();
 }
 
-void Level::clear_hit_pegs(void){
+void Level::clear_hit_pegs(void)
+{
   int scoreUpdate = 0;
 
   for(int row = 0; row < HEIGHT; row++) {
@@ -179,6 +180,15 @@ bool Level::reset_player(void)
 
     return true;
   }
+
+  return false;
+}
+
+bool Level::game_end(void)
+{
+  // Game has ended if player has ran out of balls or there are no more orange pegs
+  if (balls == 0 || num_orange_pegs == 0)
+    return true;
 
   return false;
 }
@@ -251,6 +261,11 @@ int Level::get_balls(void)
 int Level::get_score(void)
 {
   return score;
+}
+
+int Level::get_num_orange_pegs(void)
+{
+  return num_orange_pegs;
 }
 
 // #################### Functions from attached classes ####################

@@ -49,6 +49,7 @@ class Level {
     void draw_level(void);
     void clear_hit_pegs(void);
     bool reset_player(void);
+    bool game_end(void);
 
     // Pegs
     void init_pegs(void);
@@ -62,6 +63,7 @@ class Level {
     // Getters
     int get_balls(void);
     int get_score(void);
+    int get_num_orange_pegs(void);
 
     // Functions from attached classes
     // Catcher

@@ -58,7 +58,7 @@ void init_vbo_square(Buffer * buffer, glm::vec2 topLeft, glm::vec2 topRight,
   buffer->verts = (Vertex *) calloc(buffer->num_verts, sizeof(Vertex));
   buffer->inds = (unsigned int*) calloc(buffer->num_inds, sizeof(int));
 
-  // Coordinates for cannon
+  // Coordinates for square
   buffer->verts[0].pos = topLeft;
   buffer->verts[1].pos = topRight;
   buffer->verts[2].pos = botRight;

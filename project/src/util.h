@@ -6,6 +6,7 @@
 // #include "shaders.h"
 
 // Required libraries
+#include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
