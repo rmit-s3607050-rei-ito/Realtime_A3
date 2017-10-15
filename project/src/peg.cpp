@@ -1,10 +1,29 @@
 #include "peg.h"
 
-// Constructor
-Peg::Peg(void)
+// #################### Constructor ####################
+Peg::Peg(type t) : peg_type(t)
 {
 }
 
+// #################### VBOs ####################
+void Peg::init_vbo(void)
+{
+  // Initialize overall vbo for a peg
+  init_vbo_circle(&peg, segments, radius, color);
+}
+
+void Peg::bind_vbo(void)
+{
+  // Store data for both vertices and indices for player
+  set_vbo_buffer_data(&peg);
+}
+
+// void Peg::unbind_vbo(void)
+// {
+//   clear_buffers(&peg);
+// }
+
+// #################### Getters ####################
 bool Peg::is_hit()
 {
   return hit;
@@ -22,7 +41,10 @@ bool Peg::is_empty()
 
 bool Peg::is_orange()
 {
-  return orange;
+  if (peg_type == orange)
+    return true;
+
+  return false;
 }
 
 glm::vec2 Peg::get_position()
@@ -45,6 +67,7 @@ float Peg::get_collision_radius()
   return collision_radius;
 }
 
+// #################### Setters ####################
 void Peg::set_position(float x, float y)
 {
   position.x = x;
@@ -54,10 +77,4 @@ void Peg::set_position(float x, float y)
 void Peg::set_empty()
 {
   empty = true;
-}
-
-void Peg::set_orange()
-{
-  color = ORANGE;
-  orange = true;
 }

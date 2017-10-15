@@ -11,7 +11,8 @@ class Normal : public Peg
   float segments;
 
   public:
-    Normal(void);
+    Normal(type);
+
     // Overridden functions
     virtual void init_peg(void) override;
     virtual void draw_peg(void) override;

@@ -56,17 +56,18 @@ void Level::init_pegs(void)
   oranges = 0;
   for(int row = 0; row < HEIGHT; row++) {
     for (int col = 0; col < WIDTH; col++) {
-      pegs[row][col] = new Normal();
+      pegs[row][col] = new Normal(blue);
       if(((col + row) % 2) == 0) {
         pegs[row][col]->set_position(xCurr, yCurr);
         if (row % 2 == 0) {
-          pegs[row][col]->set_orange();
+          pegs[row][col] = new Normal(orange);
+          pegs[row][col]->set_position(xCurr, yCurr);
           oranges++;
         }
       } else {
         pegs[row][col]->set_empty();
       }
-      xCurr+=xInterval;
+      xCurr += xInterval;
     }
     xCurr = leftLimit;
     yCurr += yInterval;
@@ -109,7 +110,7 @@ void Level::draw_walls(void)
   // draw_line_strip(top_left, bot_left, wall_color);   // c. Top Left -> Bottom Left
 
   // Via using VBOs
-  draw_vbo_shape(wall_color, GL_LINE_STRIP, &wall);
+  draw_vbo_shape(&wall, GL_LINE_STRIP, wall_color);
 }
 
 void Level::draw_pegs(void)
@@ -130,10 +131,6 @@ void Level::draw_level(void)
   if (balls > 0) { // Only when there are balls left to launch
     player.draw_player();
     player.draw_guide();
-  } else if (oranges == player.get_oranges_dest()) {
-    printf("win\n");
-  } else {
-    printf("lose\n");
   }
 
   // 3. Draw all pegs
@@ -181,7 +178,13 @@ void Level::check_all_collisions(void)
   // Collisions against sides of catcher: left, right
   catcher.check_catcher_collision(&player);
 
-  // Player collisions
+  // Player collisions with pegs
+  check_peg_collisions();
+}
+
+void Level::check_peg_collisions(void)
+{
+  // Brute force checking peg by peg
   for(int row = 0; row < HEIGHT; row++) {
     for (int col = 0; col < WIDTH; col++) {
       if (player.peg_collide(pegs[row][col])) {

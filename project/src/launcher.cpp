@@ -90,11 +90,11 @@ void Launcher::draw_launcher(Player &player) {
       glPushMatrix();
         glRotatef(player.get_rotation(), 0.0, 0.0, 1.0);  // Rotate with player rotation
         glTranslatef(0.0, - (LAUNCHER_LENGTH + LAUNCHER_LENGTH), 0.0);
-        draw_vbo_shape(cannon_color, GL_POLYGON, &cannon);
+        draw_vbo_shape(&cannon, GL_POLYGON, cannon_color);
       glPopMatrix();
 
       // Drawing base
-      draw_vbo_shape(base_color, GL_POLYGON, &base);
+      draw_vbo_shape(&base, GL_POLYGON, base_color);
     glPopMatrix();
 
   glPopMatrix();

@@ -6,10 +6,13 @@ Catcher::Catcher(void) {}
 void Catcher::init_vbos(void)
 {
   // Initialize vbos for both sides of the catcher and its middle
+  // 1. Left
   init_vbo_square(&left, left_top_l, left_top_r, left_bottom_r, left_bottom_l,
                   side_color);
+  // 2. Right
   init_vbo_square(&right, right_top_l, right_top_r, right_bottom_r, right_bottom_l,
                   side_color);
+  // 3. Middle
   init_vbo_square(&middle, left_top_r, right_top_l, right_bottom_l, left_bottom_r,
                   main_color);
 }
@@ -87,10 +90,10 @@ void Catcher::draw_catcher(void)
     glTranslatef(position.x, position.y, 0.0);
     glScalef(size.x, size.y, size.z);
     // 1. Draw sides
-    draw_vbo_shape(side_color, GL_POLYGON, &left);
-    draw_vbo_shape(side_color, GL_POLYGON, &right);
+    draw_vbo_shape(&left, GL_POLYGON, side_color);
+    draw_vbo_shape(&right, GL_POLYGON, side_color);
     // 2. Draw middle
-    draw_vbo_shape(main_color, GL_POLYGON, &middle);
+    draw_vbo_shape(&middle, GL_POLYGON, main_color);
   glPopMatrix();
 }
 

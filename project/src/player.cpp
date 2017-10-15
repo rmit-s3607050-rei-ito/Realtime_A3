@@ -4,8 +4,30 @@ Player::Player(void)
 {
 }
 
+// #################### VBOs ####################
+void Player::init_vbo(void)
+{
+  // Initialize vbo for player
+  init_vbo_circle(&player, segments, radius, color);
+}
+
+void Player::bind_vbo(void)
+{
+  // Store data for both vertices and indices for player
+  set_vbo_buffer_data(&player);
+}
+
+// void Player::unbind_vbo(void)
+// {
+//   clear_buffers(&player);
+// }
+
+// #################### Initialization and Display ####################
 void Player::init_player()
 {
+  // Generating vbo buffers
+  generate_buffers(&player, PLAYER_NUM_VERTICES, PLAYER_NUM_INDICES);
+
   // Positioning
   init_pos = { 0.0, PLAYER_START_POS_Y };
   curr_pos = init_pos;
@@ -40,16 +62,29 @@ void Player::init_player()
 
   // Orange pegs destroyed
   oranges_dest = 0;
+
+  // Initialize and bind vbos for usage
+  init_vbo();
+  bind_vbo();
 }
 
 void Player::draw_player()
 {
+  // Immediate mode
+  // glPushMatrix();
+  //   set_coloring_method(color);
+  //   glTranslatef(curr_pos.x, curr_pos.y, 0.0);
+  //   glRotatef(rotation, 0.0, 0.0, 1.0);
+  //   glScalef(size.x, size.y, size.z);
+  //   draw_circle(segments, radius);
+  // glPopMatrix();
+
+  // Via VBOs
   glPushMatrix();
-    set_coloring_method(color);
     glTranslatef(curr_pos.x, curr_pos.y, 0.0);
     glRotatef(rotation, 0.0, 0.0, 1.0);
     glScalef(size.x, size.y, size.z);
-    draw_circle(segments, radius);
+    draw_vbo_shape(&player, GL_POLYGON, color);
   glPopMatrix();
 }
 
@@ -90,6 +125,7 @@ void Player::draw_guide()
   // glEnd();
 }
 
+// #################### Launching / Movement ####################
 void Player::rotate_launch(direction path)
 {
   // Rotate leftwards - do so when greater than minimum rotation
@@ -103,6 +139,7 @@ void Player::rotate_launch(direction path)
 
 void Player::set_launch()
 {
+  // Set current velocity upon pressing space to launch
   curr_vel.x = cos(degrees_to_radians(rotation)) * power;
   curr_vel.y = sin(degrees_to_radians(rotation)) * power;
 }
@@ -124,8 +161,10 @@ void Player::reset()
   curr_vel = init_vel;
 }
 
+// #################### Collision detection ####################
 void Player::rebound(reflection axis, float displacement, float reflectPower)
 {
+  // Displace and reflect player when colliding with walls or the catcher's sides
   if (axis == X_REFLECTION) {
     curr_pos.x += displacement;
     curr_vel.x *= reflectPower;
@@ -197,6 +236,7 @@ void Player::peg_collide_reflect(Peg *peg)
     - (n[1] * v2_nt[0] + t[1] * v2_nt[1]);
 }
 
+// #################### Getters ####################
 glm::vec2 Player::get_curr_pos()
 {
   return curr_pos;
