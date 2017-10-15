@@ -6,9 +6,6 @@ const float MASS = 1.0;
 const float ELASTICITY = 1.0;
 const glm::vec3 SIZE = { 0.7, 0.7, 0.7 };
 
-const float SEGMENTS = 8.0;
-const float RADIUS = 0.05;
-
 const glm::vec3 BLUE = { 0.0, 0.5, 1.0 };
 const glm::vec3 BLUE_HIT = { 0.0, 1.0, 1.0 };
 const glm::vec3 ORANGE = { 1.0, 0.5, 0.0 };
@@ -23,8 +20,6 @@ class Peg
     float elasticity;
     glm::vec3 size;
     glm::vec3 color;
-    float radius;
-    float segments;
     float collision_radius;
     bool hit;
     bool clear;

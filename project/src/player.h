@@ -6,7 +6,7 @@
 const float PLAYER_MASS = 1.0;
 const float PLAYER_ELASTICITY = 1.0;
 
-const float PLAYER_SIZE = 0.5;
+const glm::vec3 PLAYER_SIZE = {0.5, 0.5, 0.5 };
 const float PLAYER_SEGMENTS = 8.0;
 const float PLAYER_RADIUS = 0.05;
 
