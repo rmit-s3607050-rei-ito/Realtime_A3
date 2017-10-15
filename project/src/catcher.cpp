@@ -6,72 +6,72 @@ Catcher::Catcher(void) {}
 void Catcher::init_vbo(void)
 {
   // Allocate memory for indices and verticies
-  verticies = (Vertex *) calloc(num_vertices, sizeof(Vertex));
-  indices = (unsigned int*) calloc(num_indices, sizeof(int));
+  // side_vbo.verts = (Vertex *) calloc(num_verts, sizeof(Vertex));
+  // side_vbo.inds = (unsigned int*) calloc(num_inds, sizeof(int));
 
   // Coordinates for catcher sides
-  side_vbo.verticies[0].pos = left_top_l;
-  side_vbo.verticies[1].pos = left_top_r;
-  side_vbo.verticies[2].pos = left_bottom_l;
-  side_vbo.verticies[3].pos = left_bottom_r;
-  side_vbo.verticies[4].pos = right_top_l;
-  side_vbo.verticies[5].pos = right_top_r;
-  side_vbo.verticies[6].pos = right_bottom_l;
-  side_vbo.verticies[7].pos = right_bottom_r;
+  // side_vbo.verts[0].pos = left_top_l;
+  // side_vbo.verts[1].pos = left_top_r;
+  // side_vbo.verts[2].pos = left_bottom_l;
+  // side_vbo.verts[3].pos = left_bottom_r;
+  // side_vbo.verts[4].pos = right_top_l;
+  // side_vbo.verts[5].pos = right_top_r;
+  // side_vbo.verts[6].pos = right_bottom_l;
+  // side_vbo.verts[7].pos = right_bottom_r;
   // Coordinates for middle of catcher
-  mid_vbo.verticies
+  // mid_vbo.verts
   // Colors for each coordinate
-  // verticies[0].color = side_color;
-  // verticies[1].color = main_color;
-  // verticies[2].color = side_color;
-  // verticies[3].color = main_color;
-  // verticies[4].color = main_color;
-  // verticies[5].color = side_color;
-  // verticies[6].color = main_color;
-  // verticies[7].color = side_color;
+  // verts[0].color = side_color;
+  // verts[1].color = main_color;
+  // verts[2].color = side_color;
+  // verts[3].color = main_color;
+  // verts[4].color = main_color;
+  // verts[5].color = side_color;
+  // verts[6].color = main_color;
+  // verts[7].color = side_color;
 
   // Indices to draw points for catcher
   // Left bumper
-  indices[0] = 0;
-  indices[1] = 1;
-  indices[2] = 3;
-  indices[3] = 2;
+  // side_vbo.inds[0] = 0;
+  // side_vbo.inds[1] = 1;
+  // side_vbo.inds[2] = 3;
+  // side_vbo.inds[3] = 2;
   // Middle catcher
-  indices[4] = 1;
-  indices[5] = 4;
-  indices[6] = 6;
-  indices[7] = 3;
+  // side_vbo.inds[4] = 1;
+  // side_vbo.inds[5] = 4;
+  // side_vbo.inds[6] = 6;
+  // side_vbo.inds[7] = 3;
   // Right bumper
-  indices[8] = 4;
-  indices[9] = 5;
-  indices[10] = 7;
-  indices[11] = 6;
+  // side_vbo.inds[8] = 4;
+  // side_vbo.inds[9] = 5;
+  // side_vbo.inds[10] = 7;
+  // side_vbo.inds[11] = 6;
 }
 
 void Catcher::bind_vbo(void)
 {
   // Store data for both vertices and indices in the VBO
   // Verticies
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, num_vertices * sizeof(Vertex),
-               verticies, GL_STATIC_DRAW);
-
-  // Indices
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, num_indices * sizeof(unsigned int),
-               indices, GL_STATIC_DRAW);
+  // glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  // glBufferData(GL_ARRAY_BUFFER, num_verts * sizeof(Vertex),
+  //              verts, GL_STATIC_DRAW);
+  //
+  // // Indices
+  // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+  // glBufferData(GL_ELEMENT_ARRAY_BUFFER, num_inds * sizeof(unsigned int),
+  //              inds, GL_STATIC_DRAW);
 }
 
 // #################### Drawing and movement ####################
 void Catcher::init_catcher(void)
 {
   // Generate buffers for verticies and indices
-  glGenBuffers(1, &vbo);
-  glGenBuffers(1, &ibo);
+  // glGenBuffers(1, &vbo);
+  // glGenBuffers(1, &ibo);
 
   // Allocate number of verticies and indices for VBO
-  num_vertices = CATCHER_NUM_VERTICES;
-  num_indices = CATCHER_NUM_INDICES;
+  // num_verts = CATCHER_NUM_VERTICES;
+  // num_inds = CATCHER_NUM_INDICES;
 
   // Set default speed, moving leftwards
   velocity = CATCHER_SPEED;
@@ -100,40 +100,40 @@ void Catcher::init_catcher(void)
   main_color = brown;
 
   // Initialize and bind VBOs for usage
-  init_vbo();
-  bind_vbo();
+  // init_vbo();
+  // bind_vbo();
 }
 
 void Catcher::draw_catcher(void)
 {
-  // // Draws entire catcher part by part (immediate mode)
-  // glPushMatrix();
-  //   glTranslatef(position.x, position.y, 0.0);
-  //   glScalef(size.x, size.y, size.z);
-  //   // 1. Left side of catcher, collision detected
-  //   drawSquare(left_top_l, left_top_r, left_bottom_r, left_bottom_l, side_color);
-  //   // 2. Right side of catcher, collision detected
-  //   drawSquare(right_top_l, right_top_r, right_bottom_r, right_bottom_l, side_color);
-  //   // 3. Middle, enable falling through
-  //   drawSquare(left_top_r, right_top_l, right_bottom_l, left_bottom_r, main_color);
-  // glPopMatrix();
-
-  // Draws entire catcher via VBOs using verticies/indices stored
+  // Draws entire catcher part by part (immediate mode)
   glPushMatrix();
-    setColoringMethod(main_color);
     glTranslatef(position.x, position.y, 0.0);
     glScalef(size.x, size.y, size.z);
-
-    // Enable pointers to vertex/colors and bind the current buffers to use
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-
-    glVertexPointer(2, GL_FLOAT, sizeof(Vertex), BUFFER_OFFSET(0));
-    glColorPointer(3, GL_FLOAT, sizeof(Vertex), BUFFER_OFFSET(sizeof(glm::vec2)));
-    glDrawElements(GL_POLYGON, num_indices, GL_UNSIGNED_INT, 0);
+    // 1. Left side of catcher, collision detected
+    drawSquare(left_top_l, left_top_r, left_bottom_r, left_bottom_l, side_color);
+    // 2. Right side of catcher, collision detected
+    drawSquare(right_top_l, right_top_r, right_bottom_r, right_bottom_l, side_color);
+    // 3. Middle, enable falling through
+    drawSquare(left_top_r, right_top_l, right_bottom_l, left_bottom_r, main_color);
   glPopMatrix();
+
+  // Draws entire catcher via VBOs using verticies/indices stored
+  // glPushMatrix();
+  //   setColoringMethod(main_color);
+  //   glTranslatef(position.x, position.y, 0.0);
+  //   glScalef(size.x, size.y, size.z);
+  //
+  //   // Enable pointers to vertex/colors and bind the current buffers to use
+  //   glEnableClientState(GL_VERTEX_ARRAY);
+  //   glEnableClientState(GL_COLOR_ARRAY);
+  //   glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  //   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+  //
+  //   glVertexPointer(2, GL_FLOAT, sizeof(Vertex), BUFFER_OFFSET(0));
+  //   glColorPointer(3, GL_FLOAT, sizeof(Vertex), BUFFER_OFFSET(sizeof(glm::vec2)));
+  //   glDrawElements(GL_POLYGON, num_indices, GL_UNSIGNED_INT, 0);
+  // glPopMatrix();
 }
 
 void Catcher::move_catcher(float dt)

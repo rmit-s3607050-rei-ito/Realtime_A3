@@ -4,7 +4,7 @@
 void Level::init_vbo(void)
 {
   // Allocate memory for indices and verticies
-  wall_vbo.verts = (Vertex *) calloc(wall_vbo.num_vers, sizeof(Vertex));
+  wall_vbo.verts = (Vertex *) calloc(wall_vbo.num_verts, sizeof(Vertex));
   wall_vbo.inds = (unsigned int*) calloc(wall_vbo.num_inds, sizeof(int));
 
   // Store coordinates for wall
@@ -143,7 +143,7 @@ void Level::draw_walls(void)
 
     glVertexPointer(2, GL_FLOAT, sizeof(Vertex), BUFFER_OFFSET(0));
     glColorPointer(3, GL_FLOAT, sizeof(Vertex), BUFFER_OFFSET(sizeof(glm::vec2)));
-    glDrawElements(GL_LINE_STRIP, wall_vbo.num_indices, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_LINE_STRIP, wall_vbo.num_inds, GL_UNSIGNED_INT, 0);
   glPopMatrix();
 }
 
