@@ -62,10 +62,10 @@ int Normal::peg_hit()
   if (!hit) {
     if (peg_type == orange) {
       color = ORANGE_HIT;
-      score_update = 2;
+      score_update = ORANGE_HIT_POINT;
     } else {
       color = BLUE_HIT;
-      score_update = 1;
+      score_update = BLUE_HIT_POINT;
     }
   }
 
@@ -80,9 +80,9 @@ int Normal::peg_clear()
   if (hit) {
     if (!clear) {
       if (peg_type == orange)
-        score_update = 10;
+        score_update = ORANGE_CLEAR_POINT;
       else
-        score_update = 5;
+        score_update = BLUE_CLEAR_POINT;
     }
 
     clear = true;
