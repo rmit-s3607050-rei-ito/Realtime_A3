@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "util.h"
 #include "catcher.h"
 #include "launcher.h"
@@ -11,12 +13,15 @@ const int LEVEL_NUM_INDICES = 6;    // 2 sets of indices per wall, 3 walls
 const float WALL_GAP = 0.075;
 const float WALL_REBOUND = -1.0;
 const int NUM_BALLS = 8;
+const int WIDTH = 15;
+const int HEIGHT = 6;
 
 class Level {
   // All classes present in level
   Player player;
   Launcher launcher;
   Catcher catcher;
+  Normal *pegs[HEIGHT][WIDTH];
 
   // VBOs
   Buffer wall_vbo;
@@ -29,6 +34,7 @@ class Level {
   // Level parameters
   int balls;
   int score;
+  int oranges;
 
   public:
     Level(void) {};
@@ -42,6 +48,10 @@ class Level {
     void draw_walls(void);
     void draw_level(void);
     bool reset_player(void);
+
+    // Pegs
+    void init_pegs(void);
+    void draw_pegs(void);
 
     // Collisions
     void check_all_collisions(void);

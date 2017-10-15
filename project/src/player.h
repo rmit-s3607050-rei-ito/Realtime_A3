@@ -2,8 +2,7 @@
 
 #include "util.h"
 #include "peg.h"
-// #include "normal.h"
-// #include "orange.h"
+#include "normal.h"
 
 const float LAUNCH_POWER = 1.2;
 const float PLAYER_SIZE = 0.5;
@@ -35,6 +34,8 @@ class Player : public Peg
   float segments;
   float collision_radius;
 
+  int oranges_dest;
+
   public:
     Player(void);
     // Overridden functions
@@ -51,12 +52,11 @@ class Player : public Peg
     void rebound(reflection, float, float);
 
     // Getters
-    float get_collision_radius(void);
-    float get_rotation(void);
     glm::vec2 get_curr_pos(void);
+    float get_rotation(void);
+    float get_collision_radius(void);
+    int get_oranges_dest(void);
 
-    // bool peg_collide(Normal);
-    // bool peg_collide(Orange);
-    // void peg_collide_reflect(Normal peg);
-    // void peg_collide_reflect(Orange peg);
+    bool peg_collide(Normal *);
+    void peg_collide_reflect(Normal *);
 };

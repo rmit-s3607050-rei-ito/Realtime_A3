@@ -21,32 +21,105 @@ void Normal::init_peg()
   collision_radius = radius * size.x;
   hit = false;
   clear = false;
+  orange = false;
 }
 
-void Normal::draw_peg(void)
+void Normal::draw_peg()
 {
-  glPushMatrix();
-    // if (type)
-    //   glColor3fv(color);
-    // else
-    //   glMaterialfv(GL_FRONT, GL_DIFFUSE, color);
-    setColoringMethod(color);
-    glTranslatef(position.x, position.y, 0.0);
-    glScalef(size.x, size.y, size.z);
-    drawCircle(segments, radius);
-  glPopMatrix();
+  if (!clear && !empty) {
+    glPushMatrix();
+      setColoringMethod(color);
+      glTranslatef(position.x, position.y, 0.0);
+      glScalef(size.x, size.y, size.z);
+      drawCircle(segments, radius);
+    glPopMatrix();
+  }
 }
 
 int Normal::peg_hit()
 {
+  int ret = 0;
+
+  if (!hit) {
+    if (orange) {
+      color = ORANGE_HIT;
+      ret = 2;
+    } else {
+      color = BLUE_HIT;
+      ret = 1;
+    }
+  }
+
   hit = true;
-  color = BLUE_HIT;
-  return 1;
+  return ret;
 }
 
 int Normal::peg_clear()
 {
-  if (hit)
+  int ret = 0;
+
+  if (hit) {
+    if (!clear) {
+      if (orange)
+        ret = 10;
+      else
+        ret = 5;
+    }
+    
     clear = true;
-  return 5;
+  }
+
+  return ret;
+}
+
+bool Normal::is_hit()
+{
+  return hit;
+}
+
+bool Normal::is_clear()
+{
+  return clear;
+}
+
+bool Normal::is_empty()
+{
+  return empty;
+}
+
+bool Normal::is_orange()
+{
+  return orange;
+}
+
+glm::vec2 Normal::get_position()
+{
+  return position;
+}
+
+glm::vec2 Normal::get_velocity()
+{
+  return velocity;
+}
+
+float Normal::get_collision_radius()
+{
+  return collision_radius;
+}
+
+void Normal::set_position(float x, float y)
+{
+  position.x = x;
+  position.y = y;
+}
+
+void Normal::set_empty()
+{
+  empty = true;
+}
+
+void Normal::set_orange()
+{
+  color = ORANGE;
+  orange = true;
 }
