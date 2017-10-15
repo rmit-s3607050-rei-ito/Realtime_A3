@@ -6,6 +6,7 @@
 // #include "shaders.h"
 
 // Required libraries
+#include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -51,21 +52,27 @@ typedef struct {
 const float gravity = -2.0;   // Fake Gravity
 const float milli = 1000.0;   // One second
 
-// Colors
-const glm::vec3 white = { 1.0, 1.0, 1.0 };
-const glm::vec3 grey = { 0.2, 0.2, 0.2 };
-const glm::vec3 red = { 1.0, 0.0, 0.0 };
-const glm::vec3 yellow = { 1.0, 1.0, 0.0 };
-const glm::vec3 brown = { 0.55, 0.27, 0.07 };
-const glm::vec3 darkGrey = { 0.1, 0.1, 0.1 };
-
 // Window dimensions
 const float WINDOW_X = 600.0;
 const float WINDOW_Y = 700.0;
 const float WINDOW_POS_X = 400.0;
 const float WINDOW_POS_Y = 0.0;
 
-// Shared variables
+// Shared variables:
+// Scoring
+const int BLUE_HIT_SCORE = 1;
+const int ORANGE_HIT_SCORE = 2;
+const int BLUE_CLEAR_SCORE = 5;
+const int ORANGE_CLEAR_SCORE = 10;
+const int CATCHER_CATCH_SCORE = 100;
+
+// Colors
+const glm::vec3 WHITE = { 1.0, 1.0, 1.0 };
+const glm::vec3 GREY = { 0.2, 0.2, 0.2 };
+const glm::vec3 RED = { 1.0, 0.0, 0.0 };
+const glm::vec3 YELLOW = { 1.0, 1.0, 0.0 };
+const glm::vec3 BROWN = { 0.55, 0.27, 0.07 };
+const glm::vec3 DARK_GREY = { 0.1, 0.1, 0.1 };
 // Level boundaries
 const float LEFT = -0.90;
 const float BOTTOM = -1.0;

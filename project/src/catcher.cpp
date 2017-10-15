@@ -63,8 +63,8 @@ void Catcher::init_catcher(void)
   collision_y = position.y + height;
 
   // Set colors for the catcher
-  side_color = yellow;
-  main_color = brown;
+  side_color = YELLOW;
+  main_color = BROWN;
 
   // Initialize and bind VBOs for usage
   init_vbos();

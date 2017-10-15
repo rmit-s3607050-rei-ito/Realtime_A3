@@ -62,10 +62,17 @@ int Normal::peg_hit()
   if (!hit) {
     if (peg_type == orange) {
       color = ORANGE_HIT;
+<<<<<<< HEAD
       score_update = ORANGE_HIT_POINT;
     } else {
       color = BLUE_HIT;
       score_update = BLUE_HIT_POINT;
+=======
+      score_update = ORANGE_HIT_SCORE;
+    } else {
+      color = BLUE_HIT;
+      score_update = BLUE_HIT_SCORE;
+>>>>>>> cfcbdcedb92f7ed19a8fce26a9a2a9a49d894788
     }
   }
 
@@ -80,11 +87,16 @@ int Normal::peg_clear()
   if (hit) {
     if (!clear) {
       if (peg_type == orange)
+<<<<<<< HEAD
         score_update = ORANGE_CLEAR_POINT;
       else
         score_update = BLUE_CLEAR_POINT;
+=======
+        score_update = ORANGE_CLEAR_SCORE;
+      else
+        score_update = BLUE_CLEAR_SCORE;
+>>>>>>> cfcbdcedb92f7ed19a8fce26a9a2a9a49d894788
     }
-
     clear = true;
   }
 

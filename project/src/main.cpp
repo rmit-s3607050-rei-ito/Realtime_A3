@@ -1,8 +1,10 @@
 #include "level.h"
 
 struct Global {
+  bool game_end;
   bool go;
   bool wireframe;
+  bool win;
 
   float dt;
 };
@@ -11,7 +13,8 @@ Global global;
 Level level;
 
 // ##### Misc functions #####
-static float getDeltaTime(void) {
+static float getDeltaTime(void)
+{
   static float t1 = -1.0;
 
   if (t1 == -1)
@@ -23,18 +26,22 @@ static float getDeltaTime(void) {
   return dt;
 }
 
-void init(void) {
+void init(void) 
+{
   // Initialize level
   level.init_level();
 
   // Initialize global variables
+  global.game_end = false;
   global.go = false;
   global.wireframe = false;
+  global.win = false;
   global.dt = 0.0;
 }
 
 // ##### Drawing and display #####
-void setRenderMode(void) {
+void setRenderMode(void)
+{
   if(global.wireframe) {
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
@@ -50,7 +57,8 @@ void setRenderMode(void) {
   }
 }
 
-void set_coloring_method(glm::vec3 color) {
+void set_coloring_method(glm::vec3 color)
+{
   // Only used for guide now, VBOs, automatically store color for wireframe mode
   if(global.wireframe)
     glColor3fv(&color.x);
@@ -58,13 +66,14 @@ void set_coloring_method(glm::vec3 color) {
     glMaterialfv(GL_FRONT, GL_DIFFUSE, &color.r);
 }
 
-void set_material_color(glm::vec3 color) {
+void set_material_color(glm::vec3 color)
+{
   if (!global.wireframe)
     glMaterialfv(GL_FRONT, GL_DIFFUSE, &color.r);
 }
 
-// On screen display
-void displayOSD() {
+void displayOSD()
+{
   char buffer[30];
   char *bufp;
   int w, h;
@@ -87,21 +96,34 @@ void displayOSD() {
   glPushMatrix();
   glLoadIdentity();
 
-  glColor3f(1.0, 1.0, 0.0);
+  glColor3fv(&YELLOW.x);
   glRasterPos2i((w/2)-27.5, h-22);
   snprintf(buffer, sizeof buffer, "PEGGLE");
   for (bufp = buffer; *bufp; bufp++)
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
-  // Frame rate
-  glRasterPos2i(10, h-22);
+  // Ball Count
+  glRasterPos2i(20, h-22);
   snprintf(buffer, sizeof buffer, "Balls: %d", level.get_balls());
   for (bufp = buffer; *bufp; bufp++)
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
-  // Frame time
-  glRasterPos2i(w-90, h-22);
+  // Score tracking
+  glRasterPos2i(w-100, h-22);
   snprintf(buffer, sizeof buffer, "Score: %d", level.get_score());
   for (bufp = buffer; *bufp; bufp++)
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
+
+  // Print win/loss message when game ends
+  if (global.game_end) {
+    if (global.win) {
+      glRasterPos2i((w/2) - 120, h/2);
+      snprintf(buffer, sizeof buffer, "CONGRATULATIONS: YOU WIN!");
+    } else {
+      glRasterPos2i((w/2) - 90, h/2);
+      snprintf(buffer, sizeof buffer, "GAME OVER: YOU LOSE!");
+    }
+    for (bufp = buffer; *bufp; bufp++)
+      glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
+  }
 
   glPopMatrix();  /* Pop modelview */
   glMatrixMode(GL_PROJECTION);
@@ -113,26 +135,39 @@ void displayOSD() {
 }
 
 // ##### Main functions #####
-void update(void) {
+void update(void)
+{
   global.dt = getDeltaTime();
 
   // Constantly move catcher
   level.move_catcher(global.dt);
 
   // Move player and check for collisions only when launching
-  if (global.go) {
+  if (global.go && !global.game_end) {
     level.integrate(global.dt);
     level.check_all_collisions();
 
     // Check when player falls out of arena and is to be resetted
-    if(level.reset_player())
-      global.go = !global.go;
+    if(level.reset_player()) {
+      // Check whether the game ended or not
+      global.game_end = level.game_end();
+      if(!global.game_end)
+        global.go = !global.go; // Continue, game hasnt ended
+      else {
+        // Game has ended, check whether player won or lost
+        if (level.get_num_orange_pegs() == 0)
+          global.win = true;
+        else
+          global.win = false;
+      }
+    }
   }
 
   glutPostRedisplay();
 }
 
-void display(void) {
+void display(void)
+{
   int err;
 
   glLoadIdentity(); // Set initial matrix
@@ -154,7 +189,8 @@ void display(void) {
     printf("display: %s\n", gluErrorString(err));
 }
 
-void reshape(int w, int h) {
+void reshape(int w, int h)
+{
   glViewport(0, 0, (GLsizei)w, (GLsizei)h);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -163,7 +199,8 @@ void reshape(int w, int h) {
   glLoadIdentity();
 }
 
-void keyboard(unsigned char key, int x, int y) {
+void keyboard(unsigned char key, int x, int y)
+{
   switch (key) {
     // Rotate launch position
     case 'a': // left
@@ -202,7 +239,8 @@ void keyboard(unsigned char key, int x, int y) {
   glutPostRedisplay();
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
   glutInitWindowSize(WINDOW_X, WINDOW_Y);

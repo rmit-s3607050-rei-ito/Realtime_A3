@@ -53,7 +53,7 @@ void Level::init_pegs(void)
   float yInterval = (fabs(bottomLimit-topLimit))/HEIGHT;
   float yCurr = bottomLimit;
 
-  oranges = 0;
+  // Initialize peg positioning, add orange pegs per second row
   for(int row = 0; row < HEIGHT; row++) {
     for (int col = 0; col < WIDTH; col++) {
       pegs[row][col] = new Normal(blue);
@@ -62,7 +62,7 @@ void Level::init_pegs(void)
         if (row % 2 == 0) {
           pegs[row][col] = new Normal(orange);
           pegs[row][col]->set_position(xCurr, yCurr);
-          oranges++;
+          num_orange_pegs++;
         }
       } else {
         pegs[row][col]->set_empty();
@@ -77,12 +77,6 @@ void Level::init_pegs(void)
 // ########## Level functionality ##########
 void Level::init_level(void)
 {
-  // Initialize all level objects
-  player.init_player();
-  launcher.init_launcher();
-  catcher.init_catcher();
-  init_pegs();
-
   // Generate buffers for verticies and indices for the wall
   generate_buffers(&wall, LEVEL_NUM_VERTICES, LEVEL_NUM_INDICES);
 
@@ -91,11 +85,18 @@ void Level::init_level(void)
   top_right = { RIGHT, TOP };
   bot_left  = { LEFT, BOTTOM + WALL_GAP };
   bot_right = { RIGHT, BOTTOM + WALL_GAP };
-  wall_color = white;
+  wall_color = WHITE;
 
-  // Give player starting lives (balls) and starting score
+  // Give player starting lives (balls), no starting score and no orange pegs
   balls = NUM_BALLS;
   score = 0;
+  num_orange_pegs = 0;
+
+  // Initialize all level objects
+  player.init_player();
+  launcher.init_launcher();
+  catcher.init_catcher();
+  init_pegs();
 
   // Create and bind vbos
   init_vbo();
@@ -127,20 +128,36 @@ void Level::draw_level(void)
   // 1. Draw walls
   draw_walls();
 
-  // 2. Draw player and trajectory guide
-  if (balls > 0) { // Only when there are balls left to launch
+  // 2. Draw player/ trajectory when there are balls left / game not ended
+  if (balls > 0 && num_orange_pegs > 0) {
     player.draw_player();
     player.draw_guide();
-  }
 
-  // 3. Draw all pegs
-  draw_pegs();
+    // 3. Draw all pegs using same condition
+    draw_pegs();
+  }
 
   // 4. Draw the launcher at the top, collidable
   launcher.draw_launcher(player);
 
   // 5. Draw the catcher at the bottom, collidable
   catcher.draw_catcher();
+}
+
+void Level::clear_hit_pegs(void)
+{
+  int scoreUpdate = 0;
+
+  for(int row = 0; row < HEIGHT; row++) {
+    for (int col = 0; col < WIDTH; col++) {
+      scoreUpdate = pegs[row][col]->peg_clear();
+      score += scoreUpdate;
+
+      // Check if a orange peg was hit, if so update count left
+      if(scoreUpdate == ORANGE_CLEAR_SCORE)
+        num_orange_pegs--;
+    }
+  }
 }
 
 bool Level::reset_player(void)
@@ -150,14 +167,12 @@ bool Level::reset_player(void)
   // If player has fallen through the bottom of the level
   if (yPos < BOTTOM && balls > 0) {
     // 1. Clear pegs that have been hit
-    for(int row = 0; row < HEIGHT; row++) {
-      for (int col = 0; col < WIDTH; col++) {
-        score += pegs[row][col]->peg_clear();
-      }
-    }
+    clear_hit_pegs();
 
-    // 2. Reduce ball count only when player lands outside the catcher
-    if (!catcher.caught_player(player))
+    // 2. Increase score when catacher caught player else reduce ball count
+    if (catcher.caught_player(player))
+      score += CATCHER_CATCH_SCORE;
+    else
       balls--;
 
     // 3. Move player back to the top with initial values
@@ -165,6 +180,15 @@ bool Level::reset_player(void)
 
     return true;
   }
+
+  return false;
+}
+
+bool Level::game_end(void)
+{
+  // Game has ended if player has ran out of balls or there are no more orange pegs
+  if (balls == 0 || num_orange_pegs == 0)
+    return true;
 
   return false;
 }
@@ -237,6 +261,11 @@ int Level::get_balls(void)
 int Level::get_score(void)
 {
   return score;
+}
+
+int Level::get_num_orange_pegs(void)
+{
+  return num_orange_pegs;
 }
 
 // #################### Functions from attached classes ####################
