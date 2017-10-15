@@ -8,9 +8,6 @@ const float MASS = 1.0;
 const float ELASTICITY = 1.0;
 const glm::vec3 SIZE = { 0.7, 0.7, 0.7 };
 
-const float SEGMENTS = 8.0;
-const float RADIUS = 0.05;
-
 const float PEG_NUM_VERTICES = 16.0;  // Segments * 2
 const float PEG_NUM_INDICES = 16.0;   // Indices = Vertices
 
@@ -28,8 +25,6 @@ class Peg
     glm::vec3 color;
     float mass;
     float elasticity;
-    float radius;
-    float segments;
     float collision_radius;
     bool hit;
     bool clear;
@@ -47,7 +42,7 @@ class Peg
     virtual int peg_clear(void) = 0;
 
     // VBOs
-    void init_vbo(void);
+    virtual void init_vbo(void) = 0;
     void bind_vbo(void);
     // void unbind_vbo(void);
 

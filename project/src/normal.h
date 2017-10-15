@@ -18,4 +18,5 @@ class Normal : public Peg
     virtual void draw_peg(void) override;
     virtual int peg_hit(void) override;
     virtual int peg_clear(void) override;
+    virtual void init_vbo(void) override;
 };

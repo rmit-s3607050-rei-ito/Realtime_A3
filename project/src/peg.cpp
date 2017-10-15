@@ -6,12 +6,6 @@ Peg::Peg(type t) : peg_type(t)
 }
 
 // #################### VBOs ####################
-void Peg::init_vbo(void)
-{
-  // Initialize overall vbo for a peg
-  init_vbo_circle(&peg, segments, radius, color);
-}
-
 void Peg::bind_vbo(void)
 {
   // Store data for both vertices and indices for player
