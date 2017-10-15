@@ -2,13 +2,13 @@
 
 #include "peg.h"
 
-const float CIRCLE_RADIUS = 0.06;
-const int CIRCLE_SIDES = 16;
+const float PENTAGON_RADIUS = 0.07;
+const int PENTAGON_SIDES = 5;
 
-class Normal : public Peg
+class Pentagon : public Peg
 {
   public:
-    Normal(type);
+    Pentagon(type);
 
     // Overridden functions
     virtual void init_peg(void) override;

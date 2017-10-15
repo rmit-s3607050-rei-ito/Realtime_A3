@@ -8,13 +8,15 @@ const float MASS = 1.0;
 const float ELASTICITY = 1.0;
 const glm::vec3 SIZE = { 0.7, 0.7, 0.7 };
 
-const float PEG_NUM_VERTICES = 16.0;  // Segments * 2
-const float PEG_NUM_INDICES = 16.0;   // Indices = Vertices
-
 const glm::vec3 BLUE = { 0.0, 0.25, 1.0 };
 const glm::vec3 BLUE_HIT = { 0.0, 1.0, 1.0 };
 const glm::vec3 ORANGE = { 1.0, 0.25, 0.0 };
 const glm::vec3 ORANGE_HIT = { 1.0, 1.0, 0.0 };
+
+const int BLUE_HIT_POINT = 1;
+const int ORANGE_HIT_POINT = 2;
+const int BLUE_CLEAR_POINT = 2;
+const int ORANGE_CLEAR_POINT = 4;
 
 class Peg
 {
@@ -25,6 +27,8 @@ class Peg
     glm::vec3 color;
     float mass;
     float elasticity;
+    float radius;
+    float sides;
     float collision_radius;
     bool hit;
     bool clear;

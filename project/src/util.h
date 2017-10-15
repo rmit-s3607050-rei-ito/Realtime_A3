@@ -7,14 +7,13 @@
 
 // Required libraries
 #include <iostream>
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <math.h>
+#include <random>
 
+#include <GL/glew.h>
 #include <GL/glut.h>
 #include <GL/glu.h>
 #include <GL/gl.h>
+#include <SDL2/SDL.h>
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -60,11 +59,7 @@ const float WINDOW_POS_Y = 0.0;
 
 // Shared variables:
 // Scoring
-const int BLUE_HIT_SCORE = 1;
-const int ORANGE_HIT_SCORE = 2;
-const int BLUE_CLEAR_SCORE = 5;
-const int ORANGE_CLEAR_SCORE = 10;
-const int CATCHER_CATCH_SCORE = 100;
+const int CATCHER_CATCH_SCORE = 10;
 
 // Colors
 const glm::vec3 WHITE = { 1.0, 1.0, 1.0 };
@@ -96,8 +91,12 @@ void draw_square(glm::vec2, glm::vec2, glm::vec2, glm::vec2, glm::vec3);
 void draw_circle(float, float);
 
 // VBO functions
-void init_vbo_square(Buffer *, glm::vec2, glm::vec2, glm::vec2, glm::vec2, glm::vec3);
+void init_vbo_square(Buffer *, glm::vec2, glm::vec2, glm::vec2, glm::vec2,
+  glm::vec3);
 void init_vbo_circle(Buffer *, float, float, glm::vec3);
+void init_vbo_triangle(Buffer *, glm::vec2, glm::vec2, glm::vec2, glm::vec3);
+void init_vbo_polygon(Buffer *, int, float, glm::vec3);
+
 void draw_vbo_shape(Buffer *, GLenum, glm::vec3);
 void generate_buffers(Buffer *, float, float);
 void clear_buffers(Buffer *);

@@ -8,7 +8,7 @@ SRC_DIR := src
 OBJ_DIR := obj
 
 CFLAGS := -g -O2 -std=c++14 -Wall -I$(SRC_DIR) -I inc
-LFLAGS := -lGLU -lGL -lglut -lm
+LFLAGS := -lGLU -lGL -lglut -lm -lSDL2 -lGLEW
 
 SOURCES := $(shell find $(SRC_DIR)/ -name '*.$(SRC_EXT)')
 OBJECTS := $(SOURCES:$(SRC_DIR)/%.$(SRC_EXT)=%.o)

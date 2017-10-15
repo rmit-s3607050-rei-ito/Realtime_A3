@@ -6,17 +6,27 @@
 #include "player.h"
 #include "peg.h"
 #include "normal.h"
+#include "square.h"
+#include "triangle.h"
+#include "pentagon.h"
+#include "hexagon.h"
 
 // Level itself, walls and all present objects
 const int LEVEL_NUM_VERTICES = 4;   // For default type level with 3 walls
 const int LEVEL_NUM_INDICES = 6;    // 2 sets of indices per wall, 3 walls
+
 const float WALL_GAP = 0.075;
 const float WALL_REBOUND = -1.0;
+
 const int NUM_BALLS = 8;
+
 const int WIDTH = 15;
 const int HEIGHT = 6;
 
-class Level {
+const int SHAPES = 9;
+
+class Level
+{
   // All classes present in level
   Player player;
   Launcher launcher;

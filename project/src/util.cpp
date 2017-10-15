@@ -72,7 +72,8 @@ void init_vbo_square(Buffer * buffer, glm::vec2 topLeft, glm::vec2 topRight,
     buffer->inds[i] = i;
 }
 
-void init_vbo_circle(Buffer * buffer, float segments, float radius, glm::vec3 color)
+void init_vbo_circle(Buffer * buffer, float segments, float radius,
+  glm::vec3 color)
 {
   float theta;
   glm::vec2 vertex;
@@ -86,6 +87,29 @@ void init_vbo_circle(Buffer * buffer, float segments, float radius, glm::vec3 co
     theta = i / segments * M_PI;
     vertex.x = radius * cosf(theta);
     vertex.y = radius * sinf(theta);
+
+    // Instead of drawing circle, store vertices, color and indices in arrays
+    buffer->verts[i].pos = vertex;
+    buffer->verts[i].color = color;
+    buffer->inds[i] = i;
+  }
+}
+
+void init_vbo_polygon(Buffer *buffer, int sides, float radius,
+  glm::vec3 color)
+{
+  double angle;
+  glm::vec2 vertex;
+
+  // Allocate memory
+  buffer->verts = (Vertex *) calloc(buffer->num_verts, sizeof(Vertex));
+  buffer->inds = (unsigned int*) calloc(buffer->num_inds, sizeof(int));
+
+  // Loop through
+  for (int i = 0; i < sides; i++) {
+    angle = i * 2 * M_PI / sides;
+    vertex.x = radius * cosf(angle);
+    vertex.y = radius * sinf(angle);
 
     // Instead of drawing circle, store vertices, color and indices in arrays
     buffer->verts[i].pos = vertex;

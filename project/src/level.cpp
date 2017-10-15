@@ -42,6 +42,11 @@ void Level::bind_vbo(void)
 
 void Level::init_pegs(void)
 {
+  std::random_device rd; // 1a. Create a random device
+  std::default_random_engine dre(rd()); // 1b. Create a random engine, device param
+  std::uniform_int_distribution<int> uid(0, SHAPES); // 1c. Create the range of values
+  int shape;
+
   float leftLimit = LEFT+0.1;
   float rightLimit = RIGHT;
   float bottomLimit = BOTTOM+0.35;
@@ -56,17 +61,48 @@ void Level::init_pegs(void)
   // Initialize peg positioning, add orange pegs per second row
   for(int row = 0; row < HEIGHT; row++) {
     for (int col = 0; col < WIDTH; col++) {
-      pegs[row][col] = new Normal(blue);
-      if(((col + row) % 2) == 0) {
-        pegs[row][col]->set_position(xCurr, yCurr);
-        if (row % 2 == 0) {
+      shape = uid(dre); // 1d. Store the randomly generated number
+      switch (shape) {
+        case 0:
+          pegs[row][col] = new Normal(blue);
+          break;
+        case 1:
+          pegs[row][col] = new Triangle(blue);
+          break;
+        case 2:
+          pegs[row][col] = new Square(blue);
+          break;
+        case 3:
+          pegs[row][col] = new Pentagon(blue);
+          break;
+        case 4:
+          pegs[row][col] = new Hexagon(blue);
+          break;
+        case 5:
           pegs[row][col] = new Normal(orange);
-          pegs[row][col]->set_position(xCurr, yCurr);
-          num_orange_pegs++;
-        }
-      } else {
-        pegs[row][col]->set_empty();
+          break;
+        case 6:
+          pegs[row][col] = new Triangle(orange);
+          break;
+        case 7:
+          pegs[row][col] = new Square(orange);
+          break;
+        case 8:
+          pegs[row][col] = new Pentagon(orange);
+          break;
+        case 9:
+          pegs[row][col] = new Hexagon(orange);
+          break;
       }
+
+      if(((col + row) % 2) == 0)
+        pegs[row][col]->set_position(xCurr, yCurr);
+      else
+        pegs[row][col]->set_empty();
+
+      if (!pegs[row][col]->is_empty() && pegs[row][col]->is_orange())
+        num_orange_pegs++;
+
       xCurr += xInterval;
     }
     xCurr = leftLimit;
@@ -154,7 +190,7 @@ void Level::clear_hit_pegs(void)
       score += scoreUpdate;
 
       // Check if a orange peg was hit, if so update count left
-      if(scoreUpdate == ORANGE_CLEAR_SCORE)
+      if(scoreUpdate == ORANGE_CLEAR_POINT)
         num_orange_pegs--;
     }
   }

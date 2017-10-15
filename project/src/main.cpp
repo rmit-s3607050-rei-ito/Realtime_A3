@@ -6,6 +6,9 @@ struct Global {
   bool wireframe;
   bool win;
 
+  int want_redisplay;
+  SDL_Window *window;
+
   float dt;
 };
 
@@ -18,16 +21,35 @@ static float getDeltaTime(void)
   static float t1 = -1.0;
 
   if (t1 == -1)
-    t1 = glutGet(GLUT_ELAPSED_TIME);
+    t1 = SDL_GetTicks();
 
-  float t2 = glutGet(GLUT_ELAPSED_TIME);
+  float t2 = SDL_GetTicks();
   float dt = (t2 - t1) / milli;
   t1 = t2;
   return dt;
 }
 
-void init(void) 
+void post_redisplay()
 {
+  global.want_redisplay = 1;
+}
+
+void quit(int code)
+{
+  SDL_DestroyWindow(global.window);
+  SDL_Quit();
+  exit(code);
+}
+
+void sys_shutdown()
+{
+  SDL_Quit();
+}
+
+void init(void)
+{
+  glShadeModel(GL_SMOOTH);
+
   // Initialize level
   level.init_level();
 
@@ -36,11 +58,12 @@ void init(void)
   global.go = false;
   global.wireframe = false;
   global.win = false;
+  global.want_redisplay = 1;
   global.dt = 0.0;
 }
 
 // ##### Drawing and display #####
-void setRenderMode(void)
+void set_render_mode(void)
 {
   if(global.wireframe) {
     glDisable(GL_LIGHTING);
@@ -72,7 +95,7 @@ void set_material_color(glm::vec3 color)
     glMaterialfv(GL_FRONT, GL_DIFFUSE, &color.r);
 }
 
-void displayOSD()
+void display_osd()
 {
   char buffer[30];
   char *bufp;
@@ -163,7 +186,7 @@ void update(void)
     }
   }
 
-  glutPostRedisplay();
+  post_redisplay();
 }
 
 void display(void)
@@ -175,15 +198,16 @@ void display(void)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // Apply render mode
-  setRenderMode();
+  set_render_mode();
 
   // Draw level objects
   level.draw_level();
 
   glPopMatrix();
 
-  displayOSD();
-  glutSwapBuffers();
+  display_osd();
+
+  SDL_GL_SwapWindow(global.window);
 
   if ((err = glGetError()) != GL_NO_ERROR)
     printf("display: %s\n", gluErrorString(err));
@@ -199,25 +223,24 @@ void reshape(int w, int h)
   glLoadIdentity();
 }
 
-void keyboard(unsigned char key, int x, int y)
+// SDL's version keyboard events
+void key_down(SDL_KeyboardEvent *e)
 {
-  switch (key) {
+  switch (e->keysym.sym) {
     // Rotate launch position
-    case 'a': // left
+    case SDLK_a: // left
       if (!global.go)
         level.rotate_launcher(LEFTWARDS);
       break;
-    case 'd': // right
+    case SDLK_d: // right
       if (!global.go)
         level.rotate_launcher(RIGHTWARDS);
       break;
-
     // Toggle wireframe/filled mode
-    case '1':
+    case SDLK_w:
       global.wireframe = !global.wireframe;
       break;
-
-    case ' ': // 'space' = launch ball
+    case SDLK_SPACE: // 'space' = launch ball
       if(!global.go && level.get_balls() > 0) {
         // Set velocity of x and y depending on direction rotated to launch
         level.set_launch();
@@ -225,36 +248,121 @@ void keyboard(unsigned char key, int x, int y)
       }
       break;
 
-    case 'q':
-      exit(EXIT_SUCCESS);
-      break;
-
-    case 27:
-      exit(0);
+    // Quit Application
+    case SDLK_q:
+      quit(0);
       break;
 
     default:
       break;
   }
-  glutPostRedisplay();
 }
 
-int main(int argc, char** argv)
+void event_dispatcher()
+{
+  SDL_Event e;
+
+  // Handle events
+  while (SDL_PollEvent(&e)) {
+    switch (e.type) {
+      // Keyboard related events
+      case SDL_KEYDOWN:
+        key_down(&e.key);
+        break;
+      // Window related events
+      case SDL_WINDOWEVENT:
+        switch (e.window.event) {
+          case SDL_WINDOWEVENT_SHOWN:
+            break;
+          case SDL_WINDOWEVENT_SIZE_CHANGED:
+            break;
+          case SDL_WINDOWEVENT_RESIZED:
+            if (e.window.windowID == SDL_GetWindowID(global.window)) {
+              SDL_SetWindowSize(global.window, e.window.data1, e.window.data2);
+              reshape(e.window.data1, e.window.data2);
+              post_redisplay();
+            }
+            break;
+          case SDL_WINDOWEVENT_CLOSE:
+            break;
+          default:
+            break;
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  post_redisplay();
+}
+
+void main_loop()
+{
+  // Infinite loop reading events
+  while (1) {
+    event_dispatcher();
+
+    if (global.want_redisplay) {
+      display();
+      global.want_redisplay = 0;
+    }
+    update();
+  }
+}
+
+int init_graphics()
+{
+  SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+  SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+  SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+  global.window =
+    SDL_CreateWindow("Peggle",
+         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+         WINDOW_X, WINDOW_Y, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+  if (!global.window) {
+    fprintf(stderr, "%s:%d: create window failed: %s\n",
+      __FILE__, __LINE__, SDL_GetError());
+    exit(EXIT_FAILURE);
+  }
+
+  SDL_GLContext mainGLContext = SDL_GL_CreateContext(global.window);
+  if (mainGLContext == 0) {
+    fprintf(stderr, "%s:%d: create context failed: %s\n",
+      __FILE__, __LINE__, SDL_GetError());
+    exit(EXIT_FAILURE);
+  }
+
+  return 1;
+}
+
+int main(int argc, char **argv)
 {
   glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
   glutInitWindowSize(WINDOW_X, WINDOW_Y);
-  glutInitWindowPosition(WINDOW_POS_X, WINDOW_POS_Y);
-  glutCreateWindow(argv[0]);
+  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+  glutCreateWindow("GLUT OSD");
+
+  glewInit();
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
+    fprintf(stderr, "%s:%d: unable to init SDL: %s\n",
+      __FILE__, __LINE__, SDL_GetError());
+    exit(EXIT_FAILURE);
+  }
+  if (!init_graphics()) {
+      SDL_Quit();
+      return EXIT_FAILURE;
+  }
 
   init();
+  int w, h;
+  SDL_GetWindowSize(global.window, &w, &h);
+  reshape(w, h);
+  atexit(sys_shutdown);
+  main_loop();
 
-  glutDisplayFunc(display);
-  glutIdleFunc(update);
-  glutReshapeFunc(reshape);
-  glutKeyboardFunc(keyboard);
-
-  glutMainLoop();
-
-  return 0;
+  return EXIT_SUCCESS;
 }

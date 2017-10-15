@@ -1,22 +1,22 @@
-#include "normal.h"
+#include "pentagon.h"
 
-Normal::Normal(type t) : Peg(t)
+Pentagon::Pentagon(type t) : Peg(t)
 {
   init_peg();
 }
 
-void Normal::init_peg()
+void Pentagon::init_peg()
 {
   // Generating vbo buffers
-  generate_buffers(&peg, CIRCLE_SIDES, CIRCLE_SIDES);
+  generate_buffers(&peg, PENTAGON_SIDES, PENTAGON_SIDES);
 
   // Peg specific
   mass = MASS;
   elasticity = ELASTICITY;
   size = SIZE;
 
-  radius = CIRCLE_RADIUS;
-  sides = CIRCLE_SIDES;
+  radius = PENTAGON_RADIUS;
+  sides = PENTAGON_SIDES;
 
   // Set color based on type
   if (peg_type == blue)
@@ -27,6 +27,7 @@ void Normal::init_peg()
   // Normal specific
   position = { 0.0, 0.0 };
   velocity = { 0.0, 0.0 };
+
   collision_radius = radius * size.x;
   hit = false;
   clear = false;
@@ -36,17 +37,9 @@ void Normal::init_peg()
   bind_vbo();
 }
 
-void Normal::draw_peg()
+void Pentagon::draw_peg()
 {
   if (!clear && !empty) {
-    // Immediate mode
-    // glPushMatrix();
-    //   set_coloring_method(color);
-    //   glTranslatef(position.x, position.y, 0.0);
-    //   glScalef(size.x, size.y, size.z);
-    //   draw_circle(segments, radius);
-    // glPopMatrix();
-
     // Via vbos
     glPushMatrix();
       glTranslatef(position.x, position.y, 0.0);
@@ -56,7 +49,7 @@ void Normal::draw_peg()
   }
 }
 
-int Normal::peg_hit()
+int Pentagon::peg_hit()
 {
   int score_update = 0;
 
@@ -74,7 +67,7 @@ int Normal::peg_hit()
   return score_update;
 }
 
-int Normal::peg_clear()
+int Pentagon::peg_clear()
 {
   int score_update = 0;
 
@@ -91,7 +84,7 @@ int Normal::peg_clear()
   return score_update;
 }
 
-void Normal::init_vbo(void)
+void Pentagon::init_vbo(void)
 {
   // Initialize overall vbo for a peg
   init_vbo_polygon(&peg, sides, radius, color);
