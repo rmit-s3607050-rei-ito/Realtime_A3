@@ -130,8 +130,8 @@ void display_osd()
   for (bufp = buffer; *bufp; bufp++)
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
   // Score tracking
-  glRasterPos2i(w-100, h-22);
-  snprintf(buffer, sizeof buffer, "Score: %d", level.get_score());
+  glRasterPos2i(w-110, h-22);
+  snprintf(buffer, sizeof buffer, "Score: %3d", level.get_score());
   for (bufp = buffer; *bufp; bufp++)
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
 
@@ -164,6 +164,8 @@ void update(void)
 
   // Constantly move catcher
   level.move_catcher(global.dt);
+
+  level.move_pegs(global.dt);
 
   // Move player and check for collisions only when launching
   if (global.go && !global.game_end) {

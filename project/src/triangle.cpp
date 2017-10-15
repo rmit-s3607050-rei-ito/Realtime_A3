@@ -26,7 +26,7 @@ void Triangle::init_peg()
 
   // Normal specific
   position = { 0.0, 0.0 };
-  velocity = { 0.0, 0.0 };
+  velocity = { 0.1, 0.1 };
 
   collision_radius = radius * size.x;
   hit = false;

@@ -26,7 +26,7 @@ void Normal::init_peg()
 
   // Normal specific
   position = { 0.0, 0.0 };
-  velocity = { 0.0, 0.0 };
+  velocity = { 0.25, 0.25 };
   collision_radius = radius * size.x;
   hit = false;
   clear = false;

@@ -76,6 +76,7 @@ class Level
     int get_num_orange_pegs(void);
 
     // Functions from attached classes
+    void move_pegs(float);
     // Catcher
     void move_catcher(float);
     // Player

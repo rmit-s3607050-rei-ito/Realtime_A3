@@ -12,10 +12,24 @@ void Peg::bind_vbo(void)
   set_vbo_buffer_data(&peg);
 }
 
-// void Peg::unbind_vbo(void)
-// {
-//   clear_buffers(&peg);
-// }
+void Peg::move_peg(float dt)
+{
+  float leftWall = LEFT + radius;
+  float rightWall = RIGHT - radius;
+
+  // Move catcher at constant rate
+  position.x += dt * velocity.y;
+
+  // When catcher collide with side of wall, flip direction
+  if (position.x <= leftWall) {
+    position.x += 2.0 * (leftWall - position.x);
+    velocity *= PEG_REBOUND;
+  }
+  else if (position.x >= rightWall) {
+    position.x += 2.0 * (rightWall - position.x);
+    velocity *= PEG_REBOUND;
+  }
+}
 
 // #################### Getters ####################
 bool Peg::is_hit()

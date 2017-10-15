@@ -305,6 +305,14 @@ int Level::get_num_orange_pegs(void)
 }
 
 // #################### Functions from attached classes ####################
+void Level::move_pegs(float dt)
+{
+  for(int row = 0; row < HEIGHT; row++) {
+    for (int col = 0; col < WIDTH; col++) {
+      pegs[row][col]->move_peg(dt);
+    }
+  }
+}
 // Catcher
 void Level::move_catcher(float dt)
 {

@@ -10,7 +10,7 @@ void Launcher::init_vbos(void)
   init_vbo_square(&cannon, cannon_top_l, cannon_top_r, cannon_bottom_r,
                   cannon_bottom_l, cannon_color);
   // 2. Base
-  init_vbo_circle(&base, segments, radius, base_color);
+  init_vbo_polygon(&base, segments, radius, base_color);
 }
 
 void Launcher::bind_vbos(void)
@@ -19,12 +19,6 @@ void Launcher::bind_vbos(void)
   set_vbo_buffer_data(&base);
   set_vbo_buffer_data(&cannon);
 }
-
-// void Launcher::unbind_vbos(void)
-// {
-//   clear_buffers(&base);
-//   clear_buffers(&cannon);
-// }
 
 // #################### Initialization and Drawing ####################
 void Launcher::init_launcher(void) {

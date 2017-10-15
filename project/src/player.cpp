@@ -8,7 +8,7 @@ Player::Player(void)
 void Player::init_vbo(void)
 {
   // Initialize vbo for player
-  init_vbo_circle(&player, segments, radius, color);
+  init_vbo_polygon(&player, segments, radius, color);
 }
 
 void Player::bind_vbo(void)
@@ -16,11 +16,6 @@ void Player::bind_vbo(void)
   // Store data for both vertices and indices for player
   set_vbo_buffer_data(&player);
 }
-
-// void Player::unbind_vbo(void)
-// {
-//   clear_buffers(&player);
-// }
 
 // #################### Initialization and Display ####################
 void Player::init_player()
@@ -59,9 +54,6 @@ void Player::init_player()
 
   // Collision
   collision_radius = radius * size.x;
-
-  // Orange pegs destroyed
-  oranges_dest = 0;
 
   // Initialize and bind vbos for usage
   init_vbo();
@@ -114,15 +106,6 @@ void Player::draw_guide()
       }
     glEnd();
   glPopMatrix();
-
-  // set_coloring_method(red);
-  // glBegin(GL_LINE_STRIP);
-  //   for (int i = 0; i < numPoints; i++) {
-  //     vec2 guide = calculateGuidePoints();
-  //     // glVertex3f(prediction[i].x, prediction[i].y, 0.0);
-  //     glVertex3f(guide.x, guide.y, 0.0);
-  //   }
-  // glEnd();
 }
 
 // #################### Launching / Movement ####################
@@ -188,8 +171,6 @@ bool Player::peg_collide(Peg *peg)
     diss.y = pegPos.y - curr_pos.y;
     dissMagSqr = (diss.x * diss.x) + (diss.y * diss.y);
     if (dissMagSqr <= radiusSumSqr) {
-      if (peg->is_orange() && !peg->is_hit())
-        oranges_dest++;
       return true;
     }
   }
@@ -250,9 +231,4 @@ float Player::get_rotation()
 float Player::get_collision_radius()
 {
   return collision_radius;
-}
-
-int Player::get_oranges_dest()
-{
-  return oranges_dest;
 }

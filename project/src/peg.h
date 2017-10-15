@@ -8,6 +8,8 @@ const float MASS = 1.0;
 const float ELASTICITY = 1.0;
 const glm::vec3 SIZE = { 0.7, 0.7, 0.7 };
 
+const float PEG_REBOUND = -1.0;
+
 const glm::vec3 BLUE = { 0.0, 0.25, 1.0 };
 const glm::vec3 BLUE_HIT = { 0.0, 1.0, 1.0 };
 const glm::vec3 ORANGE = { 1.0, 0.25, 0.0 };
@@ -48,7 +50,8 @@ class Peg
     // VBOs
     virtual void init_vbo(void) = 0;
     void bind_vbo(void);
-    // void unbind_vbo(void);
+
+    void move_peg(float);
 
     // Getters
     bool is_hit(void);

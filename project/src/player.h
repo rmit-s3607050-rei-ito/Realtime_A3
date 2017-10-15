@@ -54,9 +54,6 @@ class Player
   float elasticity;
   float collision_radius;
 
-  // Victory condition
-  int oranges_dest;
-
   public:
     Player(void);
     // VBOs
@@ -84,5 +81,4 @@ class Player
     glm::vec2 get_curr_pos(void);
     float get_rotation(void);
     float get_collision_radius(void);
-    int get_oranges_dest(void);
 };

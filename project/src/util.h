@@ -93,8 +93,6 @@ void draw_circle(float, float);
 // VBO functions
 void init_vbo_square(Buffer *, glm::vec2, glm::vec2, glm::vec2, glm::vec2,
   glm::vec3);
-void init_vbo_circle(Buffer *, float, float, glm::vec3);
-void init_vbo_triangle(Buffer *, glm::vec2, glm::vec2, glm::vec2, glm::vec3);
 void init_vbo_polygon(Buffer *, int, float, glm::vec3);
 
 void draw_vbo_shape(Buffer *, GLenum, glm::vec3);
