@@ -1,3 +1,14 @@
+/* COSC1226 Real-Time Rendering and 3D Games Programming - Assignment 3
+ * Assignment done as a pair
+ * -----------------------------------------------------------------------------
+ * Name             : Rei Ito
+ * Student Number   : s3607050
+ * -----------------------------------------------------------------------------
+ * Name             : Pacific Thai
+ * Student Number   : s3429648
+ * -----------------------------------------------------------------------------
+ */
+
 // Utility file, contains constants and global variables
 #pragma once
 
@@ -94,7 +105,6 @@ void draw_circle(float, float);
 void init_vbo_square(Buffer *, glm::vec2, glm::vec2, glm::vec2, glm::vec2,
   glm::vec3);
 void init_vbo_polygon(Buffer *, int, float, glm::vec3);
-
 void draw_vbo_shape(Buffer *, GLenum, glm::vec3);
 void generate_buffers(Buffer *, float, float);
 void clear_buffers(Buffer *);

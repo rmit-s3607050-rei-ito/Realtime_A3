@@ -1,3 +1,14 @@
+/* COSC1226 Real-Time Rendering and 3D Games Programming - Assignment 3
+ * Assignment done as a pair
+ * -----------------------------------------------------------------------------
+ * Name             : Rei Ito
+ * Student Number   : s3607050
+ * -----------------------------------------------------------------------------
+ * Name             : Pacific Thai
+ * Student Number   : s3429648
+ * -----------------------------------------------------------------------------
+ */
+
 #include "peg.h"
 
 // #################### Constructor ####################
@@ -12,6 +23,7 @@ void Peg::bind_vbo(void)
   set_vbo_buffer_data(&peg);
 }
 
+// Peg animation
 void Peg::move_peg(float dt)
 {
   float leftWall = LEFT + radius;

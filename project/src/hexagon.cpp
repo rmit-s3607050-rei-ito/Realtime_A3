@@ -1,3 +1,14 @@
+/* COSC1226 Real-Time Rendering and 3D Games Programming - Assignment 3
+ * Assignment done as a pair
+ * -----------------------------------------------------------------------------
+ * Name             : Rei Ito
+ * Student Number   : s3607050
+ * -----------------------------------------------------------------------------
+ * Name             : Pacific Thai
+ * Student Number   : s3429648
+ * -----------------------------------------------------------------------------
+ */
+
 #include "hexagon.h"
 
 Hexagon::Hexagon(type t) : Peg(t)
@@ -10,7 +21,6 @@ void Hexagon::init_peg()
   // Generating vbo buffers
   generate_buffers(&peg, HEXAGON_SIDES, HEXAGON_SIDES);
 
-  // Peg specific
   mass = MASS;
   elasticity = ELASTICITY;
   size = SIZE;
@@ -24,7 +34,6 @@ void Hexagon::init_peg()
   else
     color = ORANGE;
 
-  // Normal specific
   position = { 0.0, 0.0 };
   velocity = { 0.0, 0.0 };
 
