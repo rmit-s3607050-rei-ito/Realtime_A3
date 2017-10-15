@@ -34,4 +34,4 @@ $(OBJECTS): $(OBJ_DIR)/%.o: $(SRC_DIR)/%.$(SRC_EXT)
 # remove the compiled objects and the binary to clean up
 .PHONY: clean
 clean:
-	rm -f $(OBJECTS) $(BIN)
+	rm -f $(DEPS) $(OBJECTS) $(BIN)
