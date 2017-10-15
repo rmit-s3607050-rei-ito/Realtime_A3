@@ -4,8 +4,6 @@
 #include "player.h"
 
 // Catcher at bottom of level
-const int CATCHER_NUM_VERTICES = 4;
-const int CATCHER_NUM_INDICES = 4;
 const float CATCHER_SIZE = 1.0;
 const float CATCHER_SPEED = -0.5;
 const float CATCHER_HEIGHT = 0.075;

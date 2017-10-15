@@ -5,7 +5,6 @@ struct Global {
   bool wireframe;
 
   float dt;
-  float bounce;
 };
 
 Global global;
@@ -36,7 +35,6 @@ void init(void) {
   // Initialize global variables
   global.go = false;
   global.wireframe = false;
-
   global.dt = 0.0;
 }
 
@@ -63,103 +61,6 @@ void set_coloring_method(glm::vec3 color) {
   else
     glMaterialfv(GL_FRONT, GL_DIFFUSE, &color.r);
 }
-
-// ##### Game Logic implementation ######
-// void clearPegs(void) {
-//   // Remove all hit pegs and add to score per hit peg
-//   for(int row = 0; row < HEIGHT; row++) {
-//     for (int col = 0; col < WIDTH; col++) {
-//       if (!pegs[row][col].clear && !pegs[row][col].empty) {
-//         if (pegs[row][col].hit) {
-//           pegs[row][col].clear = true;
-//           global.score += 5;
-//         }
-//       }
-//     }
-//   }
-// }
-
-// void resetPlayer(Player *player) {
-//   // Check whether player landed in catcher, if not reduce ball count by 1
-//   if (!catcher.caught_player(&global.player))
-//     global.balls--;
-//
-//   // clearPegs();
-//
-//   // Reset player position to start of level and reset velocity
-//   player->currPos = player->initPos;
-//   player->currVel = player->initVel;
-//
-//   // Allow player to launch again
-//   global.go = !global.go;
-// }
-
-// ##### Collision detection #####
-// void bruteForceCollision() {
-  // 2. Collision with sides of catcher
-  // catcher.catcher_collide(&global.player);
-
-  // 3. Collisions against pegs
-  // double radiusSum, radiusSumSqr, dissMagSqr;
-  // vec2 diss;
-  //
-  // for(int row = 0; row < HEIGHT; row++) {
-  //   for (int col = 0; col < WIDTH; col++) {
-  //     if (!pegs[row][col].clear && !pegs[row][col].empty) {
-  //       float pegRadius = (pegs[row][col].radius * pegs[row][col].size.x);
-  //
-  //       radiusSum = playerRadius + pegRadius;
-  //       radiusSumSqr = radiusSum * radiusSum;
-  //
-  //       diss.x = pegs[row][col].pos.x - player.currPos.x;
-  //       diss.y = pegs[row][col].pos.y - player.currPos.y;
-  //
-  //       dissMagSqr = (diss.x * diss.x) + (diss.y * diss.y);
-  //       if (dissMagSqr <= radiusSumSqr) {
-  //         float n[2], t[2], n_mag;
-  //         float v1_nt[2], v2_nt[2];
-  //         float m1, m2, v1i, v2i, v1f, v2f;
-  //
-  //         n[0] = pegs[row][col].pos.x - player.currPos.x;;
-  //         n[1] = pegs[row][col].pos.y - player.currPos.y;;
-  //
-  //         n_mag = sqrt(n[0] * n[0] + n[1] * n[1]);
-  //         n[0] /= n_mag;
-  //         n[1] /= n_mag;
-  //
-  //         t[0] = -n[1];
-  //         t[1] = n[0];
-  //
-  //         v1_nt[0] = n[0] * player.currVel.x + n[1] * player.currVel.y;
-  //         v1_nt[1] = t[0] * player.currVel.x + t[1] * player.currVel.y;
-  //         v2_nt[0] = n[0] * 0 + n[1] * 0;
-  //         v2_nt[1] = t[0] * 0 + t[1] * 0;
-  //
-  //         m1 = player.mass;
-  //         m2 = pegs[row][col].mass;
-  //         v1i = v1_nt[0];
-  //         v2i = v2_nt[0];
-  //         v1f = (m1 - m2) / (m1 + m2) * v1i + 2.0 * m2 / (m1 + m2) * v2i;
-  //         v2f = 2.0 * m1 / (m1 + m2) * v1i + (m2 - m1) / (m1 + m2) * v2i;
-  //
-  //         v1_nt[0] = v1f;
-  //         v2_nt[0] = v2f;
-  //
-  //         player.currVel.x = (n[0] * v1_nt[0] + t[0] * v1_nt[1])
-  //           - (n[0] * v2_nt[0] + t[0] * v2_nt[1]);
-  //         player.currVel.y = (n[1] * v1_nt[0] + t[1] * v1_nt[1])
-  //           - (n[1] * v2_nt[0] + t[1] * v2_nt[1]);
-  //
-  //         // If peg not already hit, add to score
-  //         if (!pegs[row][col].hit)
-  //           global.score += 1;
-  //
-  //         pegs[row][col].hit = true;
-  //       }
-  //     }
-  //   }
-  // }
-// }
 
 // On screen display
 void displayOSD() {

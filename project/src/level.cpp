@@ -29,36 +29,18 @@ void Level::init_vbo(void)
   wall.inds[5] = 3;
 }
 
-void Level::bind_vbo()
+void Level::bind_vbo(void)
 {
   // Store data for both vertices and indices in the VBO
-  // Verticies
-  glBindBuffer(GL_ARRAY_BUFFER, wall.vbo);
-  glBufferData(GL_ARRAY_BUFFER, wall.num_verts * sizeof(Vertex),
-               wall.verts, GL_STATIC_DRAW);
-
-  // Indices
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, wall.ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, wall.num_inds * sizeof(unsigned int),
-               wall.inds, GL_STATIC_DRAW);
+  set_vbo_buffer_data(&wall);
 }
 
 // void Level::unbind_vbo(void)
 // {
-//   // Disable enabled client states
-//   glDisableClientState(GL_VERTEX_ARRAY);
-//   glDisableClientState(GL_COLOR_ARRAY);
-//
-//   // Free memory allocated to indices and verticies
-//   free(wall.inds);
-//   free(wall.verts);
-//
-//   // Empty buffers
-//   glBindBuffer(GL_ARRAY_BUFFER, 0);
-//   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//   clear_buffers(&wall);
 // }
 
-void Level::init_pegs()
+void Level::init_pegs(void)
 {
   float leftLimit = LEFT+0.1;
   float rightLimit = RIGHT;
@@ -71,6 +53,7 @@ void Level::init_pegs()
   float yInterval = (fabs(bottomLimit-topLimit))/HEIGHT;
   float yCurr = bottomLimit;
 
+  oranges = 0;
   for(int row = 0; row < HEIGHT; row++) {
     for (int col = 0; col < WIDTH; col++) {
       pegs[row][col] = new Normal();
@@ -91,7 +74,7 @@ void Level::init_pegs()
 }
 
 // ########## Level functionality ##########
-void Level::init_level()
+void Level::init_level(void)
 {
   // Initialize all level objects
   player.init_player();
@@ -99,13 +82,8 @@ void Level::init_level()
   catcher.init_catcher();
   init_pegs();
 
-  // Generate buffers for verticies and indices
-  glGenBuffers(1, &wall.vbo);
-  glGenBuffers(1, &wall.ibo);
-
-  // Allocate number of verticies and indices for VBO
-  wall.num_verts = LEVEL_NUM_VERTICES;
-  wall.num_inds = LEVEL_NUM_INDICES;
+  // Generate buffers for verticies and indices for the wall
+  generate_buffers(&wall, LEVEL_NUM_VERTICES, LEVEL_NUM_INDICES);
 
   // Assign position of walls and color
   top_left  = { LEFT, TOP };
@@ -125,27 +103,16 @@ void Level::init_level()
 
 void Level::draw_walls(void)
 {
-  // 1. Draw 3 lines forming top and sides of game level (immediate mode)
-  // drawLineStrip(top_left, top_right, wall_color);  // a. Top Left -> Top Right
-  // drawLineStrip(top_right, bot_right, wall_color); // b. Top Right -> Bottom Right
-  // drawLineStrip(top_left, bot_left, wall_color);   // c. Top Left -> Bottom Left
+  // Draw 3 lines forming top and sides of game level (immediate mode)
+  // draw_line_strip(top_left, top_right, wall_color);  // a. Top Left -> Top Right
+  // draw_line_strip(top_right, bot_right, wall_color); // b. Top Right -> Bottom Right
+  // draw_line_strip(top_left, bot_left, wall_color);   // c. Top Left -> Bottom Left
 
   // Via using VBOs
-  glPushMatrix();
-    set_coloring_method(wall_color);
-    // Enable pointers to vertex/color coordinate arrays, bind current buffers
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glBindBuffer(GL_ARRAY_BUFFER, wall.vbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, wall.ibo);
-
-    glVertexPointer(2, GL_FLOAT, sizeof(Vertex), BUFFER_OFFSET(0));
-    glColorPointer(3, GL_FLOAT, sizeof(Vertex), BUFFER_OFFSET(sizeof(glm::vec2)));
-    glDrawElements(GL_LINE_STRIP, wall.num_inds, GL_UNSIGNED_INT, 0);
-  glPopMatrix();
+  draw_vbo_shape(wall_color, GL_LINE_STRIP, &wall);
 }
 
-void Level::draw_pegs()
+void Level::draw_pegs(void)
 {
   for(int row = 0; row < HEIGHT; row++) {
     for (int col = 0; col < WIDTH; col++) {
@@ -154,9 +121,9 @@ void Level::draw_pegs()
   }
 }
 
-void Level::draw_level()
+void Level::draw_level(void)
 {
-  // 1. Draw walls using stored VBO data
+  // 1. Draw walls
   draw_walls();
 
   // 2. Draw player and trajectory guide
@@ -166,7 +133,7 @@ void Level::draw_level()
   } else if (oranges == player.get_oranges_dest()) {
     printf("win\n");
   } else {
-    printf("loose\n");
+    printf("lose\n");
   }
 
   // 3. Draw all pegs

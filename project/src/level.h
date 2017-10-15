@@ -23,7 +23,7 @@ class Level {
   Player player;
   Launcher launcher;
   Catcher catcher;
-  Peg *pegs[HEIGHT][WIDTH];
+  Peg * pegs[HEIGHT][WIDTH];
 
   // VBOs
   Buffer wall;
