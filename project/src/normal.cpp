@@ -90,3 +90,9 @@ int Normal::peg_clear()
 
   return score_update;
 }
+
+void Normal::init_vbo(void)
+{
+  // Initialize overall vbo for a peg
+  init_vbo_circle(&peg, segments, radius, color);
+}

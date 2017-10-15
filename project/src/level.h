@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include "util.h"
 #include "catcher.h"
 #include "launcher.h"

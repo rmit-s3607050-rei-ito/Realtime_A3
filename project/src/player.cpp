@@ -35,9 +35,9 @@ void Player::init_player()
   curr_vel = init_vel;
 
   // Player information
-  mass = MASS;
-  elasticity = ELASTICITY;
-  size = SIZE;
+  mass = PLAYER_MASS;
+  elasticity = PLAYER_ELASTICITY;
+  size = PLAYER_SIZE;
   color = WHITE;
 
   // Rotations
@@ -54,8 +54,8 @@ void Player::init_player()
   power = LAUNCH_POWER;
 
   // Drawing + internal params
-  segments = SEGMENTS;
-  radius = RADIUS;
+  segments = PLAYER_SEGMENTS;
+  radius = PLAYER_RADIUS;
 
   // Collision
   collision_radius = radius * size.x;

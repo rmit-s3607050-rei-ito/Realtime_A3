@@ -2,8 +2,14 @@
 
 #include "peg.h"
 
+const float SEGMENTS = 8.0;
+const float RADIUS = 0.05;
+
 class Normal : public Peg
 {
+  float radius;
+  float segments;
+
   public:
     Normal(type);
 
@@ -12,4 +18,5 @@ class Normal : public Peg
     virtual void draw_peg(void) override;
     virtual int peg_hit(void) override;
     virtual int peg_clear(void) override;
+    virtual void init_vbo(void) override;
 };
