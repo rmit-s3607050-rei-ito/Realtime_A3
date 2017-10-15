@@ -2,10 +2,15 @@
 
 #include "util.h"
 #include "peg.h"
-#include "normal.h"
+
+const float PLAYER_MASS = 1.0;
+const float PLAYER_ELASTICITY = 1.0;
+
+const float PLAYER_SIZE = 0.5;
+const float PLAYER_SEGMENTS = 8.0;
+const float PLAYER_RADIUS = 0.05;
 
 const float LAUNCH_POWER = 1.2;
-const float PLAYER_SIZE = 0.5;
 
 const float MIN_ROTATION = -180.0;
 const float MAX_ROTATION = 0.0;
@@ -14,13 +19,18 @@ const float ROTATION_INCREMENT = 1.0;
 const float GUIDE_SIZE = 5.0;
 const float GUIDE_SEGMENTS = 16.0;
 
-const glm::vec3 PLAYER_COLOR = { 1.0, 1.0, 1.0 };
+const glm::vec3 WHITE = { 1.0, 1.0, 1.0 };
 const glm::vec3 GUIDE_COLOR = { 1.0, 0.0, 0.0 };
 
-class Player : public Peg
+class Player
 {
   glm::vec2 init_pos, curr_pos;
   glm::vec2 init_vel, curr_vel;
+
+  float mass;
+  float elasticity;
+  glm::vec3 size;
+  glm::vec3 color;
 
   float rotation;
   float min_rotation, max_rotation;
@@ -39,8 +49,8 @@ class Player : public Peg
   public:
     Player(void);
     // Overridden functions
-    virtual void init_peg(void) override;
-    virtual void draw_peg(void) override;
+    void init_player(void);
+    void draw_player(void);
 
     void draw_guide(void);
     void rotate_launch(direction);
@@ -57,6 +67,6 @@ class Player : public Peg
     float get_collision_radius(void);
     int get_oranges_dest(void);
 
-    bool peg_collide(Normal *);
-    void peg_collide_reflect(Normal *);
+    bool peg_collide(Peg *);
+    void peg_collide_reflect(Peg *);
 };

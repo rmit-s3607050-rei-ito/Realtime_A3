@@ -71,7 +71,6 @@ void Level::init_pegs()
   float yInterval = (fabs(bottomLimit-topLimit))/HEIGHT;
   float yCurr = bottomLimit;
 
-  oranges = 0;
   for(int row = 0; row < HEIGHT; row++) {
     for (int col = 0; col < WIDTH; col++) {
       pegs[row][col] = new Normal();
@@ -95,7 +94,7 @@ void Level::init_pegs()
 void Level::init_level()
 {
   // Initialize all level objects
-  player.init_peg();
+  player.init_player();
   launcher.init_launcher();
   catcher.init_catcher();
   init_pegs();
@@ -162,7 +161,7 @@ void Level::draw_level()
 
   // 2. Draw player and trajectory guide
   if (balls > 0) { // Only when there are balls left to launch
-    player.draw_peg();
+    player.draw_player();
     player.draw_guide();
   } else if (oranges == player.get_oranges_dest()) {
     printf("win\n");

@@ -6,6 +6,8 @@
 #include "catcher.h"
 #include "launcher.h"
 #include "player.h"
+#include "peg.h"
+#include "normal.h"
 
 // Level itself, walls and all present objects
 const int LEVEL_NUM_VERTICES = 4;   // For default type level with 3 walls
@@ -21,7 +23,7 @@ class Level {
   Player player;
   Launcher launcher;
   Catcher catcher;
-  Normal *pegs[HEIGHT][WIDTH];
+  Peg *pegs[HEIGHT][WIDTH];
 
   // VBOs
   Buffer wall;
