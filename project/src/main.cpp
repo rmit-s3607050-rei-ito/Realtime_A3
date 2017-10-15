@@ -1,6 +1,7 @@
 #include "level.h"
 
 struct Global {
+  bool game_end;
   bool go;
   bool wireframe;
 
@@ -92,13 +93,13 @@ void displayOSD() {
   snprintf(buffer, sizeof buffer, "PEGGLE");
   for (bufp = buffer; *bufp; bufp++)
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
-  // Frame rate
-  glRasterPos2i(10, h-22);
+  // Ball Count
+  glRasterPos2i(20, h-22);
   snprintf(buffer, sizeof buffer, "Balls: %d", level.get_balls());
   for (bufp = buffer; *bufp; bufp++)
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
-  // Frame time
-  glRasterPos2i(w-90, h-22);
+  // Score tracking
+  glRasterPos2i(w-100, h-22);
   snprintf(buffer, sizeof buffer, "Score: %d", level.get_score());
   for (bufp = buffer; *bufp; bufp++)
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *bufp);
@@ -125,8 +126,9 @@ void update(void) {
     level.check_all_collisions();
 
     // Check when player falls out of arena and is to be resetted
-    if(level.reset_player())
+    if(level.reset_player()) {
       global.go = !global.go;
+    }
   }
 
   glutPostRedisplay();

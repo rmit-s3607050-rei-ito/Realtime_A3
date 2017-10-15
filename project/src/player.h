@@ -22,7 +22,6 @@ const float ROTATION_INCREMENT = 1.0;
 const float GUIDE_SIZE = 5.0;
 const float GUIDE_SEGMENTS = 16.0;
 
-const glm::vec3 WHITE = { 1.0, 1.0, 1.0 };
 const glm::vec3 GUIDE_COLOR = { 1.0, 0.0, 0.0 };
 
 class Player

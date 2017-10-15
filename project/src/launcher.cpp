@@ -45,8 +45,8 @@ void Launcher::init_launcher(void) {
   cannon_bottom_r = { width, -length };
 
   // Coloring
-  cannon_color = grey;
-  base_color = darkGrey;
+  cannon_color = GREY;
+  base_color = DARK_GREY;
 
   // Initialize and bind vbos for usage
   init_vbos();
