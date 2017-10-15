@@ -65,61 +65,9 @@ int Normal::peg_clear()
       else
         ret = 5;
     }
-    
+
     clear = true;
   }
 
   return ret;
-}
-
-bool Normal::is_hit()
-{
-  return hit;
-}
-
-bool Normal::is_clear()
-{
-  return clear;
-}
-
-bool Normal::is_empty()
-{
-  return empty;
-}
-
-bool Normal::is_orange()
-{
-  return orange;
-}
-
-glm::vec2 Normal::get_position()
-{
-  return position;
-}
-
-glm::vec2 Normal::get_velocity()
-{
-  return velocity;
-}
-
-float Normal::get_collision_radius()
-{
-  return collision_radius;
-}
-
-void Normal::set_position(float x, float y)
-{
-  position.x = x;
-  position.y = y;
-}
-
-void Normal::set_empty()
-{
-  empty = true;
-}
-
-void Normal::set_orange()
-{
-  color = ORANGE;
-  orange = true;
 }

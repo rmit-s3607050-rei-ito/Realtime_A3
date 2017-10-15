@@ -4,20 +4,19 @@ Player::Player(void)
 {
 }
 
-void Player::init_peg()
+void Player::init_player()
 {
-  // Peg specific
-  mass = MASS;
-  elasticity = ELASTICITY;
-  size = SIZE;
-  color = PLAYER_COLOR;
-
-  // Player specific
   // Positioning
   init_pos = { 0.0, PLAYER_START_POS_Y };
   curr_pos = init_pos;
   init_vel = { 0.0, 0.0 };
   curr_vel = init_vel;
+
+  // Player information
+  mass = MASS;
+  elasticity = ELASTICITY;
+  size = SIZE;
+  color = WHITE;
 
   // Rotations
   rotation = STARTING_ROTATION;
@@ -43,7 +42,7 @@ void Player::init_peg()
   oranges_dest = 0;
 }
 
-void Player::draw_peg()
+void Player::draw_player()
 {
   glPushMatrix();
     setColoringMethod(color);
@@ -136,7 +135,7 @@ void Player::rebound(reflection axis, float displacement, float reflectPower)
   }
 }
 
-bool Player::peg_collide(Normal *peg)
+bool Player::peg_collide(Peg *peg)
 {
   double radiusSum, radiusSumSqr, dissMagSqr;
   glm::vec2 diss;
@@ -158,7 +157,7 @@ bool Player::peg_collide(Normal *peg)
   return false;
 }
 
-void Player::peg_collide_reflect(Normal *peg)
+void Player::peg_collide_reflect(Peg *peg)
 {
   float n[2], t[2], n_mag;
   float v1_nt[2], v2_nt[2];
