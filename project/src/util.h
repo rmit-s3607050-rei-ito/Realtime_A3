@@ -1,10 +1,11 @@
 // Utility file, contains constants and global variables
 #pragma once
 
-// SHADER STUFF
 #define GL_GLEXT_PROTOTYPES
+// SHADER STUFF
 // #include "shaders.h"
 
+// Required libraries
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -20,16 +21,19 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/constants.hpp>
 
-// Pi definition
+// #################### Definitions ####################
+// PI: 3.14159265359
 #ifndef M_PI
   #define M_PI 4.0 * atan(1.0)
 #endif
+// VBO buffer access offsetting
+#define BUFFER_OFFSET(i) ((void *) (i))
 
-// Reflection and rotating launch
+// #################### Reflection and rotating launch ####################
 typedef enum { X_REFLECTION, Y_REFLECTION } reflection;
 typedef enum { LEFTWARDS, RIGHTWARDS } direction;
 
-// VBO data
+// #################### VBO struct data definitions ####################
 typedef struct {
   glm::vec2 pos;
   glm::vec3 color;
@@ -42,10 +46,7 @@ typedef struct {
   unsigned vbo, ibo;
 } Buffer;
 
-// VBO buffers
-#define BUFFER_OFFSET(i) ((void *) (i))
-
-// Constants
+// #################### Constants ####################
 // const float gravity = -9.8;   // Gravity
 const float gravity = -2.0;   // Fake Gravity
 const float milli = 1000.0;   // One second
@@ -65,21 +66,31 @@ const float WINDOW_POS_X = 400.0;
 const float WINDOW_POS_Y = 0.0;
 
 // Shared variables
+// Level boundaries
 const float LEFT = -0.90;
 const float BOTTOM = -1.0;
 const float TOP = 0.90;
 const float RIGHT = 0.90;
-
+// Positioning and Rotation
 const float PLAYER_START_POS_Y = 0.85;
 const float STARTING_ROTATION = -90.0;
+// Drawing
+const int SQUARE_NUM_VERTICES = 4;
+const int SQUARE_NUM_INDICES = 4;
 
-// Functions
-float degreesToRadians(float);
-void set_coloring_method(glm::vec3);
-void drawLineStrip(glm::vec2, glm::vec2, glm::vec3);
-void drawSquare(glm::vec2, glm::vec2, glm::vec2, glm::vec2, glm::vec3);
-void drawCircle(float, float);
+// Misc functions
+float degrees_to_radians(float);
+void set_coloring_method(glm::vec3);  // Set color for filled mode
 
-// void init_square_vbo()
+// Immediate mode drawing
+void draw_line_strip(glm::vec2, glm::vec2, glm::vec3);
+void draw_square(glm::vec2, glm::vec2, glm::vec2, glm::vec2, glm::vec3);
+void draw_circle(float, float);
 
-void resetPlayer(void);
+// VBO functions
+void init_vbo_square(Buffer *, glm::vec2, glm::vec2, glm::vec2, glm::vec2, glm::vec3);
+void init_vbo_circle(Buffer *, float, float, glm::vec3);
+void draw_vbo_shape(glm::vec3, GLenum, Buffer *);
+void generate_buffers(Buffer *, float, float);
+void clear_buffers(Buffer *);
+void set_vbo_buffer_data(Buffer *);

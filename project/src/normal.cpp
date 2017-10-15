@@ -31,7 +31,7 @@ void Normal::draw_peg()
       set_coloring_method(color);
       glTranslatef(position.x, position.y, 0.0);
       glScalef(size.x, size.y, size.z);
-      drawCircle(segments, radius);
+      draw_circle(segments, radius);
     glPopMatrix();
   }
 }

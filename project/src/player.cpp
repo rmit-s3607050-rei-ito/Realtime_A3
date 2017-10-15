@@ -49,7 +49,7 @@ void Player::draw_player()
     glTranslatef(curr_pos.x, curr_pos.y, 0.0);
     glRotatef(rotation, 0.0, 0.0, 1.0);
     glScalef(size.x, size.y, size.z);
-    drawCircle(segments, radius);
+    draw_circle(segments, radius);
   glPopMatrix();
 }
 
@@ -57,8 +57,8 @@ void Player::draw_guide()
 {
   glm::vec2 pos = { 0.0, 0.0 };
   glm::vec2 vel;
-  vel.x = cos(degreesToRadians(rotation)) * power;
-  vel.y = sin(degreesToRadians(rotation)) * power;
+  vel.x = cos(degrees_to_radians(rotation)) * power;
+  vel.y = sin(degrees_to_radians(rotation)) * power;
 
   // Guide drawn as a parabola
   float tof = (vel.y * 2.0) / gravity;
@@ -103,8 +103,8 @@ void Player::rotate_launch(direction path)
 
 void Player::set_launch()
 {
-  curr_vel.x = cos(degreesToRadians(rotation)) * power;
-  curr_vel.y = sin(degreesToRadians(rotation)) * power;
+  curr_vel.x = cos(degrees_to_radians(rotation)) * power;
+  curr_vel.y = sin(degrees_to_radians(rotation)) * power;
 }
 
 void Player::integrate(float dt)
