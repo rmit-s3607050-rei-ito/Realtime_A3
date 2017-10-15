@@ -1,96 +1,122 @@
 #include "level.h"
 
-// ########## VBOs for level walls ##########
+// #################### VBOs for level walls ####################
 void Level::init_vbo(void)
 {
-  // Generate buffers for verticies and indices
-  glGenBuffers(1, &vbo);
-  glGenBuffers(1, &ibo);
-
   // Allocate memory for indices and verticies
-  verticies = (glm::vec2 *) calloc(num_vertices, sizeof(glm::vec2));
-  indices = (unsigned int*) calloc(num_indices, sizeof(int));
+  wall_vbo.verts = (Vertex *) calloc(wall_vbo.num_vers, sizeof(Vertex));
+  wall_vbo.inds = (unsigned int*) calloc(wall_vbo.num_inds, sizeof(int));
 
   // Store coordinates for wall
-  verticies[0] = top_left;
-  verticies[1] = top_right;
-  verticies[2] = bot_left;
-  verticies[3] = bot_right;
+  wall_vbo.verts[0].pos = top_left;
+  wall_vbo.verts[1].pos = top_right;
+  wall_vbo.verts[2].pos = bot_left;
+  wall_vbo.verts[3].pos = bot_right;
+  // Store colors for each wall coordinate (wireframe mode only)
+  wall_vbo.verts[0].color = wall_color;
+  wall_vbo.verts[1].color = wall_color;
+  wall_vbo.verts[2].color = wall_color;
+  wall_vbo.verts[3].color = wall_color;
 
   // Store indices to access wall
   // Left wall
-  indices[0] = 2;
-  indices[1] = 0;
+  wall_vbo.inds[0] = 2;
+  wall_vbo.inds[1] = 0;
   // Top wall
-  indices[2] = 0;
-  indices[3] = 1;
+  wall_vbo.inds[2] = 0;
+  wall_vbo.inds[3] = 1;
   // Right wall
-  indices[4] = 1;
-  indices[5] = 3;
+  wall_vbo.inds[4] = 1;
+  wall_vbo.inds[5] = 3;
 }
 
 void Level::bind_vbo(void)
 {
+  // Store data for both vertices and indices in the VBO
   // Verticies
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, num_vertices * sizeof(glm::vec2),
-               verticies, GL_STATIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER, wall_vbo.vbo);
+  glBufferData(GL_ARRAY_BUFFER, wall_vbo.num_verts * sizeof(Vertex),
+               wall_vbo.verts, GL_STATIC_DRAW);
 
   // Indices
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, num_indices * sizeof(unsigned int),
-               indices, GL_STATIC_DRAW);
-
-  // Enable pointer sot vertex coordinate arrays
-  glEnableClientState(GL_VERTEX_ARRAY);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, wall_vbo.ibo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, wall_vbo.num_inds * sizeof(unsigned int),
+               wall_vbo.inds, GL_STATIC_DRAW);
 }
 
-// void unbind_vbo(void)
+// void Level::unbind_vbo(void)
 // {
 //   // Disable enabled client states
 //   glDisableClientState(GL_VERTEX_ARRAY);
+//   glDisableClientState(GL_COLOR_ARRAY);
 //
 //   // Free memory allocated to indices and verticies
-//   free(indices);
-//   free(verticies);
+//   free(wall_vbo.inds);
+//   free(wall_vbo.verts);
 //
 //   // Empty buffers
 //   glBindBuffer(GL_ARRAY_BUFFER, 0);
 //   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 // }
 
-// ########## Level functionality ##########
+// #################### Level functionality ####################
 void Level::init_level(void)
 {
-  num_vertices = NUM_VERTICES;
-  num_indices = NUM_INDICES;
+  // Initialize all level objects
+  player.init_peg();
+  launcher.init_launcher();
+  catcher.init_catcher();
 
+  // Generate buffers for verticies and indices
+  glGenBuffers(1, &wall_vbo.vbo);
+  glGenBuffers(1, &wall_vbo.ibo);
+
+  // Allocate number of verticies and indices for VBO
+  wall_vbo.num_verts = LEVEL_NUM_VERTICES;
+  wall_vbo.num_inds = LEVEL_NUM_INDICES;
+
+  // Assign position of walls and color
   top_left  = { LEFT, TOP };
   top_right = { RIGHT, TOP };
   bot_left  = { LEFT, BOTTOM + WALL_GAP };
   bot_right = { RIGHT, BOTTOM + WALL_GAP };
-
   wall_color = white;
 
+  // Give player starting lives (balls) and starting score
   balls = NUM_BALLS;
   score = 0;
 
+  // Create and bind vbos
   init_vbo();
   bind_vbo();
+}
 
-  player.init_peg();
-  launcher.init_launcher();
-  catcher.init_catcher();
+void Level::draw_walls(void)
+{
+  // 1. Draw 3 lines forming top and sides of game level (immediate mode)
+  // drawLineStrip(top_left, top_right, wall_color);  // a. Top Left -> Top Right
+  // drawLineStrip(top_right, bot_right, wall_color); // b. Top Right -> Bottom Right
+  // drawLineStrip(top_left, bot_left, wall_color);   // c. Top Left -> Bottom Left
+
+  // Via using VBOs
+  glPushMatrix();
+    setColoringMethod(wall_color);
+    // Enable pointers to vertex/color coordinate arrays, bind current buffers
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glBindBuffer(GL_ARRAY_BUFFER, wall_vbo.vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, wall_vbo.ibo);
+
+    glVertexPointer(2, GL_FLOAT, sizeof(Vertex), BUFFER_OFFSET(0));
+    glColorPointer(3, GL_FLOAT, sizeof(Vertex), BUFFER_OFFSET(sizeof(glm::vec2)));
+    glDrawElements(GL_LINE_STRIP, wall_vbo.num_indices, GL_UNSIGNED_INT, 0);
+  glPopMatrix();
 }
 
 void Level::draw_level(void)
 {
   // 1. Draw walls using stored VBO data
-  glPushMatrix();
-    setColoringMethod(white);
-    glVertexPointer(2, GL_FLOAT, sizeof(glm::vec2), BUFFER_OFFSET(0));
-    glDrawElements(GL_LINE_STRIP, num_indices, GL_UNSIGNED_INT, 0);
-  glPopMatrix();
+  draw_walls();
 
   // 2. Draw player and trajectory guide
   if (balls > 0) { // Only when there are balls left to launch
@@ -128,7 +154,7 @@ bool Level::reset_player(void)
   return false;
 }
 
-// ########## Collision detection ##########
+// #################### Collision detection ####################
 void Level::check_all_collisions(void)
 {
   // Colisions against level walls: left, right and top
@@ -154,24 +180,24 @@ void Level::check_wall_collision(void)
   // Store small rebound upon collision to pass to player
   float displacement;
 
-  // Left wall hit
   if (leftCollide <= LEFT) {
+    // Left wall hit
     displacement = 2.0 * (LEFT - leftCollide);
     player.rebound(X_REFLECTION, displacement, WALL_REBOUND);
   }
   else if (rightCollide >= RIGHT) {
-  // Right wall hit
+    // Right wall hit
     displacement = 2.0 * (RIGHT - rightCollide);
     player.rebound(X_REFLECTION, displacement, WALL_REBOUND);
   }
-  // Top wall hit - Can collide with both TOP + LEFT/RIGHT (corner)
   if (topCollide >= TOP) {
+    // Top wall hit - Can collide with both TOP + LEFT/RIGHT (corner)
     displacement = 2.0 * (TOP - topCollide);
     player.rebound(Y_REFLECTION, displacement, WALL_REBOUND);
   }
 }
 
-// ########## Getters ##########
+// #################### Getters ####################
 int Level::get_balls(void)
 {
   return balls;
@@ -182,7 +208,7 @@ int Level::get_score(void)
   return score;
 }
 
-// ########## Functions from attached classes ##########
+// #################### Functions from attached classes ####################
 // Catcher
 void Level::move_catcher(float dt)
 {

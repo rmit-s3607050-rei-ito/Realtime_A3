@@ -5,26 +5,28 @@
 #include "launcher.h"
 #include "player.h"
 
-const float NUM_VERTICES = 4;   // For default type level with 3 walls
-const float NUM_INDICES = 6;    // 2 sets of indices per wall, 3 walls
+// Level itself, walls and all present objects
+const int LEVEL_NUM_VERTICES = 4;   // For default type level with 3 walls
+const int LEVEL_NUM_INDICES = 6;    // 2 sets of indices per wall, 3 walls
 const float WALL_GAP = 0.075;
 const float WALL_REBOUND = -1.0;
 const int NUM_BALLS = 8;
 
 class Level {
+  // All classes present in level
   Player player;
   Launcher launcher;
   Catcher catcher;
 
-  glm::vec2 *verticies;
-  unsigned int *indices;
-  size_t num_vertices, num_indices;
-  unsigned vbo, ibo;
+  // VBOs
+  Buffer wall_vbo;
 
+  // Positioning and Color
   glm::vec2 top_left, top_right;
   glm::vec2 bot_left, bot_right;
   glm::vec3 wall_color;
 
+  // Level parameters
   int balls;
   int score;
 
@@ -33,10 +35,11 @@ class Level {
     // VBO related functions
     void init_vbo(void);
     void bind_vbo(void);
-    // void unbind_vbos(void);
+    // void unbind_vbo(void);
 
     // Level functionality
     void init_level(void);
+    void draw_walls(void);
     void draw_level(void);
     bool reset_player(void);
 

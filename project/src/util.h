@@ -25,9 +25,22 @@
   #define M_PI 4.0 * atan(1.0)
 #endif
 
-// Rotating launch
-enum reflection { X_REFLECTION, Y_REFLECTION };
-enum direction { LEFTWARDS, RIGHTWARDS };
+// Reflection and rotating launch
+typedef enum { X_REFLECTION, Y_REFLECTION } reflection;
+typedef enum { LEFTWARDS, RIGHTWARDS } direction;
+
+// VBO data
+typedef struct {
+  glm::vec2 pos;
+  glm::vec3 color;
+} Vertex;
+
+typedef struct {
+  Vertex *verts;
+  unsigned int *inds;
+  size_t num_verts, num_inds;
+  unsigned vbo, ibo;
+} Buffer;
 
 // VBO buffers
 #define BUFFER_OFFSET(i) ((void *) (i))
