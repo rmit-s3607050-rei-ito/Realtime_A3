@@ -22,4 +22,5 @@ class Peg
     Peg(void);
     virtual void init_peg(void) = 0;
     virtual void draw_peg(void) = 0;
+    float get_mass(void);
 };

@@ -1,7 +1,7 @@
 #include "level.h"
 
 // ########## VBOs for level walls ##########
-void Level::init_vbo(void)
+void Level::init_vbo()
 {
   // Generate buffers for verticies and indices
   glGenBuffers(1, &vbo);
@@ -29,7 +29,7 @@ void Level::init_vbo(void)
   indices[5] = 3;
 }
 
-void Level::bind_vbo(void)
+void Level::bind_vbo()
 {
   // Verticies
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -59,8 +59,41 @@ void Level::bind_vbo(void)
 //   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 // }
 
+void Level::init_pegs()
+{
+  float leftLimit = LEFT+0.1;
+  float rightLimit = RIGHT;
+  float bottomLimit = BOTTOM+0.35;
+  float topLimit = TOP;
+
+  float xInterval = (fabs(leftLimit-rightLimit))/WIDTH;
+  float xCurr = leftLimit;
+
+  float yInterval = (fabs(bottomLimit-topLimit))/HEIGHT;
+  float yCurr = bottomLimit;
+
+  oranges = 0;
+  for(int row = 0; row < HEIGHT; row++) {
+    for (int col = 0; col < WIDTH; col++) {
+      pegs[row][col] = new Normal();
+      if(((col + row) % 2) == 0) {
+        pegs[row][col]->set_position(xCurr, yCurr);
+        if (row % 2 == 0) {
+          pegs[row][col]->set_orange();
+          oranges++;
+        }
+      } else {
+        pegs[row][col]->set_empty();
+      }
+      xCurr+=xInterval;
+    }
+    xCurr = leftLimit;
+    yCurr+=yInterval;
+  }
+}
+
 // ########## Level functionality ##########
-void Level::init_level(void)
+void Level::init_level()
 {
   num_vertices = NUM_VERTICES;
   num_indices = NUM_INDICES;
@@ -81,9 +114,20 @@ void Level::init_level(void)
   player.init_peg();
   launcher.init_launcher();
   catcher.init_catcher();
+
+  init_pegs();
 }
 
-void Level::draw_level(void)
+void Level::draw_pegs()
+{
+  for(int row = 0; row < HEIGHT; row++) {
+    for (int col = 0; col < WIDTH; col++) {
+      pegs[row][col]->draw_peg();
+    }
+  }
+}
+
+void Level::draw_level()
 {
   // 1. Draw walls using stored VBO data
   glPushMatrix();
@@ -96,9 +140,14 @@ void Level::draw_level(void)
   if (balls > 0) { // Only when there are balls left to launch
     player.draw_peg();
     player.draw_guide();
+  } else if (oranges == player.get_oranges_dest()) {
+    printf("win\n");
+  } else {
+    printf("loose\n");
   }
 
   // 3. Draw all pegs
+  draw_pegs();
 
   // 4. Draw the launcher at the top, collidable
   launcher.draw_launcher(player);
@@ -112,8 +161,13 @@ bool Level::reset_player(void)
   float yPos = player.get_curr_pos().y;
 
   // If player has fallen through the bottom of the level
-  if (yPos < BOTTOM) {
+  if (yPos < BOTTOM && balls > 0) {
     // 1. Clear pegs that have been hit
+    for(int row = 0; row < HEIGHT; row++) {
+      for (int col = 0; col < WIDTH; col++) {
+        score += pegs[row][col]->peg_clear();
+      }
+    }
 
     // 2. Reduce ball count only when player lands outside the catcher
     if (!catcher.caught_player(player))
@@ -136,6 +190,16 @@ void Level::check_all_collisions(void)
 
   // Collisions against sides of catcher: left, right
   catcher.check_catcher_collision(&player);
+
+  // Player collisions
+  for(int row = 0; row < HEIGHT; row++) {
+    for (int col = 0; col < WIDTH; col++) {
+      if (player.peg_collide(pegs[row][col])) {
+        score += pegs[row][col]->peg_hit();
+        player.peg_collide_reflect(pegs[row][col]);
+      }
+    }
+  }
 }
 
 void Level::check_wall_collision(void)

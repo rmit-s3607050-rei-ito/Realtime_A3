@@ -4,3 +4,9 @@
 Peg::Peg(void)
 {
 }
+
+
+float Peg::get_mass()
+{
+  return mass;
+}
