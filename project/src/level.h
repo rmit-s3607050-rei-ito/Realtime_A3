@@ -57,6 +57,7 @@ class Level {
 
     // Collisions
     void check_all_collisions(void);
+    void check_peg_collisions(void);
     void check_wall_collision(void);
 
     // Getters

@@ -1,17 +1,25 @@
 #include "normal.h"
 
-Normal::Normal(void)
+Normal::Normal(type t) : Peg(t)
 {
   init_peg();
 }
 
 void Normal::init_peg()
 {
+  // Generating vbo buffers
+  generate_buffers(&peg, PEG_NUM_VERTICES, PEG_NUM_INDICES);
+
   // Peg specific
   mass = MASS;
   elasticity = ELASTICITY;
   size = SIZE;
-  color = BLUE;
+
+  // Set color based on type
+  if (peg_type == blue)
+    color = BLUE;
+  else
+    color = ORANGE;
 
   // Normal specific
   position = { 0.0, 0.0 };
@@ -21,53 +29,64 @@ void Normal::init_peg()
   collision_radius = radius * size.x;
   hit = false;
   clear = false;
-  orange = false;
+
+  // Initialization and binding of vbos
+  init_vbo();
+  bind_vbo();
 }
 
 void Normal::draw_peg()
 {
   if (!clear && !empty) {
+    // Immediate mode
+    // glPushMatrix();
+    //   set_coloring_method(color);
+    //   glTranslatef(position.x, position.y, 0.0);
+    //   glScalef(size.x, size.y, size.z);
+    //   draw_circle(segments, radius);
+    // glPopMatrix();
+
+    // Via vbos
     glPushMatrix();
-      set_coloring_method(color);
       glTranslatef(position.x, position.y, 0.0);
       glScalef(size.x, size.y, size.z);
-      draw_circle(segments, radius);
+      draw_vbo_shape(&peg, GL_POLYGON, color);
     glPopMatrix();
   }
 }
 
 int Normal::peg_hit()
 {
-  int ret = 0;
+  int score_update = 0;
 
   if (!hit) {
-    if (orange) {
+    if (peg_type == orange) {
       color = ORANGE_HIT;
-      ret = 2;
+      score_update = 2;
     } else {
       color = BLUE_HIT;
-      ret = 1;
+      score_update = 1;
     }
   }
 
   hit = true;
-  return ret;
+  return score_update;
 }
 
 int Normal::peg_clear()
 {
-  int ret = 0;
+  int score_update = 0;
 
   if (hit) {
     if (!clear) {
-      if (orange)
-        ret = 10;
+      if (peg_type == orange)
+        score_update = 10;
       else
-        ret = 5;
+        score_update = 5;
     }
 
     clear = true;
   }
 
-  return ret;
+  return score_update;
 }

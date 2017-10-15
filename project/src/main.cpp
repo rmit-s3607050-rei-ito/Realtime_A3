@@ -10,11 +10,6 @@ struct Global {
 Global global;
 Level level;
 
-// int numPoints = 0;
-// const int MAX_POINTS = 1000;
-// const int MAX_PREDICTIONS = 2;
-// vec2 prediction[MAX_POINTS];
-
 // ##### Misc functions #####
 static float getDeltaTime(void) {
   static float t1 = -1.0;
@@ -56,9 +51,15 @@ void setRenderMode(void) {
 }
 
 void set_coloring_method(glm::vec3 color) {
+  // Only used for guide now, VBOs, automatically store color for wireframe mode
   if(global.wireframe)
     glColor3fv(&color.x);
   else
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, &color.r);
+}
+
+void set_material_color(glm::vec3 color) {
+  if (!global.wireframe)
     glMaterialfv(GL_FRONT, GL_DIFFUSE, &color.r);
 }
 

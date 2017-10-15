@@ -5,7 +5,8 @@
 class Normal : public Peg
 {
   public:
-    Normal(void);
+    Normal(type);
+
     // Overridden functions
     virtual void init_peg(void) override;
     virtual void draw_peg(void) override;

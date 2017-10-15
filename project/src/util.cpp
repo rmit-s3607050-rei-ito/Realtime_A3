@@ -94,10 +94,10 @@ void init_vbo_circle(Buffer * buffer, float segments, float radius, glm::vec3 co
   }
 }
 
-void draw_vbo_shape(glm::vec3 color, GLenum mode, Buffer *buffer)
+void draw_vbo_shape(Buffer *buffer, GLenum mode, glm::vec3 color)
 {
   glPushMatrix();
-    set_coloring_method(color);
+    set_material_color(color);
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     glBindBuffer(GL_ARRAY_BUFFER, buffer->vbo);

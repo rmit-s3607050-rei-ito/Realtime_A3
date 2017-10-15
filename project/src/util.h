@@ -80,7 +80,8 @@ const int SQUARE_NUM_INDICES = 4;
 
 // Misc functions
 float degrees_to_radians(float);
-void set_coloring_method(glm::vec3);  // Set color for filled mode
+void set_coloring_method(glm::vec3);  // Set color dependant on filled/wireframe mode
+void set_material_color(glm::vec3);
 
 // Immediate mode drawing
 void draw_line_strip(glm::vec2, glm::vec2, glm::vec3);
@@ -90,7 +91,7 @@ void draw_circle(float, float);
 // VBO functions
 void init_vbo_square(Buffer *, glm::vec2, glm::vec2, glm::vec2, glm::vec2, glm::vec3);
 void init_vbo_circle(Buffer *, float, float, glm::vec3);
-void draw_vbo_shape(glm::vec3, GLenum, Buffer *);
+void draw_vbo_shape(Buffer *, GLenum, glm::vec3);
 void generate_buffers(Buffer *, float, float);
 void clear_buffers(Buffer *);
 void set_vbo_buffer_data(Buffer *);
